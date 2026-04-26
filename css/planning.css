@@ -1,0 +1,230 @@
+/* ═══════════════════════════════════════════════════
+   planning.css — Barre du haut, grille de planning,
+                  créneaux, cartes repas, légende
+   ═══════════════════════════════════════════════════ */
+
+/* ─── Barre du haut ─── */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+  height: 50px;
+  background: var(--color-bg-card);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 1px 8px rgba(0,0,0,.4);
+}
+.topbar__title {
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: -.2px;
+  flex: 1;
+}
+
+/* ─── Zone de planning (colonne gauche) ─── */
+.planning-area {
+  padding: 14px 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.planning-area__inner {
+  width: 100%;
+  max-width: var(--planning-max-w);
+}
+
+/* ─── Légende des tags ─── */
+.tag-legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.tag-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Bloc d'un planning ─── */
+.planning-block { margin-bottom: 24px; width: 100%; }
+
+/* En-tête du planning : titre + boutons */
+.planning-block__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.planning-block__title {
+  font-family: var(--font-head);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  flex: 1;
+}
+
+/* ─── En-tête des colonnes (Midi / Soir) ─── */
+.planning-grid__col-headers {
+  display: grid;
+  grid-template-columns: 82px 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 3px;
+}
+.planning-grid__col-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* ─── Ligne d'un jour ─── */
+.planning-day-row {
+  display: grid;
+  grid-template-columns: 82px 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 4px;
+  align-items: stretch;
+}
+
+/* ─── Étiquette du jour (colonne gauche) ─── */
+.day-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 4px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: center;
+  gap: 1px;
+  min-height: 54px;
+}
+.day-label__name {
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.day-label__date { font-size: 10px; color: var(--color-text-muted); }
+
+/* Aujourd'hui mis en avant */
+.day-label--today {
+  background: color-mix(in srgb, var(--color-accent-dim) 60%, var(--color-bg-card));
+  border-color: var(--color-accent-border);
+}
+.day-label--today .day-label__name { color: var(--color-accent); }
+.day-label--today .day-label__date { color: var(--color-accent-border); }
+
+/* ─── Créneau de repas (cliquable / droppable) ─── */
+.meal-slot {
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  min-height: 54px;
+  padding: 5px 6px;
+  cursor: pointer;
+  transition: all .14s;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: var(--color-bg-subtle);
+}
+.meal-slot:hover { border-color: var(--color-accent); background: var(--color-accent-dim); }
+
+/* Créneau rempli (contient un plat) */
+.meal-slot--filled {
+  background: var(--color-bg-card);
+  border-style: solid;
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+.meal-slot--filled:hover { border-color: var(--color-accent); }
+
+/* Survol lors d'un drag-and-drop */
+.meal-slot--drag-over {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent-dim) !important;
+  box-shadow: 0 0 0 2px var(--color-accent-border);
+}
+
+/* ─── Créneau hors périmètre (fantôme, non interactif) ─── */
+.meal-slot--ghost {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  min-height: 54px;
+  padding: 5px 6px;
+  background: var(--color-bg-page);
+  opacity: .2;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  pointer-events: none;
+}
+
+/* Libellé Midi / Soir dans un créneau */
+.meal-slot__type-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+.meal-slot--midi .meal-slot__type-label,
+.meal-slot--ghost.meal-slot--midi .meal-slot__type-label { color: var(--color-midi-text); }
+.meal-slot--soir .meal-slot__type-label,
+.meal-slot--ghost.meal-slot--soir .meal-slot__type-label { color: var(--color-soir-text); }
+
+/* Texte d'invite quand le créneau est vide */
+.meal-slot__empty-hint { font-size: 11px; color: var(--color-text-muted); margin-top: 1px; }
+
+/* ─── Carte d'un repas planifié (dans un créneau rempli) ─── */
+.meal-card {
+  background: var(--color-bg-card-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 5px 7px;
+  cursor: grab;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  transition: border-color .12s;
+}
+.meal-card:hover   { border-color: var(--color-accent); }
+.meal-card:active  { cursor: grabbing; }
+.meal-card--dragging { opacity: .25; }
+
+.meal-card__name {
+  font-size: 12px;
+  font-weight: 500;
+  flex: 1;
+  color: var(--color-text-primary);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.meal-card__tags { display: flex; gap: 3px; flex-shrink: 0; flex-wrap: wrap; }
+
+/* Bouton de retrait du plat d'un créneau */
+.meal-card__remove-btn {
+  width: 15px; height: 15px;
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  flex-shrink: 0;
+  transition: all .1s;
+}
+.meal-card__remove-btn:hover { background: var(--color-danger-dim); color: var(--color-danger); }

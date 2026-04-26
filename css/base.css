@@ -1,0 +1,122 @@
+/* ═══════════════════════════════════════════════════
+   base.css — Variables CSS, reset, structure de page
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  /* ── Arrière-plans ── */
+  --color-bg-page:       #181c20;   /* fond de la page */
+  --color-bg-subtle:     #1e2228;   /* fond légèrement plus clair */
+  --color-bg-card:       #252b34;   /* cartes, panneaux */
+  --color-bg-card-alt:   #2c3340;   /* variante carte */
+
+  /* ── Bordures ── */
+  --color-border:        #333d4a;
+  --color-border-strong: #445060;
+
+  /* ── Texte ── */
+  --color-text-primary:  #dce4f0;
+  --color-text-secondary:#7d8fa8;
+  --color-text-muted:    #3f4f64;
+
+  /* ── Accent principal : vert sauge ── */
+  --color-accent:        #5aab7a;
+  --color-accent-dim:    #1a3326;
+  --color-accent-border: #2a5c40;
+
+  /* ── Accent secondaire : or doux ── */
+  --color-gold:          #c9943a;
+  --color-gold-dim:      #2a1e08;
+  --color-gold-border:   #5a3c10;
+
+  /* ── Danger / suppression ── */
+  --color-danger:        #d96060;
+  --color-danger-dim:    #2a0f0f;
+  --color-danger-border: #5a2020;
+
+  /* ── Tags : créneau midi ── */
+  --color-midi-text:     #5bc0de;
+  --color-midi-bg:       #0d2535;
+
+  /* ── Tags : créneau soir ── */
+  --color-soir-text:     #9b7fe8;
+  --color-soir-bg:       #1a1035;
+
+  /* ── Tags : double portion ── */
+  --color-double-text:   #5aab7a;
+  --color-double-bg:     #0e2a1a;
+
+  /* ── Tags : portions P1 / P2 ── */
+  --color-p1-text:       #60c890;
+  --color-p1-bg:         #0c2818;
+  --color-p1-border:     #1a5038;
+  --color-p2-text:       #d4a040;
+  --color-p2-bg:         #2a1e08;
+  --color-p2-border:     #7a5010;
+
+  /* ── Rayons ── */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   16px;
+
+  /* ── Ombres ── */
+  --shadow-sm:   0 1px 4px rgba(0,0,0,.5);
+  --shadow-lg:   0 16px 48px rgba(0,0,0,.75);
+
+  /* ── Typographie ── */
+  --font-body:   'Inter', system-ui, sans-serif;
+  --font-head:   'Sora', system-ui, sans-serif;
+
+  /* ── Dimensions globales ── */
+  --sidebar-width:   520px;
+  --planning-max-w: 1000px;
+}
+
+/* ─── Reset minimal ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden; /* scrolling géré par les zones enfants */
+}
+
+/* ─── Structure principale : barre + corps ─── */
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+}
+
+/* Corps = zone planning + sidebar côte à côte */
+.app__body {
+  display: grid;
+  grid-template-columns: 1fr var(--sidebar-width);
+  min-height: 0; /* nécessaire pour que overflow fonctionne */
+}
+
+/* ─── Scrollbar discrète ─── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 10px; }
+
+/* ─── Indicateur de sauvegarde ─── */
+.save-indicator {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  padding: 6px 12px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+  z-index: 500;
+}
+.save-indicator--visible { opacity: 1; }
