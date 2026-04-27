@@ -27,6 +27,7 @@ const App = (() => {
     const toggleBtn = document.getElementById('btn-toggle-sidebar');
     const sidebar   = document.getElementById('sidebar');
     if (toggleBtn && sidebar) {
+      if (window.innerWidth <= 900) sidebar.classList.add('sidebar-hidden');
       toggleBtn.addEventListener('click', () => {
         const hidden = sidebar.classList.toggle('sidebar-hidden');
         toggleBtn.title = hidden ? 'Afficher les plats' : 'Masquer les plats';

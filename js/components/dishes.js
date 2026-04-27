@@ -169,7 +169,7 @@ const Dishes = (() => {
       container.innerHTML = '<p style="color:var(--ink-faint);font-size:.85rem;">Aucun plat créé.</p>';
       return;
     }
-    container.innerHTML = list.map(d => `
+    container.innerHTML = [...list].sort((a, b) => a.name.localeCompare(b.name, 'fr')).map(d => `
       <div class="existing-dish-row">
         <span class="existing-dish-name">${d.name}</span>
         <div class="existing-dish-meta">

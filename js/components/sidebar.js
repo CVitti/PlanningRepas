@@ -30,7 +30,7 @@ const Sidebar = (() => {
     if (!container) return;
 
     const all      = Dishes.getAll();
-    const filtered = filterDishes(all);
+    const filtered = filterDishes(all).slice().sort((a, b) => a.name.localeCompare(b.name, 'fr'));
 
     if (!filtered.length) {
       container.innerHTML = `

@@ -51,20 +51,24 @@ const Ingredients = (() => {
       container.innerHTML = '<p style="color:var(--ink-faint);font-size:.83rem;padding:10px 0;">Aucun ingredient. Ajoutez-en un ci-dessus.</p>';
       return;
     }
-    container.innerHTML = list.map(ing =>
-      '<div class="ingredient-row" data-id="' + ing.id + '">' +
-        '<span class="ingredient-row-name">' + ing.name + '</span>' +
-        '<span class="ingredient-row-unit">' + ing.unit + '</span>' +
-        '<button class="btn btn-danger btn-sm" onclick="Ingredients.remove(\'' + ing.id + '\')">✕</button>' +
-      '</div>'
-    ).join('');
+    container.innerHTML = [...list]
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+      .map(ing =>
+        '<div class="ingredient-row" data-id="' + ing.id + '">' +
+          '<span class="ingredient-row-name">' + ing.name + '</span>' +
+          '<span class="ingredient-row-unit">' + ing.unit + '</span>' +
+          '<button class="btn btn-danger btn-sm" onclick="Ingredients.remove(\'' + ing.id + '\')">✕</button>' +
+        '</div>'
+      ).join('');
   }
 
   function populateDishSelect() {
     const sel = document.getElementById('ing-select');
     if (!sel) return;
     sel.innerHTML = '<option value="">— Choisir un ingredient —</option>' +
-      list.map(i => '<option value="' + i.id + '">' + i.name + ' (' + i.unit + ')</option>').join('');
+      [...list]
+        .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+        .map(i => '<option value="' + i.id + '">' + i.name + ' (' + i.unit + ')</option>').join('');
   }
 
   function initForm() {

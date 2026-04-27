@@ -4,24 +4,24 @@
 
 :root {
   /* Palette — dark neutral */
-  --bg:           #0a0a0a;
-  --bg-card:      #111111;
-  --bg-card-alt:  #1a1a1a;
-  --bg-raised:    #222222;
+  --bg:           #161616;
+  --bg-card:      #1e1e1e;
+  --bg-card-alt:  #252525;
+  --bg-raised:    #2e2e2e;
   --ink:          #eeeeee;
-  --ink-muted:    #888888;
-  --ink-faint:    #444444;
+  --ink-muted:    #909090;
+  --ink-faint:    #555555;
   --accent:       #7b9ef8;
   --accent-hover: #6388f0;
   --accent-warm:  #f0943c;
   --accent-green: #3dba80;
   --accent-blue:  #58a8e0;
   --accent-red:   #e05c3a;
-  --border:       #282828;
-  --border-light: #1c1c1c;
-  --shadow-sm:    0 1px 4px rgba(0,0,0,.6);
-  --shadow-md:    0 4px 20px rgba(0,0,0,.7);
-  --shadow-lg:    0 16px 48px rgba(0,0,0,.85);
+  --border:       #383838;
+  --border-light: #2a2a2a;
+  --shadow-sm:    0 1px 4px rgba(0,0,0,.5);
+  --shadow-md:    0 4px 20px rgba(0,0,0,.6);
+  --shadow-lg:    0 16px 48px rgba(0,0,0,.75);
 
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body:    'DM Sans', sans-serif;
@@ -83,8 +83,12 @@ em { font-style: italic; }
 /* ── Layout ── */
 .app-layout {
   position: relative; z-index: 1;
-  display: grid; grid-template-columns: 1fr 268px;
-  height: calc(100vh - 49px); overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 16px 24px 32px;
+  min-height: calc(100vh - 49px);
 }
 
 /* ── Buttons ── */
@@ -179,22 +183,13 @@ select.input option { background: var(--bg-card); }
   #btn-dishes { font-size: .74rem; padding: 5px 9px; }
 }
 
-/* Tablet */
+/* Mobile */
 @media (max-width: 900px) {
   .app-layout {
-    grid-template-columns: 1fr;
-    height: auto;
-    overflow: visible;
-  }
-  .planning-section {
-    height: auto;
-    overflow: visible;
-  }
-  .sidebar {
-    border-left: none;
-    border-top: 1px solid var(--border);
-    height: auto;
-    max-height: 360px;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 12px 24px;
+    gap: 16px;
   }
   .sidebar.sidebar-hidden { display: none !important; }
 }
