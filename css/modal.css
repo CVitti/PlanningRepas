@@ -168,13 +168,20 @@
 
 .qty-value {
   min-width: 38px;
+  width: 52px;
   text-align: center;
   font-size: .8rem;
   font-weight: 500;
   padding: 0 3px;
   color: var(--ink);
   background: var(--bg-card);
+  border: none;
+  outline: none;
+  font-family: var(--font-body);
+  -moz-appearance: textfield;
 }
+.qty-value::-webkit-outer-spin-button,
+.qty-value::-webkit-inner-spin-button { opacity: 0; width: 0; }
 
 .qty-unit {
   font-size: .7rem;

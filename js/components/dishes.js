@@ -86,9 +86,16 @@ const Dishes = (() => {
   function changeQty(ingId, delta) {
     const item = formIngredients.find(i => i.id === ingId);
     if (!item) return;
+    const input = document.querySelector(`.qty-value[data-id="${ingId}"]`);
+    if (input) item.qty = parseFloat(input.value) || item.qty;
     const step = Ingredients.getStep();
     item.qty = Math.max(step, parseFloat((item.qty + delta).toFixed(2)));
     renderFormIngredients();
+  }
+
+  function setQty(ingId, val) {
+    const item = formIngredients.find(i => i.id === ingId);
+    if (item) item.qty = parseFloat(val) || item.qty;
   }
 
   function renderFormIngredients() {
@@ -106,7 +113,7 @@ const Dishes = (() => {
           <span class="dish-ing-name">${ing.name}</span>
           <div class="qty-control">
             <button class="qty-btn" onclick="Dishes._qtyDown('${ing.id}')">−</button>
-            <span class="qty-value">${item.qty}</span>
+            <input type="number" class="qty-value" data-id="${ing.id}" value="${item.qty}" min="0.5" step="0.5" oninput="Dishes._setQty('${ing.id}', this.value)">
             <span class="qty-unit">${ing.unit}</span>
             <button class="qty-btn" onclick="Dishes._qtyUp('${ing.id}')">+</button>
           </div>
@@ -170,8 +177,9 @@ const Dishes = (() => {
   return {
     init, load, getAll, getById, add, remove, slotLabel, slotClass,
     renderExisting,
-    _qtyUp:              (id) => { changeQty(id, Ingredients.getById(id)?.step || 0.5); },
-    _qtyDown:            (id) => { changeQty(id, -(Ingredients.getById(id)?.step || 0.5)); },
+    _qtyUp:              (id) => { changeQty(id,  Ingredients.getStep()); },
+    _qtyDown:            (id) => { changeQty(id, -Ingredients.getStep()); },
+    _setQty:             (id, val) => { setQty(id, val); },
     _removeIngFromForm:  (id) => { removeIngFromForm(id); },
   };
 })();
