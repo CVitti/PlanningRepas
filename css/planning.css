@@ -74,29 +74,20 @@
   flex: 1;
 }
 
-/* ─── En-tête des colonnes (Midi / Soir) ─── */
-.planning-grid__col-headers {
-  display: grid;
-  grid-template-columns: 82px 1fr 1fr;
-  gap: 4px;
-  margin-bottom: 3px;
-}
-.planning-grid__col-label {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .7px;
-  color: var(--color-text-muted);
-  text-align: center;
-}
-
 /* ─── Ligne d'un jour ─── */
 .planning-day-row {
   display: grid;
-  grid-template-columns: 82px 1fr 1fr;
+  grid-template-columns: 82px 1fr;
   gap: 4px;
   margin-bottom: 4px;
   align-items: stretch;
+}
+
+/* Créneaux midi/soir empilés verticalement */
+.planning-day-row__slots {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 /* ─── Étiquette du jour (colonne gauche) ─── */

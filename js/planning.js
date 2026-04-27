@@ -110,22 +110,11 @@ const Planning = {
   // ─── Construction de la grille ────────────────────────────────
 
   /**
-   * Construit la grille complète : en-tête colonnes + ligne par jour.
+   * Construit la grille complète : une ligne par jour, créneaux empilés verticalement.
    */
   _buildGrid(planning, planningIndex) {
     const wrapper = document.createElement('div');
 
-    // En-tête des colonnes
-    const colHeaders = document.createElement('div');
-    colHeaders.className = 'planning-grid__col-headers';
-    colHeaders.innerHTML = `
-      <div></div>
-      <div class="planning-grid__col-label">☀ Midi</div>
-      <div class="planning-grid__col-label">🌙 Soir</div>
-    `;
-    wrapper.appendChild(colHeaders);
-
-    // Une ligne par jour
     const days = buildWeekDays(new Date(planning.startFri));
     days.forEach((day, dayIndex) => {
       wrapper.appendChild(this._buildDayRow(day, dayIndex, planning, planningIndex));
@@ -135,7 +124,7 @@ const Planning = {
   },
 
   /**
-   * Construit une ligne de jour : étiquette + créneau midi + créneau soir.
+   * Construit une ligne de jour : étiquette à gauche + créneaux midi/soir empilés à droite.
    */
   _buildDayRow(day, dayIndex, planning, planningIndex) {
     const row = document.createElement('div');
@@ -150,19 +139,22 @@ const Planning = {
     `;
     row.appendChild(label);
 
-    // Créneau midi puis créneau soir
+    // Créneaux midi et soir empilés verticalement
+    const slotsWrapper = document.createElement('div');
+    slotsWrapper.className = 'planning-day-row__slots';
+
     ['midi', 'soir'].forEach(slotType => {
       if (!day.slotTypes.includes(slotType)) {
-        // Créneau hors périmètre : affichage fantôme non interactif
-        row.appendChild(this._buildGhostSlot(slotType));
+        slotsWrapper.appendChild(this._buildGhostSlot(slotType));
       } else {
         const slotKey = `${dayIndex}-${slotType}`;
         const dishId  = planning.slots[slotKey];
         const dish    = dishId ? AppState.getDish(dishId) : null;
-        row.appendChild(this._buildSlot(dish, slotKey, slotType, planningIndex));
+        slotsWrapper.appendChild(this._buildSlot(dish, slotKey, slotType, planningIndex));
       }
     });
 
+    row.appendChild(slotsWrapper);
     return row;
   },
 
