@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════════════
+﻿/* ═══════════════════════════════════════════════════════════
    js/components/planning.js
    ═══════════════════════════════════════════════════════════ */
 
@@ -170,7 +170,7 @@ const Planning = (() => {
     card.className = 'meal-card meal-card-free';
     card.innerHTML =
       '<div class="meal-card-name free-label">\u2728 Repas libre</div>' +
-      '<button class="meal-card-remove" title="Retirer">✕</button>';
+      '<button class="meal-card-remove" title="Retirer">\u2715</button>';
 
     card.querySelector('.meal-card-remove').addEventListener('click', e => {
       e.stopPropagation();
