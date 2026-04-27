@@ -48,6 +48,23 @@ const Planning = (() => {
     save();
   }
 
+  /* ── Portion index for double dishes ── */
+  function getPortionIndex(dishId, dateKey, slot) {
+    const dish = Dishes.getById(dishId);
+    if (!dish || !dish.double) return null;
+
+    const placements = [];
+    Object.keys(planningData).sort().forEach(dk => {
+      ['midi', 'soir'].forEach(s => {
+        if (planningData[dk]?.[s] === dishId) placements.push({ dk, s });
+      });
+    });
+
+    if (placements.length < 2) return null;
+    const idx = placements.findIndex(p => p.dk === dateKey && p.s === slot);
+    return idx === -1 ? null : idx + 1;
+  }
+
   function clearCurrentWeek() {
     days.forEach(d => { clearSlot(d.key, 'midi'); clearSlot(d.key, 'soir'); });
     render();
@@ -188,8 +205,14 @@ const Planning = (() => {
     badges.className = 'meal-card-badges';
     if (dish.double) {
       const b = document.createElement('span');
-      b.className = 'badge badge-double';
-      b.textContent = '\xd72 portions';
+      const portionIdx = getPortionIndex(dishId, dateKey, slot);
+      if (portionIdx !== null) {
+        b.className = 'badge badge-portion';
+        b.textContent = 'P' + portionIdx;
+      } else {
+        b.className = 'badge badge-double';
+        b.textContent = '\xd72 portions';
+      }
       badges.appendChild(b);
     }
 

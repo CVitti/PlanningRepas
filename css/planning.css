@@ -151,6 +151,11 @@
   background: rgba(232,146,74,.13); color: var(--accent-warm);
   border: 1px solid rgba(232,146,74,.26);
 }
+.badge-portion {
+  background: rgba(232,146,74,.22); color: var(--accent-warm);
+  border: 1px solid rgba(232,146,74,.5);
+  font-weight: 700; letter-spacing: .03em;
+}
 
 /* ── Remove button — full-height right strip ── */
 .meal-card-remove {
