@@ -187,6 +187,7 @@ select.input option { background: var(--bg-card); }
 @media (max-width: 900px) {
   .app-layout {
     flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
     padding: 12px 12px 24px;
     gap: 16px;
