@@ -74,9 +74,13 @@ const Planning = (() => {
   function updateLabel() {
     const el = document.getElementById('week-label');
     if (el) el.textContent = Dates.formatWeekRange(Dates.getPlanningDays(weekOffset));
-    document.getElementById('btn-prev-week')    ?.classList.toggle('active', weekOffset === -1);
-    document.getElementById('btn-week-current') ?.classList.toggle('active', weekOffset ===  0);
-    document.getElementById('btn-next-week')    ?.classList.toggle('active', weekOffset ===  1);
+    const show = (id, visible) => {
+      const btn = document.getElementById(id);
+      if (btn) btn.style.display = visible ? '' : 'none';
+    };
+    show('btn-prev-week',    weekOffset !== -1);
+    show('btn-week-current', weekOffset !==  0);
+    show('btn-next-week',    weekOffset !==  1);
   }
 
   /* ── Slot compatibility ── */

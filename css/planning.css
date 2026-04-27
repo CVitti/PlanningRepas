@@ -31,7 +31,7 @@
 /* ── Day row ── */
 .day-column {
   display: grid;
-  grid-template-columns: 72px 1fr 1fr;
+  grid-template-columns: 72px 220px 220px;
   gap: 5px;
   align-items: stretch;
   min-width: 0;
@@ -67,7 +67,7 @@
   transition: border-color var(--tr), background var(--tr);
   min-height: 62px;
 }
-.meal-slot.past { background: rgba(8,10,18,.65); }
+.meal-slot.past { background: rgba(0,0,0,.5); }
 .meal-slot.past .meal-slot-label { opacity: .45; }
 .meal-slot.locked {
   background: rgba(255,255,255,.012);
@@ -135,7 +135,7 @@
 .meal-card.is-dragging { opacity: .25; cursor: grabbing; }
 
 .meal-slot.past .meal-card {
-  background: rgba(16,18,30,.75);
+  background: rgba(20,20,20,.75);
   border-color: var(--border-light); opacity: .55;
 }
 
@@ -188,10 +188,10 @@
 
 /* Weekend tint */
 .day-column.weekend .meal-slot:not(.locked) {
-  background: linear-gradient(150deg, var(--bg-card) 0%, rgba(22,26,44,.9) 100%);
+  background: rgba(255,255,255,.015);
 }
 .day-column.weekend .meal-slot.past {
-  background: rgba(6,8,16,.7);
+  background: rgba(0,0,0,.4);
 }
 
 /* ═══════════════════════════════
@@ -204,4 +204,8 @@
   .day-date { font-size: .9rem; }
   .meal-card-name { font-size: .72rem; }
   .btn-free-meal { display: none; }
+}
+
+@media (max-width: 900px) {
+  .day-column { grid-template-columns: 64px 1fr 1fr; }
 }

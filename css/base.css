@@ -3,25 +3,25 @@
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* Palette */
-  --bg:           #0d1117;
-  --bg-card:      #161b24;
-  --bg-card-alt:  #1c2333;
-  --bg-raised:    #1f2740;
-  --ink:          #dce3f0;
-  --ink-muted:    #7a88a8;
-  --ink-faint:    #3a4560;
-  --accent:       #6c8ef5;        /* bleu-violet */
-  --accent-hover: #5578e8;
-  --accent-warm:  #e8924a;
-  --accent-green: #4caf82;
-  --accent-blue:  #5b9fd4;
+  /* Palette — dark neutral */
+  --bg:           #0a0a0a;
+  --bg-card:      #111111;
+  --bg-card-alt:  #1a1a1a;
+  --bg-raised:    #222222;
+  --ink:          #eeeeee;
+  --ink-muted:    #888888;
+  --ink-faint:    #444444;
+  --accent:       #7b9ef8;
+  --accent-hover: #6388f0;
+  --accent-warm:  #f0943c;
+  --accent-green: #3dba80;
+  --accent-blue:  #58a8e0;
   --accent-red:   #e05c3a;
-  --border:       #242d42;
-  --border-light: #1a2235;
-  --shadow-sm:    0 1px 4px rgba(0,0,0,.4);
-  --shadow-md:    0 4px 20px rgba(0,0,0,.5);
-  --shadow-lg:    0 16px 48px rgba(0,0,0,.65);
+  --border:       #282828;
+  --border-light: #1c1c1c;
+  --shadow-sm:    0 1px 4px rgba(0,0,0,.6);
+  --shadow-md:    0 4px 20px rgba(0,0,0,.7);
+  --shadow-lg:    0 16px 48px rgba(0,0,0,.85);
 
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body:    'DM Sans', sans-serif;
@@ -48,8 +48,8 @@ body::before {
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(108,142,245,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(108,142,245,.03) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
   background-size: 40px 40px;
   pointer-events: none;
   z-index: 0;
@@ -101,7 +101,6 @@ em { font-style: italic; }
 
 .btn-ghost { background: transparent; color: var(--ink-muted); border-color: var(--border); }
 .btn-ghost:hover { background: var(--bg-raised); color: var(--ink); }
-.btn-ghost.active { background: var(--bg-raised); color: var(--ink); border-color: var(--accent); font-weight: 600; }
 
 .btn-danger {
   background: transparent; color: var(--accent-red);
