@@ -3,7 +3,7 @@
    ═══════════════════════════════════════════════════════════ */
 
 .sidebar {
-  flex: 0 0 340px;
+  flex: 0 0 22rem;
   position: sticky;
   top: 65px;
   max-height: calc(100vh - 80px);
@@ -91,7 +91,7 @@
 .dish-item.dragging { opacity: .35; transform: scale(.97); }
 
 .dish-item-name {
-  font-size: .74rem;
+  font-size: .8rem;
   font-weight: 500;
   color: var(--ink);
   margin-bottom: 4px;
@@ -107,7 +107,7 @@
 }
 
 .slot-pill {
-  font-size: .58rem;
+  font-size: .65rem;
   padding: 1px 5px;
   border-radius: 99px;
   font-weight: 500;

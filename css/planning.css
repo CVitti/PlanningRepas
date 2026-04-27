@@ -30,7 +30,7 @@
 /* ── Day row ── */
 .day-column {
   display: grid;
-  grid-template-columns: 72px 220px 220px;
+  grid-template-columns: 4.8rem 15rem 15rem;
   gap: 5px;
   align-items: stretch;
   min-width: 0;
@@ -44,12 +44,12 @@
   align-items: center; justify-content: center;
 }
 .day-name {
-  display: block; font-size: .58rem; font-weight: 500;
+  display: block; font-size: .68rem; font-weight: 500;
   text-transform: uppercase; letter-spacing: .08em; color: var(--ink-muted);
 }
 .day-date {
   display: block; font-family: var(--font-display);
-  font-size: 1.1rem; font-weight: 700; color: var(--ink);
+  font-size: 1.15rem; font-weight: 700; color: var(--ink);
   line-height: 1; margin-top: 1px;
 }
 .day-header.today { background: var(--accent); border-color: var(--accent); }
@@ -79,7 +79,7 @@
 }
 
 .meal-slot-label {
-  font-size: .58rem; font-weight: 600;
+  font-size: .68rem; font-weight: 600;
   text-transform: uppercase; letter-spacing: .09em;
   color: var(--ink-faint);
   display: flex; align-items: center; gap: 3px; flex-shrink: 0;
@@ -99,10 +99,10 @@
   gap: 4px; padding: 2px;
 }
 .slot-hint span {
-  font-size: .6rem; color: var(--ink-faint); text-align: center;
+  font-size: .7rem; color: var(--ink-faint); text-align: center;
 }
 .btn-free-meal {
-  font-size: .6rem; font-family: var(--font-body); font-weight: 500;
+  font-size: .7rem; font-family: var(--font-body); font-weight: 500;
   padding: 2px 6px;
   border: 1px dashed var(--ink-faint); border-radius: 99px;
   background: transparent; color: var(--ink-faint); cursor: pointer;
@@ -148,12 +148,12 @@
 .free-label { color: var(--accent-green) !important; font-style: italic; }
 
 .meal-card-name {
-  font-size: .76rem; font-weight: 500;
+  font-size: .82rem; font-weight: 500;
   color: var(--ink); line-height: 1.25; word-break: break-word;
 }
 
 .meal-card-badges { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 2px; }
-.badge { font-size: .58rem; padding: 1px 5px; border-radius: 99px; font-weight: 500; }
+.badge { font-size: .65rem; padding: 1px 5px; border-radius: 99px; font-weight: 500; }
 .badge-double {
   background: rgba(232,146,74,.13); color: var(--accent-warm);
   border: 1px solid rgba(232,146,74,.26);
@@ -197,14 +197,11 @@
    RESPONSIVE
    ═══════════════════════════════ */
 
-@media (max-width: 600px) {
-  .planning-section { padding: 10px; }
-  .day-column { grid-template-columns: 58px 1fr 1fr; gap: 4px; }
-  .day-date { font-size: .9rem; }
-  .meal-card-name { font-size: .72rem; }
-  .btn-free-meal { display: none; }
+@media (max-width: 900px) {
+  .day-column { grid-template-columns: 4rem 1fr 1fr; }
 }
 
-@media (max-width: 900px) {
-  .day-column { grid-template-columns: 64px 1fr 1fr; }
+@media (max-width: 600px) {
+  .day-column { grid-template-columns: 3.6rem 1fr 1fr; gap: 4px; }
+  .btn-free-meal { display: none; }
 }

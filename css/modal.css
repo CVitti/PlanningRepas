@@ -101,7 +101,7 @@
 .ingredient-row-name { flex: 1; font-size: .85rem; font-weight: 500; }
 
 .ingredient-row-unit {
-  font-size: .74rem;
+  font-size: .78rem;
   color: var(--ink-muted);
   background: var(--bg-raised);
   padding: 2px 7px;
@@ -110,7 +110,7 @@
 }
 
 .ingredient-row-step {
-  font-size: .7rem;
+  font-size: .75rem;
   color: var(--ink-faint);
 }
 
@@ -241,7 +241,7 @@
 }
 
 .ingredient-table th {
-  font-size: .7rem;
+  font-size: .75rem;
   text-transform: uppercase;
   letter-spacing: .07em;
   color: var(--ink-muted);
