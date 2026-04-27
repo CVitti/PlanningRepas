@@ -35,8 +35,18 @@ const Planning = (() => {
   }
 
   /* ── Week navigation ── */
-  function goToNextWeek()    { weekOffset++; days = Dates.getPlanningDays(weekOffset); render(); updateLabel(); }
+  function goToPrevWeek()    { weekOffset = Math.max(-1, weekOffset - 1); days = Dates.getPlanningDays(weekOffset); render(); updateLabel(); }
+  function goToNextWeek()    { weekOffset = Math.min( 1, weekOffset + 1); days = Dates.getPlanningDays(weekOffset); render(); updateLabel(); }
   function goToCurrentWeek() { weekOffset = 0; days = Dates.getPlanningDays(0); render(); updateLabel(); }
+
+  /* ── Purge S-2 and older at startup ── */
+  function purgeOldWeeks() {
+    const cutoff = Dates.formatKey(Dates.addDays(Dates.getStartFriday(), -7));
+    Object.keys(planningData).forEach(key => {
+      if (key < cutoff) delete planningData[key];
+    });
+    save();
+  }
 
   function clearCurrentWeek() {
     days.forEach(d => { clearSlot(d.key, 'midi'); clearSlot(d.key, 'soir'); });
@@ -47,8 +57,9 @@ const Planning = (() => {
   function updateLabel() {
     const el = document.getElementById('week-label');
     if (el) el.textContent = Dates.formatWeekRange(Dates.getPlanningDays(weekOffset));
-    const btn = document.getElementById('btn-week-current');
-    if (btn) btn.style.display = weekOffset > 0 ? 'inline-flex' : 'none';
+    document.getElementById('btn-prev-week')    ?.classList.toggle('active', weekOffset === -1);
+    document.getElementById('btn-week-current') ?.classList.toggle('active', weekOffset ===  0);
+    document.getElementById('btn-next-week')    ?.classList.toggle('active', weekOffset ===  1);
   }
 
   /* ── Slot compatibility ── */
@@ -289,6 +300,7 @@ const Planning = (() => {
   /* ── Init ── */
   function init() {
     load();
+    purgeOldWeeks();
     render();
     updateLabel();
 
@@ -296,6 +308,7 @@ const Planning = (() => {
       ?.addEventListener('click', () => {
         if (confirm('Vider tous les repas du planning affiche ?')) clearCurrentWeek();
       });
+    document.getElementById('btn-prev-week')    ?.addEventListener('click', goToPrevWeek);
     document.getElementById('btn-next-week')    ?.addEventListener('click', goToNextWeek);
     document.getElementById('btn-week-current') ?.addEventListener('click', goToCurrentWeek);
   }

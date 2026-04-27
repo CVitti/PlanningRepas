@@ -101,6 +101,7 @@ em { font-style: italic; }
 
 .btn-ghost { background: transparent; color: var(--ink-muted); border-color: var(--border); }
 .btn-ghost:hover { background: var(--bg-raised); color: var(--ink); }
+.btn-ghost.active { background: var(--bg-raised); color: var(--ink); border-color: var(--accent); font-weight: 600; }
 
 .btn-danger {
   background: transparent; color: var(--accent-red);
