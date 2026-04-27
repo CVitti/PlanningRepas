@@ -5,8 +5,8 @@
 const Dishes = (() => {
 
   let list = [];
-  /* Temporary ingredient list being built in the form */
   let formIngredients = [];
+  let editingId = null;
 
   /* ── State ── */
   function load() { list = Storage.get('dishes', []); }
@@ -15,6 +15,44 @@ const Dishes = (() => {
   function getById(id) { return list.find(d => d.id === id) || null; }
 
   /* ── CRUD ── */
+  function update(id, name, slot, isDouble, ingredients) {
+    const dish = list.find(d => d.id === id);
+    if (!dish) return;
+    dish.name = name.trim();
+    dish.slot = slot;
+    dish.double = isDouble;
+    dish.ingredients = ingredients;
+    save();
+    renderExisting();
+    Sidebar.render();
+    Planning.render();
+    Toast.success(`Plat « ${dish.name} » mis à jour !`);
+  }
+
+  function startEdit(id) {
+    const dish = list.find(d => d.id === id);
+    if (!dish) return;
+    editingId = id;
+    document.getElementById('dish-name').value = dish.name;
+    const slotInput = document.querySelector(`input[name="dish-slot"][value="${dish.slot}"]`);
+    if (slotInput) slotInput.checked = true;
+    document.getElementById('dish-double').checked = dish.double;
+    formIngredients = dish.ingredients.map(i => ({ ...i }));
+    renderFormIngredients();
+    document.getElementById('btn-dish-submit').textContent = 'Mettre à jour';
+    document.getElementById('btn-cancel-edit').style.display = 'inline-flex';
+    document.getElementById('form-dish').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function cancelEdit() {
+    editingId = null;
+    document.getElementById('form-dish').reset();
+    formIngredients = [];
+    renderFormIngredients();
+    document.getElementById('btn-dish-submit').textContent = 'Enregistrer le plat';
+    document.getElementById('btn-cancel-edit').style.display = 'none';
+  }
+
   function add(name, slot, isDouble, ingredients) {
     if (!name.trim()) return null;
     const dish = {
@@ -137,6 +175,7 @@ const Dishes = (() => {
         <div class="existing-dish-meta">
           ${d.double ? '<span class="badge badge-double">×2</span>' : ''}
           <span class="slot-pill ${slotClass(d.slot)}">${slotLabel(d.slot)}</span>
+          <button class="btn btn-ghost btn-sm" onclick="Dishes._startEdit('${d.id}')">Modifier</button>
           <button class="btn btn-danger btn-sm" onclick="Dishes.remove('${d.id}')">Supprimer</button>
         </div>
       </div>
@@ -149,6 +188,7 @@ const Dishes = (() => {
     if (!form) return;
 
     document.getElementById('btn-add-ing').addEventListener('click', addIngToForm);
+    document.getElementById('btn-cancel-edit').addEventListener('click', cancelEdit);
 
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -158,12 +198,15 @@ const Dishes = (() => {
 
       if (!name.trim()) { Toast.error('Donnez un nom au plat.'); return; }
 
-      add(name, slot, isDouble, [...formIngredients]);
-
-      /* Reset form */
-      form.reset();
-      formIngredients = [];
-      renderFormIngredients();
+      if (editingId) {
+        update(editingId, name, slot, isDouble, [...formIngredients]);
+        cancelEdit();
+      } else {
+        add(name, slot, isDouble, [...formIngredients]);
+        form.reset();
+        formIngredients = [];
+        renderFormIngredients();
+      }
     });
   }
 
@@ -177,9 +220,10 @@ const Dishes = (() => {
   return {
     init, load, getAll, getById, add, remove, slotLabel, slotClass,
     renderExisting,
-    _qtyUp:              (id) => { changeQty(id,  Ingredients.getStep()); },
-    _qtyDown:            (id) => { changeQty(id, -Ingredients.getStep()); },
-    _setQty:             (id, val) => { setQty(id, val); },
-    _removeIngFromForm:  (id) => { removeIngFromForm(id); },
+    _qtyUp:             (id)      => { changeQty(id,  Ingredients.getStep()); },
+    _qtyDown:           (id)      => { changeQty(id, -Ingredients.getStep()); },
+    _setQty:            (id, val) => { setQty(id, val); },
+    _removeIngFromForm: (id)      => { removeIngFromForm(id); },
+    _startEdit:         (id)      => { startEdit(id); },
   };
 })();

@@ -23,18 +23,26 @@
 
 /* ── Grid ── */
 .planning-grid {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(88px, 1fr));
-  gap: 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-/* ── Day column ── */
-.day-column { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+/* ── Day row ── */
+.day-column {
+  display: grid;
+  grid-template-columns: 72px 1fr 1fr;
+  gap: 5px;
+  align-items: stretch;
+  min-width: 0;
+}
 
 .day-header {
-  text-align: center; padding: 6px 4px 5px;
+  text-align: center; padding: 6px 4px;
   background: var(--bg-card); border-radius: var(--r-md);
   border: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
 }
 .day-name {
   display: block; font-size: .58rem; font-weight: 500;
@@ -190,26 +198,10 @@
    RESPONSIVE
    ═══════════════════════════════ */
 
-/* Tablet: sidebar slides under */
-@media (max-width: 900px) {
-  .planning-grid {
-    grid-template-columns: repeat(8, minmax(76px, 1fr));
-    gap: 5px;
-  }
-  .day-date { font-size: .95rem; }
-}
-
-/* Mobile: vertical scroll, grid becomes scrollable row */
 @media (max-width: 600px) {
   .planning-section { padding: 10px; }
-
-  .planning-grid {
-    grid-template-columns: repeat(8, 82px);
-    gap: 5px;
-  }
-
-  .meal-card-name { font-size: .72rem; }
+  .day-column { grid-template-columns: 58px 1fr 1fr; gap: 4px; }
   .day-date { font-size: .9rem; }
-
-  .btn-free-meal { display: none; } /* space too tight on mobile */
+  .meal-card-name { font-size: .72rem; }
+  .btn-free-meal { display: none; }
 }
