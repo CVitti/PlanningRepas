@@ -54,7 +54,7 @@
 }
 .day-header.today { background: var(--accent); border-color: var(--accent); }
 .day-header.today .day-name,
-.day-header.today .day-date { color: #fff; }
+.day-header.today .day-date { color: var(--bg); }
 
 /* ── Meal slot ── */
 .meal-slot {
@@ -74,7 +74,7 @@
 }
 .meal-slot.drag-over {
   border-color: var(--accent);
-  background: rgba(108,142,245,.07);
+  background: rgba(170,184,245,.07);
   border-style: solid;
 }
 
@@ -110,7 +110,7 @@
 }
 .btn-free-meal:hover {
   border-color: var(--accent-green); color: var(--accent-green);
-  background: rgba(76,175,130,.08);
+  background: rgba(150,212,184,.08);
 }
 
 /* ── Meal card — compact ── */
@@ -140,11 +140,11 @@
 
 /* Free card */
 .meal-card-free {
-  background: rgba(76,175,130,.05);
-  border-color: rgba(76,175,130,.22);
+  background: rgba(150,212,184,.06);
+  border-color: rgba(150,212,184,.25);
   border-style: dashed; cursor: default; padding: 5px 28px 5px 7px;
 }
-.meal-card-free:hover { border-color: rgba(76,175,130,.45); }
+.meal-card-free:hover { border-color: rgba(150,212,184,.5); }
 .free-label { color: var(--accent-green) !important; font-style: italic; }
 
 .meal-card-name {
@@ -155,12 +155,12 @@
 .meal-card-badges { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 2px; }
 .badge { font-size: .65rem; padding: 1px 5px; border-radius: 99px; font-weight: 500; }
 .badge-double {
-  background: rgba(232,146,74,.13); color: var(--accent-warm);
-  border: 1px solid rgba(232,146,74,.26);
+  background: rgba(245,201,160,.13); color: var(--accent-warm);
+  border: 1px solid rgba(245,201,160,.3);
 }
 .badge-portion {
-  background: rgba(232,146,74,.22); color: var(--accent-warm);
-  border: 1px solid rgba(232,146,74,.5);
+  background: rgba(245,201,160,.22); color: var(--accent-warm);
+  border: 1px solid rgba(245,201,160,.5);
   font-weight: 700; letter-spacing: .03em;
 }
 
@@ -187,10 +187,10 @@
 
 /* Weekend tint */
 .day-column.weekend .meal-slot:not(.locked) {
-  background: rgba(255,255,255,.015);
+  background: rgba(170,184,245,.03);
 }
 .day-column.weekend .meal-slot.past {
-  background: rgba(0,0,0,.4);
+  background: rgba(0,0,0,.25);
 }
 
 /* ═══════════════════════════════

@@ -5,7 +5,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.7);
+  background: rgba(0,0,0,.6);
   backdrop-filter: blur(6px);
   z-index: 500;
   display: flex;
@@ -62,7 +62,7 @@
 .modal-close:hover {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--bg);
 }
 
 .modal-title {

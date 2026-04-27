@@ -47,17 +47,17 @@
 .toast-msg  { flex: 1; line-height: 1.35; }
 
 .toast.success {
-  border-color: rgba(76,175,130,.4);
-  background: rgba(76,175,130,.1);
+  border-color: rgba(150,212,184,.4);
+  background: rgba(150,212,184,.1);
   color: var(--accent-green);
 }
 .toast.error {
-  border-color: rgba(224,92,58,.4);
-  background: rgba(224,92,58,.1);
-  color: var(--accent);
+  border-color: rgba(245,160,144,.4);
+  background: rgba(245,160,144,.1);
+  color: var(--accent-red);
 }
 .toast.info {
-  border-color: rgba(91,159,212,.4);
-  background: rgba(91,159,212,.1);
+  border-color: rgba(151,200,232,.4);
+  background: rgba(151,200,232,.1);
   color: var(--accent-blue);
 }
