@@ -1,122 +1,214 @@
-/* ═══════════════════════════════════════════════════
-   base.css — Variables CSS, reset, structure de page
-   ═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   BASE.CSS — Design system (dark mode)
+   ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Arrière-plans ── */
-  --color-bg-page:       #181c20;   /* fond de la page */
-  --color-bg-subtle:     #1e2228;   /* fond légèrement plus clair */
-  --color-bg-card:       #252b34;   /* cartes, panneaux */
-  --color-bg-card-alt:   #2c3340;   /* variante carte */
+  /* Palette */
+  --bg:           #0d1117;
+  --bg-card:      #161b24;
+  --bg-card-alt:  #1c2333;
+  --bg-raised:    #1f2740;
+  --ink:          #dce3f0;
+  --ink-muted:    #7a88a8;
+  --ink-faint:    #3a4560;
+  --accent:       #6c8ef5;        /* bleu-violet */
+  --accent-hover: #5578e8;
+  --accent-warm:  #e8924a;
+  --accent-green: #4caf82;
+  --accent-blue:  #5b9fd4;
+  --accent-red:   #e05c3a;
+  --border:       #242d42;
+  --border-light: #1a2235;
+  --shadow-sm:    0 1px 4px rgba(0,0,0,.4);
+  --shadow-md:    0 4px 20px rgba(0,0,0,.5);
+  --shadow-lg:    0 16px 48px rgba(0,0,0,.65);
 
-  /* ── Bordures ── */
-  --color-border:        #333d4a;
-  --color-border-strong: #445060;
-
-  /* ── Texte ── */
-  --color-text-primary:  #dce4f0;
-  --color-text-secondary:#7d8fa8;
-  --color-text-muted:    #3f4f64;
-
-  /* ── Accent principal : vert sauge ── */
-  --color-accent:        #5aab7a;
-  --color-accent-dim:    #1a3326;
-  --color-accent-border: #2a5c40;
-
-  /* ── Accent secondaire : or doux ── */
-  --color-gold:          #c9943a;
-  --color-gold-dim:      #2a1e08;
-  --color-gold-border:   #5a3c10;
-
-  /* ── Danger / suppression ── */
-  --color-danger:        #d96060;
-  --color-danger-dim:    #2a0f0f;
-  --color-danger-border: #5a2020;
-
-  /* ── Tags : créneau midi ── */
-  --color-midi-text:     #5bc0de;
-  --color-midi-bg:       #0d2535;
-
-  /* ── Tags : créneau soir ── */
-  --color-soir-text:     #9b7fe8;
-  --color-soir-bg:       #1a1035;
-
-  /* ── Tags : double portion ── */
-  --color-double-text:   #5aab7a;
-  --color-double-bg:     #0e2a1a;
-
-  /* ── Tags : portions P1 / P2 ── */
-  --color-p1-text:       #60c890;
-  --color-p1-bg:         #0c2818;
-  --color-p1-border:     #1a5038;
-  --color-p2-text:       #d4a040;
-  --color-p2-bg:         #2a1e08;
-  --color-p2-border:     #7a5010;
-
-  /* ── Rayons ── */
-  --radius-sm:   6px;
-  --radius-md:   10px;
-  --radius-lg:   16px;
-
-  /* ── Ombres ── */
-  --shadow-sm:   0 1px 4px rgba(0,0,0,.5);
-  --shadow-lg:   0 16px 48px rgba(0,0,0,.75);
-
-  /* ── Typographie ── */
-  --font-body:   'Inter', system-ui, sans-serif;
-  --font-head:   'Sora', system-ui, sans-serif;
-
-  /* ── Dimensions globales ── */
-  --sidebar-width:   520px;
-  --planning-max-w: 1000px;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', sans-serif;
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --tr: 150ms ease;
 }
 
-/* ─── Reset minimal ─── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
+html { font-size: 15px; }
 
 body {
+  background: var(--bg);
+  color: var(--ink);
   font-family: var(--font-body);
-  background: var(--color-bg-page);
-  color: var(--color-text-primary);
-  font-size: 14px;
-  line-height: 1.5;
-  overflow: hidden; /* scrolling géré par les zones enfants */
+  font-weight: 400;
+  line-height: 1.55;
+  min-height: 100vh;
 }
 
-/* ─── Structure principale : barre + corps ─── */
-.app {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  height: 100vh;
-}
-
-/* Corps = zone planning + sidebar côte à côte */
-.app__body {
-  display: grid;
-  grid-template-columns: 1fr var(--sidebar-width);
-  min-height: 0; /* nécessaire pour que overflow fonctionne */
-}
-
-/* ─── Scrollbar discrète ─── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 10px; }
-
-/* ─── Indicateur de sauvegarde ─── */
-.save-indicator {
+body::before {
+  content: '';
   position: fixed;
-  bottom: 16px;
-  right: 16px;
-  padding: 6px 12px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-size: 12px;
-  color: var(--color-text-secondary);
-  opacity: 0;
-  transition: opacity .3s;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(108,142,245,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(108,142,245,.03) 1px, transparent 1px);
+  background-size: 40px 40px;
   pointer-events: none;
-  z-index: 500;
+  z-index: 0;
 }
-.save-indicator--visible { opacity: 1; }
+
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; }
+em { font-style: italic; }
+
+/* ── Header ── */
+.app-header {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 22px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-left { display: flex; align-items: baseline; gap: 14px; }
+
+.app-title { font-size: 1.38rem; font-weight: 700; color: var(--ink); letter-spacing: -.01em; }
+.app-title em { color: var(--accent); font-weight: 400; }
+
+.week-label {
+  font-size: .74rem; color: var(--ink-muted);
+  font-weight: 300; letter-spacing: .05em; text-transform: uppercase;
+}
+
+.header-actions { display: flex; align-items: center; gap: 7px; }
+
+/* ── Layout ── */
+.app-layout {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: 1fr 268px;
+  height: calc(100vh - 49px); overflow: hidden;
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 13px;
+  border: 1px solid transparent; border-radius: var(--r-sm);
+  font-family: var(--font-body); font-size: .8rem; font-weight: 500;
+  cursor: pointer; transition: all var(--tr); white-space: nowrap;
+}
+
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+.btn-ghost { background: transparent; color: var(--ink-muted); border-color: var(--border); }
+.btn-ghost:hover { background: var(--bg-raised); color: var(--ink); }
+
+.btn-danger {
+  background: transparent; color: var(--accent-red);
+  border-color: transparent; padding: 4px 8px; font-size: .76rem;
+}
+.btn-danger:hover { background: rgba(224,92,58,.12); border-color: var(--accent-red); }
+
+.btn-sm { padding: 4px 9px; font-size: .74rem; }
+
+/* ── Inputs ── */
+.input {
+  width: 100%; padding: 7px 10px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-family: var(--font-body); font-size: .85rem; color: var(--ink);
+  transition: border-color var(--tr); outline: none;
+}
+.input:focus { border-color: var(--accent); }
+.input::placeholder { color: var(--ink-faint); }
+select.input option { background: var(--bg-card); }
+.select-unit { width: auto; min-width: 86px; cursor: pointer; }
+
+.label {
+  display: block; font-size: .7rem; font-weight: 500;
+  color: var(--ink-muted); text-transform: uppercase;
+  letter-spacing: .08em; margin-bottom: 5px;
+}
+
+.form-group { margin-bottom: 13px; }
+.form-row { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; margin-bottom: 13px; }
+.form-row .input { flex: 1; min-width: 110px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 13px; }
+.form-actions { display: flex; justify-content: flex-end; margin-top: 16px; }
+
+.radio-group { display: flex; flex-direction: column; gap: 6px; }
+.radio-label { display: flex; align-items: center; gap: 7px; font-size: .85rem; cursor: pointer; }
+.radio-label input { accent-color: var(--accent); }
+
+.checkbox-group { display: flex; align-items: center; }
+.checkbox-label { display: flex; align-items: center; gap: 7px; font-size: .85rem; cursor: pointer; }
+.checkbox-label input { accent-color: var(--accent); width: 14px; height: 14px; }
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+.section-subtitle {
+  font-family: var(--font-display); font-size: .95rem;
+  margin-bottom: 10px; color: var(--ink-muted);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+
+/* ── Responsive layout ── */
+
+/* Sidebar hidden state */
+.sidebar-hidden {
+  display: none !important;
+}
+
+/* Header compact on small screens */
+@media (max-width: 600px) {
+  .app-header {
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .app-title { font-size: 1.1rem; }
+  .week-label { display: none; }
+  .header-actions { gap: 5px; }
+  .btn-ghost:not(.btn-icon-only) .btn-text { display: none; }
+  /* Show only icon on very small screens for ingredient/dish buttons */
+  #btn-ingredients,
+  #btn-dishes { font-size: .74rem; padding: 5px 9px; }
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+  .planning-section {
+    height: auto;
+    overflow: visible;
+  }
+  .sidebar {
+    border-left: none;
+    border-top: 1px solid var(--border);
+    height: auto;
+    max-height: 360px;
+  }
+  .sidebar.sidebar-hidden { display: none !important; }
+}
+
+/* Form hint text */
+.form-hint {
+  font-size: .75rem;
+  color: var(--ink-faint);
+  margin: -8px 0 12px;
+  font-style: italic;
+}
+
+/* Icon-only button */
+.btn-icon-only {
+  padding: 6px 10px;
+  font-size: .9rem;
+}

@@ -1,0 +1,177 @@
+/* ═══════════════════════════════════════════════════════════
+   js/components/dishes.js — Dish CRUD & ingredient builder
+   ═══════════════════════════════════════════════════════════ */
+
+const Dishes = (() => {
+
+  let list = [];
+  /* Temporary ingredient list being built in the form */
+  let formIngredients = [];
+
+  /* ── State ── */
+  function load() { list = Storage.get('dishes', []); }
+  function save() { Storage.set('dishes', list); }
+  function getAll() { return list; }
+  function getById(id) { return list.find(d => d.id === id) || null; }
+
+  /* ── CRUD ── */
+  function add(name, slot, isDouble, ingredients) {
+    if (!name.trim()) return null;
+    const dish = {
+      id:          Dates.uid(),
+      name:        name.trim(),
+      slot,          // 'both' | 'midi' | 'soir'
+      double:      isDouble,
+      ingredients, // [{id, qty}]
+    };
+    list.push(dish);
+    save();
+    renderExisting();
+    Sidebar.render();
+    Toast.success(`Plat « ${dish.name} » créé !`);
+    return dish;
+  }
+
+  function remove(id) {
+    /* Remove from planning too */
+    const planning = Storage.get('planning', {});
+    Object.keys(planning).forEach(dateKey => {
+      ['midi', 'soir'].forEach(slot => {
+        if (planning[dateKey][slot] === id) {
+          delete planning[dateKey][slot];
+        }
+      });
+    });
+    Storage.set('planning', planning);
+
+    list = list.filter(d => d.id !== id);
+    save();
+    renderExisting();
+    Sidebar.render();
+    Planning.render();
+    Toast.info('Plat supprimé.');
+  }
+
+  /* ── Slot labels ── */
+  function slotLabel(slot) {
+    return slot === 'both' ? 'Midi & Soir' : slot === 'midi' ? 'Midi' : 'Soir';
+  }
+
+  function slotClass(slot) {
+    return slot === 'both' ? 'both' : slot;
+  }
+
+  /* ── Form: ingredient builder ── */
+  function addIngToForm() {
+    const sel   = document.getElementById('ing-select');
+    const ingId = sel.value;
+    if (!ingId) return;
+    const ing = Ingredients.getById(ingId);
+    if (!ing) return;
+    if (formIngredients.find(i => i.id === ingId)) {
+      Toast.error('Cet ingredient est deja dans la liste.');
+      return;
+    }
+    const step = Ingredients.getStep();
+    formIngredients.push({ id: ingId, qty: step });
+    renderFormIngredients();
+    sel.value = '';
+  }
+
+  function removeIngFromForm(ingId) {
+    formIngredients = formIngredients.filter(i => i.id !== ingId);
+    renderFormIngredients();
+  }
+
+  function changeQty(ingId, delta) {
+    const item = formIngredients.find(i => i.id === ingId);
+    if (!item) return;
+    const step = Ingredients.getStep();
+    item.qty = Math.max(step, parseFloat((item.qty + delta).toFixed(2)));
+    renderFormIngredients();
+  }
+
+  function renderFormIngredients() {
+    const container = document.getElementById('dish-ingredients');
+    if (!container) return;
+    if (!formIngredients.length) {
+      container.innerHTML = '<p style="color:var(--ink-faint);font-size:.8rem;padding:8px 0;">Aucun ingrédient sélectionné.</p>';
+      return;
+    }
+    container.innerHTML = formIngredients.map(item => {
+      const ing = Ingredients.getById(item.id);
+      if (!ing) return '';
+      return `
+        <div class="dish-ing-row">
+          <span class="dish-ing-name">${ing.name}</span>
+          <div class="qty-control">
+            <button class="qty-btn" onclick="Dishes._qtyDown('${ing.id}')">−</button>
+            <span class="qty-value">${item.qty}</span>
+            <span class="qty-unit">${ing.unit}</span>
+            <button class="qty-btn" onclick="Dishes._qtyUp('${ing.id}')">+</button>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="Dishes._removeIngFromForm('${ing.id}')">✕</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  /* ── Render existing dishes in modal ── */
+  function renderExisting() {
+    const container = document.getElementById('existing-dishes');
+    if (!container) return;
+    if (!list.length) {
+      container.innerHTML = '<p style="color:var(--ink-faint);font-size:.85rem;">Aucun plat créé.</p>';
+      return;
+    }
+    container.innerHTML = list.map(d => `
+      <div class="existing-dish-row">
+        <span class="existing-dish-name">${d.name}</span>
+        <div class="existing-dish-meta">
+          ${d.double ? '<span class="badge badge-double">×2</span>' : ''}
+          <span class="slot-pill ${slotClass(d.slot)}">${slotLabel(d.slot)}</span>
+          <button class="btn btn-danger btn-sm" onclick="Dishes.remove('${d.id}')">Supprimer</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ── Form submit ── */
+  function initForm() {
+    const form = document.getElementById('form-dish');
+    if (!form) return;
+
+    document.getElementById('btn-add-ing').addEventListener('click', addIngToForm);
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('dish-name').value;
+      const slot = document.querySelector('input[name="dish-slot"]:checked')?.value || 'both';
+      const isDouble = document.getElementById('dish-double').checked;
+
+      if (!name.trim()) { Toast.error('Donnez un nom au plat.'); return; }
+
+      add(name, slot, isDouble, [...formIngredients]);
+
+      /* Reset form */
+      form.reset();
+      formIngredients = [];
+      renderFormIngredients();
+    });
+  }
+
+  function init() {
+    load();
+    renderExisting();
+    initForm();
+  }
+
+  /* Exposed for inline onclick */
+  return {
+    init, load, getAll, getById, add, remove, slotLabel, slotClass,
+    renderExisting,
+    _qtyUp:              (id) => { changeQty(id, Ingredients.getById(id)?.step || 0.5); },
+    _qtyDown:            (id) => { changeQty(id, -(Ingredients.getById(id)?.step || 0.5)); },
+    _removeIngFromForm:  (id) => { removeIngFromForm(id); },
+  };
+})();

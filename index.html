@@ -1,246 +1,229 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Planning Repas</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/planning.css">
-  <link rel="stylesheet" href="css/sidebar.css">
-  <link rel="stylesheet" href="css/modals.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Menu · Semaine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/base.css"/>
+  <link rel="stylesheet" href="css/planning.css"/>
+  <link rel="stylesheet" href="css/sidebar.css"/>
+  <link rel="stylesheet" href="css/modal.css"/>
+  <link rel="stylesheet" href="css/toast.css"/>
+  <link rel="stylesheet" href="css/setup.css"/>
 </head>
 <body>
 
-<div class="app">
+  <div id="toast-container"></div>
 
-  <!-- ═══════════════════ BARRE DU HAUT ═══════════════════ -->
-  <header class="topbar">
-    <h1 class="topbar__title">🍽 Planning Repas</h1>
-  </header>
+  <!-- Boot loader -->
+  <div id="boot-loader">
+    <div class="boot-spinner"></div>
+    <span class="boot-label">Connexion au Gist…</span>
+  </div>
 
-  <!-- ═══════════════════ CORPS ═══════════════════ -->
-  <div class="app__body">
+  <!-- Setup screen -->
+  <div id="setup-screen">
+    <div class="setup-card">
+      <p class="setup-logo">Menu <em>de la semaine</em></p>
+      <p class="setup-subtitle">Configurez l'accès à votre Gist GitHub pour synchroniser vos données entre appareils.</p>
 
-    <!-- Zone principale : grille des plannings -->
-    <main class="planning-area">
-      <div class="planning-area__inner">
+      <div class="step-dots">
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+      </div>
 
-        <!-- Légende des tags -->
-        <div class="tag-legend">
-          <div class="tag-legend__item"><span class="tag tag--midi">☀ Midi</span> Midi seul.</div>
-          <div class="tag-legend__item"><span class="tag tag--soir">🌙 Soir</span> Soir seul.</div>
-          <div class="tag-legend__item"><span class="tag tag--double">×2</span> 2 portions</div>
-          <div class="tag-legend__item">
-            <span class="tag tag--portion-1">P1</span>
-            <span class="tag tag--portion-2" style="margin-left:3px">P2</span>
-            Portions liées
+      <div class="setup-step active">
+        <h2 class="setup-step-title">1 · Token GitHub</h2>
+        <p class="setup-step-desc">
+          Créez un token sur
+          <a href="https://github.com/settings/tokens/new?scopes=gist&description=meal-planner" target="_blank" rel="noopener">github.com/settings/tokens</a>
+          avec le scope <strong>gist</strong> uniquement.<br/>
+          Le token est stocké localement sur cet appareil, jamais envoyé ailleurs que GitHub.
+        </p>
+        <div class="token-input-group">
+          <input class="input" type="password" id="setup-token" placeholder="github_pat_…" autocomplete="off" spellcheck="false"/>
+          <button class="btn-icon" id="btn-toggle-token" title="Afficher/masquer">👁</button>
+        </div>
+        <p class="setup-error" id="token-error"></p>
+        <div class="setup-actions">
+          <button class="btn btn-primary" id="btn-validate-token">Valider →</button>
+        </div>
+      </div>
+
+      <div class="setup-step">
+        <h2 class="setup-step-title">2 · Votre Gist de données</h2>
+        <div class="user-confirm">
+          <img class="user-avatar" id="setup-avatar" src="" alt="avatar"/>
+          <span class="user-name" id="setup-username"></span>
+          <span class="user-check">✓ Connecté</span>
+        </div>
+        <p class="setup-step-desc">
+          Créez un nouveau Gist privé (recommandé pour la première fois) ou renseignez l'identifiant d'un Gist existant.
+        </p>
+        <div class="setup-actions">
+          <button class="btn btn-primary" id="btn-create-gist">✦ Créer un nouveau Gist</button>
+        </div>
+        <div class="or-divider">ou</div>
+        <div class="form-row" style="margin-bottom:8px">
+          <input class="input" type="text" id="existing-gist-id" placeholder="Identifiant du Gist existant (ex: a1b2c3d4…)" autocomplete="off" spellcheck="false"/>
+          <button class="btn btn-ghost" id="btn-use-existing">Utiliser ce Gist</button>
+        </div>
+        <p class="setup-error" id="gist-error"></p>
+      </div>
+
+      <div class="setup-step">
+        <h2 class="setup-step-title">3 · Prêt !</h2>
+        <p class="setup-step-desc">
+          Votre Gist a été créé. Notez cet identifiant pour le renseigner sur vos autres appareils.
+        </p>
+        <div class="gist-id-box">
+          <span class="gist-id-label">Gist ID</span>
+          <span class="gist-id-value" id="created-gist-id">—</span>
+          <button class="gist-id-copy" onclick="navigator.clipboard.writeText(document.getElementById('created-gist-id').textContent);this.textContent='Copié !';setTimeout(()=>this.textContent='Copier',1800);">Copier</button>
+        </div>
+        <div class="setup-actions">
+          <button class="btn btn-primary" id="btn-finish-setup">Accéder au planning →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App root -->
+  <div id="app-root">
+    <header class="app-header">
+      <div class="header-left">
+        <h1 class="app-title">Menu <em>de la semaine</em></h1>
+        <span class="week-label" id="week-label"></span>
+      </div>
+      <div class="header-actions">
+        <span class="sync-status" id="sync-status"></span>
+        <button class="btn btn-ghost btn-sm" id="btn-ingredients">⊕ Ingrédients</button>
+        <button class="btn btn-ghost btn-sm" id="btn-dishes">⊕ Plats</button>
+        <button class="btn btn-ghost btn-sm btn-icon-only" id="btn-toggle-sidebar" title="Afficher/masquer les plats" aria-label="Plats">☰</button>
+        <button class="btn-disconnect" id="btn-disconnect" title="Déconnecter cet appareil">⏏</button>
+      </div>
+    </header>
+
+    <main class="app-layout">
+      <section class="planning-section">
+        <div class="planning-toolbar">
+          <button class="btn btn-ghost btn-sm" id="btn-clear-week" title="Vider le planning affiché">🗑 Vider</button>
+          <span class="spacer"></span>
+          <button class="btn btn-ghost btn-sm" id="btn-week-current" style="display:none">← Courante</button>
+          <button class="btn btn-ghost btn-sm" id="btn-next-week">Suivante →</button>
+        </div>
+        <div class="planning-grid" id="planning-grid"></div>
+      </section>
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h2>Mes plats</h2>
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">Tous</button>
+            <button class="filter-tab" data-filter="midi">Midi</button>
+            <button class="filter-tab" data-filter="soir">Soir</button>
+            <button class="filter-tab" data-filter="double">×2</button>
           </div>
         </div>
-
-        <!-- Les blocs de planning sont injectés ici -->
-        <div id="js-plannings-container"></div>
-
-      </div>
+        <div class="dish-list" id="dish-list"></div>
+      </aside>
     </main>
+  </div>
 
-    <!-- Panneau latéral : liste des plats -->
-    <aside class="sidebar">
-      <div class="sidebar__inner">
+  <!-- Modal: Ingrédients — sans champ "pas" -->
+  <div class="modal-overlay" id="modal-ingredients">
+    <div class="modal">
+      <button class="modal-close" data-modal="modal-ingredients">✕</button>
+      <h2 class="modal-title">Ingrédients</h2>
+      <div class="modal-body">
+        <form class="form-row" id="form-ingredient">
+          <input class="input" type="text" id="ing-name" placeholder="Nom de l'ingrédient" required/>
+          <select class="input select-unit" id="ing-unit">
+            <option value="g">g</option>
+            <option value="kg">kg</option>
+            <option value="cl">cl</option>
+            <option value="l">l</option>
+            <option value="ml">ml</option>
+            <option value="unité">unité</option>
+            <option value="c. à s.">c. à s.</option>
+            <option value="c. à c.">c. à c.</option>
+            <option value="pincée">pincée</option>
+          </select>
+          <button class="btn btn-primary" type="submit">Ajouter</button>
+        </form>
+        <p class="form-hint">Les quantités sont ajustables par pas de 0,5 lors de la création d'un plat.</p>
+        <div class="ingredient-list" id="ingredient-list"></div>
+      </div>
+    </div>
+  </div>
 
-        <!-- Section plats -->
-        <div class="sidebar__section">
-          <div class="sidebar__section-header">
-            <h3 class="sidebar__section-title">Plats</h3>
-            <div class="sidebar__section-actions">
-              <!-- Bouton d'accès à la gestion des ingrédients -->
-              <button class="btn btn--ghost-amber btn--xs" onclick="Modals.openIngredientManager()">
-                🧂 Ingrédients
-              </button>
-              <!-- Bouton d'ajout d'un plat -->
-              <button class="btn btn--primary btn--xs" onclick="Modals.openDishForm()">
-                ＋ Ajouter
-              </button>
+  <!-- Modal: Plats -->
+  <div class="modal-overlay" id="modal-dishes">
+    <div class="modal modal-wide">
+      <button class="modal-close" data-modal="modal-dishes">✕</button>
+      <h2 class="modal-title">Créer un plat</h2>
+      <div class="modal-body">
+        <form id="form-dish">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="label">Nom du plat</label>
+              <input class="input" type="text" id="dish-name" placeholder="Ex: Quiche lorraine" required/>
+            </div>
+            <div class="form-group">
+              <label class="label">Disponible pour</label>
+              <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="dish-slot" value="both" checked/> Midi &amp; Soir</label>
+                <label class="radio-label"><input type="radio" name="dish-slot" value="midi"/> Midi uniquement</label>
+                <label class="radio-label"><input type="radio" name="dish-slot" value="soir"/> Soir uniquement</label>
+              </div>
+            </div>
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="dish-double"/>
+                <span>Représente 2 portions (plat doublé)</span>
+              </label>
             </div>
           </div>
-          <!-- Liste des plats (injectée par sidebar.js) -->
-          <div class="dish-list" id="js-dish-list"></div>
-        </div>
-
-      </div>
-    </aside>
-
-  </div><!-- fin app__body -->
-</div><!-- fin app -->
-
-
-<!-- ═══════════════════ MODALES (fixed, par-dessus tout) ═══════════════════ -->
-
-<!-- Sélection d'un plat pour un créneau -->
-<div class="modal-overlay" id="modal-slot-picker">
-  <div class="modal modal--narrow">
-    <div class="modal__header">
-      <h2 class="modal__title">Choisir un plat</h2>
-      <button class="modal__close-btn" onclick="Modals.close('modal-slot-picker')">✕</button>
-    </div>
-    <div class="slot-picker__options" id="js-slot-options"></div>
-  </div>
-</div>
-
-<!-- Formulaire d'un ingrédient (création / édition) -->
-<div class="modal-overlay" id="modal-ingredient-form">
-  <div class="modal modal--narrow">
-    <div class="modal__header">
-      <h2 class="modal__title" id="js-ingredient-form-title">Nouvel ingrédient</h2>
-      <button class="modal__close-btn" onclick="Modals.close('modal-ingredient-form')">✕</button>
-    </div>
-    <div class="form-field">
-      <label class="form-field__label">Nom</label>
-      <input class="form-field__input" type="text" id="js-ingredient-name" placeholder="ex: Carottes">
-    </div>
-    <div class="form-field">
-      <label class="form-field__label">Unité de mesure</label>
-      <input class="form-field__input" type="text" id="js-ingredient-unit" placeholder="ex: g, cl, unité(s)">
-    </div>
-    <div class="modal__footer">
-      <button class="btn" onclick="Modals.close('modal-ingredient-form')">Annuler</button>
-      <button class="btn btn--primary" onclick="Modals.saveIngredient()">Enregistrer</button>
-    </div>
-  </div>
-</div>
-
-<!-- Gestionnaire d'ingrédients (liste complète + CRUD) -->
-<div class="modal-overlay" id="modal-ingredient-manager">
-  <div class="modal modal--medium">
-    <div class="modal__header">
-      <h2 class="modal__title">Gestion des ingrédients</h2>
-      <button class="modal__close-btn" onclick="Modals.close('modal-ingredient-manager')">✕</button>
-    </div>
-    <div class="ingredient-manager__toolbar">
-      <button class="btn btn--ghost-amber btn--sm" onclick="Modals.openIngredientForm()">＋ Nouvel ingrédient</button>
-    </div>
-    <!-- Liste des ingrédients (injectée par sidebar.js) -->
-    <div class="ingredient-manager__list" id="js-ingredient-list"></div>
-    <div class="modal__footer">
-      <button class="btn" onclick="Modals.close('modal-ingredient-manager')">Fermer</button>
-    </div>
-  </div>
-</div>
-
-<!-- Formulaire d'un plat (création / édition) -->
-<div class="modal-overlay" id="modal-dish-form">
-  <div class="modal modal--wide">
-    <div class="modal__header">
-      <h2 class="modal__title" id="js-dish-form-title">Ajouter un plat</h2>
-      <button class="modal__close-btn" onclick="Modals.close('modal-dish-form')">✕</button>
-    </div>
-
-    <!-- Champs principaux du plat -->
-    <div class="form-field">
-      <label class="form-field__label">Nom du plat</label>
-      <input class="form-field__input" type="text" id="js-dish-name" placeholder="ex: Gratin dauphinois">
-    </div>
-    <div class="dish-form__options-row">
-      <div class="form-field">
-        <label class="form-field__label">Créneau autorisé</label>
-        <select class="form-field__input" id="js-dish-restriction">
-          <option value="both">Midi et soir</option>
-          <option value="midi">☀ Midi seulement</option>
-          <option value="soir">🌙 Soir seulement</option>
-        </select>
-      </div>
-      <label class="checkbox-row" style="padding-bottom:8px">
-        <input type="checkbox" id="js-dish-double">
-        <span>2 portions</span>
-      </label>
-    </div>
-
-    <div class="modal__separator"></div>
-
-    <!-- Ingrédients déjà ajoutés au plat -->
-    <div class="form-field">
-      <label class="form-field__label">Ingrédients du plat</label>
-      <div class="dish-ingredient-editor" id="js-dish-ingredient-selected"></div>
-    </div>
-
-    <div class="modal__separator"></div>
-
-    <!-- Picker pour ajouter un ingrédient -->
-    <div class="form-field">
-      <label class="form-field__label">Ajouter un ingrédient</label>
-      <div class="ingredient-picker">
-        <input class="form-field__input" type="text" id="js-ingredient-picker-search"
-          placeholder="Rechercher ou créer…" oninput="Modals.onIngredientPickerSearch(this.value)">
-        <div class="ingredient-picker__list" id="js-ingredient-picker-list"></div>
+          <div class="form-group">
+            <label class="label">Ingrédients</label>
+            <div class="ingredient-selector">
+              <select class="input" id="ing-select"></select>
+              <button class="btn btn-ghost" type="button" id="btn-add-ing">+ Ajouter</button>
+            </div>
+            <div class="dish-ingredients" id="dish-ingredients"></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Enregistrer le plat</button>
+          </div>
+        </form>
+        <hr class="divider"/>
+        <h3 class="section-subtitle">Plats existants</h3>
+        <div class="existing-dishes" id="existing-dishes"></div>
       </div>
     </div>
+  </div>
 
-    <div class="modal__footer">
-      <button class="btn" onclick="Modals.close('modal-dish-form')">Annuler</button>
-      <button class="btn btn--primary" onclick="Modals.saveDish()">Enregistrer</button>
+  <!-- Modal: Détail repas -->
+  <div class="modal-overlay" id="modal-meal-detail">
+    <div class="modal">
+      <button class="modal-close" data-modal="modal-meal-detail">✕</button>
+      <h2 class="modal-title" id="meal-detail-title"></h2>
+      <div class="modal-body" id="meal-detail-body"></div>
     </div>
   </div>
-</div>
 
-<!-- Liste de courses -->
-<div class="modal-overlay" id="modal-shopping-list">
-  <div class="modal modal--wide">
-    <div class="modal__header">
-      <h2 class="modal__title" id="js-shopping-list-title">🛒 Liste de courses</h2>
-      <button class="modal__close-btn" onclick="Modals.close('modal-shopping-list')">✕</button>
-    </div>
-    <div class="shopping-list__content" id="js-shopping-list-content"></div>
-    <div class="modal__footer">
-      <button class="btn" onclick="Modals.close('modal-shopping-list')">Fermer</button>
-    </div>
-  </div>
-</div>
-
-<!-- Confirmation générique (remplace window.confirm, bloqué en iframe sandbox) -->
-<div class="modal-overlay" id="modal-confirm">
-  <div class="modal modal--narrow">
-    <div class="modal__header">
-      <h2 class="modal__title">Confirmation</h2>
-    </div>
-    <p class="confirm-modal__message" id="js-confirm-message"></p>
-    <div class="modal__footer">
-      <button class="btn" onclick="Modals.close('modal-confirm')">Annuler</button>
-      <button class="btn btn--danger" id="js-confirm-ok-btn">Confirmer</button>
-    </div>
-  </div>
-</div>
-
-<!-- Indicateur de chargement / sauvegarde -->
-<div class="save-indicator" id="js-save-indicator">💾 Sauvegarde…</div>
-
-
-<!-- ═══════════════════ SCRIPTS (ordre important) ═══════════════════ -->
-<script src="js/storage.js"></script>
-<script src="js/state.js"></script>
-<script src="js/planning.js"></script>
-<script src="js/sidebar.js"></script>
-<script src="js/modals.js"></script>
-<script>
-  /**
-   * Point d'entrée principal.
-   * Ferme les modales en cliquant sur l'overlay,
-   * puis initialise l'affichage une fois les données chargées.
-   */
-  document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', e => {
-      if (e.target === overlay) overlay.classList.remove('modal-overlay--open');
-    });
-  });
-
-  // Chargement des données puis rendu initial
-  Storage.load().then(() => {
-    Planning.renderAll();
-    Sidebar.renderDishList();
-  });
-</script>
-
+  <script src="js/utils/gist.js"></script>
+  <script src="js/utils/storage.js"></script>
+  <script src="js/utils/dates.js"></script>
+  <script src="js/utils/toast.js"></script>
+  <script src="js/components/modal.js"></script>
+  <script src="js/components/setup.js"></script>
+  <script src="js/components/ingredients.js"></script>
+  <script src="js/components/dishes.js"></script>
+  <script src="js/components/planning.js"></script>
+  <script src="js/components/sidebar.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

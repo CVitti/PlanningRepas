@@ -1,0 +1,254 @@
+/* ═══════════════════════════════════════════════════════════
+   MODAL.CSS — Overlay modals (dark)
+   ═══════════════════════════════════════════════════════════ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(6px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 500px;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 26px 26px 22px;
+  transform: translateY(10px) scale(.98);
+  transition: transform 200ms ease;
+}
+
+.modal-overlay.open .modal { transform: none; }
+
+.modal-wide { max-width: 660px; }
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--ink-muted);
+  font-size: .75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--tr);
+}
+
+.modal-close:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.modal-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  padding-right: 36px;
+  color: var(--ink);
+}
+
+/* ── Ingredient list ── */
+.ingredient-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ingredient-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  animation: slideIn 150ms ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.ingredient-row-name { flex: 1; font-size: .85rem; font-weight: 500; }
+
+.ingredient-row-unit {
+  font-size: .74rem;
+  color: var(--ink-muted);
+  background: var(--bg-raised);
+  padding: 2px 7px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+}
+
+.ingredient-row-step {
+  font-size: .7rem;
+  color: var(--ink-faint);
+}
+
+/* ── Dish ingredient builder ── */
+.ingredient-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.ingredient-selector .input { flex: 1; }
+
+.dish-ingredients {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-height: 36px;
+}
+
+.dish-ing-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 9px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  animation: slideIn 150ms ease;
+}
+
+.dish-ing-name { flex: 1; font-size: .82rem; font-weight: 500; }
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+
+.qty-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: var(--bg-raised);
+  color: var(--ink);
+  font-size: .85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--tr);
+  flex-shrink: 0;
+}
+.qty-btn:hover { background: var(--border); }
+
+.qty-value {
+  min-width: 38px;
+  text-align: center;
+  font-size: .8rem;
+  font-weight: 500;
+  padding: 0 3px;
+  color: var(--ink);
+  background: var(--bg-card);
+}
+
+.qty-unit {
+  font-size: .7rem;
+  color: var(--ink-muted);
+  padding: 0 6px 0 0;
+  background: var(--bg-card);
+}
+
+/* ── Existing dishes ── */
+.existing-dishes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.existing-dish-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 11px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+}
+
+.existing-dish-name { flex: 1; font-size: .85rem; font-weight: 500; }
+
+.existing-dish-meta {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* ── Meal detail modal ── */
+.meal-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 18px;
+}
+
+.meal-detail-info p { font-size: .85rem; color: var(--ink-muted); }
+
+.ingredient-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ingredient-table th,
+.ingredient-table td {
+  padding: 7px 10px;
+  text-align: left;
+  font-size: .83rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.ingredient-table th {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
+.ingredient-table tr:last-child td { border-bottom: none; }
+
+/* Responsive modals */
+@media (max-width: 600px) {
+  .modal {
+    padding: 20px 16px 18px;
+    max-height: 92vh;
+  }
+  .modal-wide { max-width: 100%; }
+  .form-grid { grid-template-columns: 1fr; }
+}
