@@ -130,6 +130,8 @@
   gap: 5px;
   animation: slideIn 150ms ease;
   transition: border-color var(--tr);
+  position: relative;
+  overflow: hidden;
 }
 .ing-card:hover { border-color: var(--ink-faint); }
 
@@ -138,34 +140,69 @@
   font-weight: 500;
   color: var(--ink);
   word-break: break-word;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
-.ing-card-footer {
+/* Hover action overlay (normal mode) */
+.ing-card-actions {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity var(--tr);
+  background: rgba(15,15,15,.85);
+  border-radius: var(--r-sm);
+  backdrop-filter: blur(2px);
+}
+.ing-card:hover .ing-card-actions { opacity: 1; }
+
+.ing-action-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  font-size: .8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--tr);
 }
 
-.ing-card-unit {
-  font-size: .7rem;
-  color: var(--ink-muted);
-  background: var(--bg-raised);
-  padding: 1px 6px;
-  border-radius: 99px;
-  border: 1px solid var(--border);
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.ing-action-edit   { color: var(--accent);     border-color: rgba(144,184,255,.4); }
+.ing-action-edit:hover   { background: rgba(144,184,255,.18); }
+.ing-action-delete { color: var(--accent-red); border-color: rgba(255,155,155,.4); }
+.ing-action-delete:hover { background: rgba(255,155,155,.18); }
 
-.ing-card-actions { display: flex; gap: 2px; }
-
-/* Edit mode */
+/* Edit mode (in-flow, not overlay) */
 .ing-card.ing-card-editing { gap: 6px; }
 .ing-card .ing-edit-name,
 .ing-card .ing-edit-unit  { padding: 4px 7px; font-size: .78rem; }
+
+.ing-edit-actions { display: flex; gap: 4px; }
+
+.ing-edit-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  font-size: .78rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--tr);
+}
+
+.ing-edit-confirm { color: var(--accent-green); border-color: rgba(125,217,160,.4); }
+.ing-edit-confirm:hover { background: rgba(125,217,160,.15); }
+.ing-edit-cancel  { color: var(--accent-red);   border-color: rgba(255,155,155,.4); }
+.ing-edit-cancel:hover  { background: rgba(255,155,155,.15); }
 
 /* ── Dish ingredient split editor ── */
 .dish-ingredient-editor {
@@ -281,18 +318,27 @@
   padding: 6px 2px;
 }
 
+/* Grid layout — 4 columns: name | controls | unit | delete */
 .dish-ing-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
   align-items: center;
-  gap: 8px;
-  padding: 5px 9px;
+  gap: 6px;
+  padding: 4px 8px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
   animation: slideIn 150ms ease;
 }
 
-.dish-ing-name { flex: 1; font-size: .82rem; font-weight: 500; }
+.dish-ing-name {
+  font-size: .82rem;
+  font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .qty-control {
   display: flex;
@@ -319,8 +365,7 @@
 .qty-btn:hover { background: var(--border); }
 
 .qty-value {
-  min-width: 38px;
-  width: 52px;
+  width: 46px;
   text-align: center;
   font-size: .8rem;
   font-weight: 500;
@@ -335,11 +380,12 @@
 .qty-value::-webkit-outer-spin-button,
 .qty-value::-webkit-inner-spin-button { opacity: 0; width: 0; }
 
-.qty-unit {
-  font-size: .7rem;
+/* Unit outside the control box */
+.qty-unit-ext {
+  font-size: .72rem;
   color: var(--ink-muted);
-  padding: 0 6px 0 0;
-  background: var(--bg-card);
+  white-space: nowrap;
+  min-width: 2rem;
 }
 
 /* ── Dish form options row ── */

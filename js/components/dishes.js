@@ -152,7 +152,7 @@ const Dishes = (() => {
       if (!ingId) return;
       if (!Ingredients.getById(ingId)) return;
       if (formIngredients.find(i => i.id === ingId)) return;
-      formIngredients.push({ id: ingId, qty: Ingredients.getStep() });
+      formIngredients.push({ id: ingId, qty: 1 });
       renderFormIngredients();
       renderAvailableIngredients();
     });
@@ -195,10 +195,10 @@ const Dishes = (() => {
           <span class="dish-ing-name">${ing.name}</span>
           <div class="qty-control">
             <button class="qty-btn" type="button" onclick="Dishes._qtyDown('${ing.id}')">−</button>
-            <input type="number" class="qty-value" data-id="${ing.id}" value="${item.qty}" min="0.5" step="0.5" oninput="Dishes._setQty('${ing.id}',this.value)">
-            <span class="qty-unit">${ing.unit}</span>
+            <input type="number" class="qty-value" data-id="${ing.id}" value="${item.qty}" min="0.25" step="0.25" oninput="Dishes._setQty('${ing.id}',this.value)">
             <button class="qty-btn" type="button" onclick="Dishes._qtyUp('${ing.id}')">+</button>
           </div>
+          <span class="qty-unit-ext">${ing.unit}</span>
           <button class="btn btn-danger btn-sm" type="button" onclick="Dishes._removeIngFromForm('${ing.id}')">✕</button>
         </div>`;
     }).join('');

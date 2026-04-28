@@ -4,7 +4,7 @@
 
 const Ingredients = (() => {
 
-  const STEP = 0.5;
+  const STEP = 0.25;
   let list      = [];
   let editingId = null;
 
@@ -115,21 +115,18 @@ const Ingredients = (() => {
             <div class="ing-card ing-card-editing" data-id="${ing.id}">
               <input class="input ing-edit-name" type="text" value="${ing.name}" autocomplete="off" spellcheck="false"/>
               <select class="input ing-edit-unit">${unitOptionsHTML(ing.unit)}</select>
-              <div class="ing-card-actions">
-                <button class="btn btn-primary btn-sm" type="button" onclick="Ingredients._saveEdit('${ing.id}')">✓ Ok</button>
-                <button class="btn btn-ghost   btn-sm" type="button" onclick="Ingredients._cancelEdit()">Annuler</button>
+              <div class="ing-edit-actions">
+                <button class="ing-edit-btn ing-edit-confirm" type="button" onclick="Ingredients._saveEdit('${ing.id}')" title="Valider">✓</button>
+                <button class="ing-edit-btn ing-edit-cancel"  type="button" onclick="Ingredients._cancelEdit()" title="Annuler">✕</button>
               </div>
             </div>`;
         }
         return `
           <div class="ing-card" data-id="${ing.id}">
             <span class="ing-card-name">${ing.name}</span>
-            <div class="ing-card-footer">
-              <span class="ing-card-unit">${ing.unit}</span>
-              <div class="ing-card-actions">
-                <button class="btn btn-ghost  btn-sm" type="button" onclick="Ingredients._startEdit('${ing.id}')" title="Modifier">✎</button>
-                <button class="btn btn-danger btn-sm" type="button" onclick="Ingredients.remove('${ing.id}')" title="Supprimer">✕</button>
-              </div>
+            <div class="ing-card-actions">
+              <button class="ing-action-btn ing-action-edit"   type="button" onclick="Ingredients._startEdit('${ing.id}')" title="Modifier">✎</button>
+              <button class="ing-action-btn ing-action-delete" type="button" onclick="Ingredients.remove('${ing.id}')" title="Supprimer">✕</button>
             </div>
           </div>`;
       }).join('');
