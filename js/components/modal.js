@@ -27,7 +27,19 @@ const Modal = (() => {
     document.body.style.overflow = '';
   }
 
+  function openCatalog(tab) {
+    document.querySelectorAll('.catalog-tab').forEach(t =>
+      t.classList.toggle('active', t.dataset.tab === tab));
+    document.querySelectorAll('.catalog-panel').forEach(p =>
+      p.classList.toggle('active', p.id === `panel-${tab}`));
+    open('modal-catalog');
+  }
+
   function init() {
+    /* Catalog tab clicks */
+    document.querySelectorAll('.catalog-tab').forEach(btn => {
+      btn.addEventListener('click', () => openCatalog(btn.dataset.tab));
+    });
     /* Close buttons inside modals */
     document.querySelectorAll('.modal-close').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -50,5 +62,5 @@ const Modal = (() => {
     });
   }
 
-  return { open, close, closeAll, init };
+  return { open, close, closeAll, openCatalog, init };
 })();

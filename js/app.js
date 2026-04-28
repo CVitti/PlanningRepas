@@ -14,7 +14,7 @@ const App = (() => {
 
     document.getElementById('btn-ingredients').addEventListener('click', () => {
       Ingredients.render();
-      Modal.open('modal-ingredients');
+      Modal.openCatalog('ingredients');
     });
 
     /* Sidebar toggle */

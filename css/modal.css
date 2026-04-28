@@ -73,6 +73,38 @@
   color: var(--ink);
 }
 
+/* ── Catalog tabs ── */
+.catalog-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+  padding-right: 36px;
+}
+
+.catalog-tab {
+  padding: 8px 20px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: .88rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: all var(--tr);
+}
+
+.catalog-tab:hover { color: var(--ink); }
+
+.catalog-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.catalog-panel { display: none; }
+.catalog-panel.active { display: block; }
+
 /* ── Ingredient list ── */
 .ingredient-list {
   display: flex;

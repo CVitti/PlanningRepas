@@ -64,7 +64,7 @@
   padding: 5px 5px 4px;
   display: flex; flex-direction: column; gap: 3px;
   transition: border-color var(--tr), background var(--tr);
-  min-height: 62px;
+  height: 5.5rem;
 }
 .meal-slot.past { background: rgba(0,0,0,.5); }
 .meal-slot.past .meal-slot-label { opacity: .45; }
@@ -118,13 +118,16 @@
   background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
-  /* right padding makes room for remove button */
-  padding: 4px 28px 4px 7px;
+  padding: 4px 26px;
   cursor: grab;
   position: relative;
   transition: border-color var(--tr);
   animation: cardIn 160ms ease;
   flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  overflow: hidden;
 }
 @keyframes cardIn {
   from { opacity: 0; transform: translateY(-2px) scale(.97); }
@@ -142,7 +145,7 @@
 .meal-card-free {
   background: rgba(150,212,184,.06);
   border-color: rgba(150,212,184,.25);
-  border-style: dashed; cursor: default; padding: 5px 28px 5px 7px;
+  border-style: dashed; cursor: default; padding: 5px 26px;
 }
 .meal-card-free:hover { border-color: rgba(150,212,184,.5); }
 .free-label { color: var(--accent-green) !important; font-style: italic; }
@@ -150,9 +153,10 @@
 .meal-card-name {
   font-size: .82rem; font-weight: 500;
   color: var(--ink); line-height: 1.25; word-break: break-word;
+  text-align: center;
 }
 
-.meal-card-badges { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 2px; }
+.meal-card-badges { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 2px; justify-content: center; }
 .badge { font-size: .65rem; padding: 1px 5px; border-radius: 99px; font-weight: 500; }
 .badge-double {
   background: rgba(245,201,160,.13); color: var(--accent-warm);

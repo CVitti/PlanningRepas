@@ -135,81 +135,83 @@
     </main>
   </div>
 
-  <!-- Modal: Ingrédients — sans champ "pas" -->
-  <div class="modal-overlay" id="modal-ingredients">
-    <div class="modal">
-      <button class="modal-close" data-modal="modal-ingredients">✕</button>
-      <h2 class="modal-title">Ingrédients</h2>
-      <div class="modal-body">
-        <form class="form-row" id="form-ingredient">
-          <input class="input" type="text" id="ing-name" placeholder="Nom de l'ingrédient" required/>
-          <select class="input select-unit" id="ing-unit">
-            <optgroup label="Poids">
-              <option value="g">g</option>
-              <option value="kg">kg</option>
-            </optgroup>
-            <optgroup label="Volume">
-              <option value="ml">ml</option>
-              <option value="cl">cl</option>
-              <option value="l">l</option>
-            </optgroup>
-            <optgroup label="Cuisine">
-              <option value="c. à s.">c. à s.</option>
-              <option value="c. à c.">c. à c.</option>
-              <option value="pincée">pincée</option>
-            </optgroup>
-            <optgroup label="Autre">
-              <option value="unité">unité</option>
-            </optgroup>
-          </select>
-          <button class="btn btn-primary" type="submit">Ajouter</button>
-        </form>
-        <p class="form-hint">Les quantités sont ajustables par pas de 0,5 lors de la création d'un plat.</p>
-        <div class="ingredient-list" id="ingredient-list"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Plats -->
-  <div class="modal-overlay" id="modal-dishes">
+  <!-- Modal: Catalogue (Ingrédients + Plats) -->
+  <div class="modal-overlay" id="modal-catalog">
     <div class="modal modal-wide">
-      <button class="modal-close" data-modal="modal-dishes">✕</button>
-      <h2 class="modal-title">Créer un plat</h2>
+      <button class="modal-close" data-modal="modal-catalog">✕</button>
+      <div class="catalog-tabs">
+        <button class="catalog-tab active" data-tab="ingredients">Ingrédients</button>
+        <button class="catalog-tab" data-tab="dishes">Plats</button>
+      </div>
       <div class="modal-body">
-        <form id="form-dish">
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="label">Nom du plat</label>
-              <input class="input" type="text" id="dish-name" placeholder="Ex: Quiche lorraine" required/>
-            </div>
-            <div class="form-group">
-              <label class="label">Disponible pour</label>
-              <div class="radio-group">
-                <label class="radio-label"><input type="radio" name="dish-slot" value="both" checked/> Midi &amp; Soir</label>
-                <label class="radio-label"><input type="radio" name="dish-slot" value="midi"/> Midi uniquement</label>
-                <label class="radio-label"><input type="radio" name="dish-slot" value="soir"/> Soir uniquement</label>
+
+        <!-- Panel: Ingrédients -->
+        <div class="catalog-panel active" id="panel-ingredients">
+          <form class="form-row" id="form-ingredient">
+            <input class="input" type="text" id="ing-name" placeholder="Nom de l'ingrédient" required/>
+            <select class="input select-unit" id="ing-unit">
+              <optgroup label="Poids">
+                <option value="g">g</option>
+                <option value="kg">kg</option>
+              </optgroup>
+              <optgroup label="Volume">
+                <option value="ml">ml</option>
+                <option value="cl">cl</option>
+                <option value="l">l</option>
+              </optgroup>
+              <optgroup label="Cuisine">
+                <option value="c. à s.">c. à s.</option>
+                <option value="c. à c.">c. à c.</option>
+                <option value="pincée">pincée</option>
+              </optgroup>
+              <optgroup label="Autre">
+                <option value="unité">unité</option>
+              </optgroup>
+            </select>
+            <button class="btn btn-primary" type="submit">Ajouter</button>
+          </form>
+          <p class="form-hint">Les quantités sont ajustables par pas de 0,5 lors de la création d'un plat.</p>
+          <div class="ingredient-list" id="ingredient-list"></div>
+        </div>
+
+        <!-- Panel: Plats -->
+        <div class="catalog-panel" id="panel-dishes">
+          <form id="form-dish">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="label">Nom du plat</label>
+                <input class="input" type="text" id="dish-name" placeholder="Ex: Quiche lorraine" required/>
+              </div>
+              <div class="form-group">
+                <label class="label">Disponible pour</label>
+                <div class="radio-group">
+                  <label class="radio-label"><input type="radio" name="dish-slot" value="both" checked/> Midi &amp; Soir</label>
+                  <label class="radio-label"><input type="radio" name="dish-slot" value="midi"/> Midi uniquement</label>
+                  <label class="radio-label"><input type="radio" name="dish-slot" value="soir"/> Soir uniquement</label>
+                </div>
+              </div>
+              <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="dish-double"/>
+                  <span>Représente 2 portions (plat doublé)</span>
+                </label>
               </div>
             </div>
-            <div class="form-group checkbox-group">
-              <label class="checkbox-label">
-                <input type="checkbox" id="dish-double"/>
-                <span>Représente 2 portions (plat doublé)</span>
-              </label>
+            <div class="form-group">
+              <label class="label">Ingrédients</label>
+              <div class="ingredient-selector">
+                <select class="input" id="ing-select"></select>
+                <button class="btn btn-ghost" type="button" id="btn-add-ing">+ Ajouter</button>
+              </div>
+              <div class="dish-ingredients" id="dish-ingredients"></div>
             </div>
-          </div>
-          <div class="form-group">
-            <label class="label">Ingrédients</label>
-            <div class="ingredient-selector">
-              <select class="input" id="ing-select"></select>
-              <button class="btn btn-ghost" type="button" id="btn-add-ing">+ Ajouter</button>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit" id="btn-dish-submit">Enregistrer le plat</button>
+              <button class="btn btn-ghost" type="button" id="btn-cancel-edit" style="display:none">Annuler</button>
             </div>
-            <div class="dish-ingredients" id="dish-ingredients"></div>
-          </div>
-          <div class="form-actions">
-            <button class="btn btn-primary" type="submit" id="btn-dish-submit">Enregistrer le plat</button>
-            <button class="btn btn-ghost" type="button" id="btn-cancel-edit" style="display:none">Annuler</button>
-          </div>
-        </form>
+          </form>
+        </div>
+
       </div>
     </div>
   </div>
