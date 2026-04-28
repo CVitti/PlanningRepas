@@ -74,7 +74,7 @@
 }
 .meal-slot.drag-over {
   border-color: var(--accent);
-  background: rgba(170,184,245,.07);
+  background: rgba(144,184,255,.08);
   border-style: solid;
 }
 
@@ -143,11 +143,11 @@
 
 /* Free card */
 .meal-card-free {
-  background: rgba(150,212,184,.06);
-  border-color: rgba(150,212,184,.25);
+  background: rgba(125,217,160,.06);
+  border-color: rgba(125,217,160,.25);
   border-style: dashed; cursor: default; padding: 5px 26px;
 }
-.meal-card-free:hover { border-color: rgba(150,212,184,.5); }
+.meal-card-free:hover { border-color: rgba(125,217,160,.5); }
 .free-label { color: var(--accent-green) !important; font-style: italic; }
 
 .meal-card-name {
@@ -159,12 +159,12 @@
 .meal-card-badges { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 2px; justify-content: center; }
 .badge { font-size: .65rem; padding: 1px 5px; border-radius: 99px; font-weight: 500; }
 .badge-double {
-  background: rgba(245,201,160,.13); color: var(--accent-warm);
-  border: 1px solid rgba(245,201,160,.3);
+  background: rgba(255,184,112,.13); color: var(--accent-warm);
+  border: 1px solid rgba(255,184,112,.3);
 }
 .badge-portion {
-  background: rgba(245,201,160,.22); color: var(--accent-warm);
-  border: 1px solid rgba(245,201,160,.5);
+  background: rgba(255,184,112,.22); color: var(--accent-warm);
+  border: 1px solid rgba(255,184,112,.5);
   font-weight: 700; letter-spacing: .03em;
 }
 

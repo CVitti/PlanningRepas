@@ -280,7 +280,7 @@
 .toggle-btn input { display: none; }
 
 .toggle-btn:has(input:checked) {
-  background: rgba(245,201,160,.15);
+  background: rgba(255,184,112,.15);
   border-color: var(--accent-warm);
   color: var(--accent-warm);
 }

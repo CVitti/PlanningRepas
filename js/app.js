@@ -12,21 +12,6 @@ const App = (() => {
     Planning.init();
     Sidebar.init();
 
-    document.getElementById('btn-ingredients').addEventListener('click', () => {
-      Ingredients.render();
-      Modal.openCatalog('ingredients');
-    });
-
-    /* Sidebar toggle */
-    const toggleBtn = document.getElementById('btn-toggle-sidebar');
-    const sidebar   = document.getElementById('sidebar');
-    if (toggleBtn && sidebar) {
-      if (window.innerWidth <= 900) sidebar.classList.add('sidebar-hidden');
-      toggleBtn.addEventListener('click', () => {
-        const hidden = sidebar.classList.toggle('sidebar-hidden');
-        toggleBtn.title = hidden ? 'Afficher les plats' : 'Masquer les plats';
-      });
-    }
   }
 
   async function start() {

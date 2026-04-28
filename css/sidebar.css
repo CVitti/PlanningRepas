@@ -122,21 +122,21 @@
 }
 
 .slot-pill.midi {
-  background: rgba(245,201,160,.15);
+  background: rgba(255,184,112,.15);
   color: var(--accent-warm);
-  border: 1px solid rgba(245,201,160,.35);
+  border: 1px solid rgba(255,184,112,.35);
 }
 
 .slot-pill.soir {
-  background: rgba(151,200,232,.15);
+  background: rgba(130,212,240,.15);
   color: var(--accent-blue);
-  border: 1px solid rgba(151,200,232,.35);
+  border: 1px solid rgba(130,212,240,.35);
 }
 
 .slot-pill.both {
-  background: rgba(150,212,184,.15);
+  background: rgba(125,217,160,.15);
   color: var(--accent-green);
-  border: 1px solid rgba(150,212,184,.35);
+  border: 1px solid rgba(125,217,160,.35);
 }
 
 .drag-handle { display: none; }
@@ -151,7 +151,7 @@
   gap: 6px;
   opacity: 0;
   transition: opacity var(--tr);
-  background: rgba(28, 32, 40, .82);
+  background: rgba(15,15,15,.88);
   border-radius: var(--r-sm);
   backdrop-filter: blur(2px);
 }
@@ -171,15 +171,15 @@
 
 .dish-action-edit {
   color: var(--accent);
-  border-color: rgba(170,184,245,.35);
+  border-color: rgba(144,184,255,.35);
 }
-.dish-action-edit:hover { background: rgba(170,184,245,.18); }
+.dish-action-edit:hover { background: rgba(144,184,255,.18); }
 
 .dish-action-delete {
   color: var(--accent-red);
-  border-color: rgba(245,160,144,.35);
+  border-color: rgba(255,155,155,.35);
 }
-.dish-action-delete:hover { background: rgba(245,160,144,.18); }
+.dish-action-delete:hover { background: rgba(255,155,155,.18); }
 
 .dish-list-empty {
   grid-column: 1 / -1;

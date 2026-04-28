@@ -3,25 +3,26 @@
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* Palette — dark slate, pastel accents */
-  --bg:           #1c2028;
-  --bg-card:      #242830;
-  --bg-card-alt:  #2a2f3a;
-  --bg-raised:    #313744;
-  --ink:          #e2e6f0;
-  --ink-muted:    #8892a8;
-  --ink-faint:    #505a6e;
-  --accent:       #aab8f5;   /* pervenche */
-  --accent-hover: #8fa4f0;
-  --accent-warm:  #f5c9a0;   /* pêche */
-  --accent-green: #96d4b8;   /* menthe */
-  --accent-blue:  #97c8e8;   /* ciel */
-  --accent-red:   #f5a090;   /* saumon */
-  --border:       #363c4a;
-  --border-light: #2c3140;
-  --shadow-sm:    0 1px 4px rgba(0,0,0,.4);
-  --shadow-md:    0 4px 20px rgba(0,0,0,.55);
-  --shadow-lg:    0 16px 48px rgba(0,0,0,.7);
+  /* Palette — neutral dark, pastel accents */
+  --bg:           #111111;
+  --bg-card:      #1a1a1a;
+  --bg-card-alt:  #222222;
+  --bg-raised:    #2d2d2d;
+  --ink:          #f0f0f0;
+  --ink-muted:    #8a8a8a;
+  --ink-faint:    #525252;
+  --accent:       #90b8ff;   /* bleu pastel — primaire */
+  --accent-hover: #6a9bff;
+  --accent-warm:  #ffb870;   /* orange pastel */
+  --accent-green: #7dd9a0;   /* vert pastel */
+  --accent-blue:  #82d4f0;   /* ciel pastel — soir */
+  --accent-red:   #ff9b9b;   /* rouge pastel */
+  --accent-yellow:#ffe07a;   /* jaune pastel */
+  --border:       #333333;
+  --border-light: #282828;
+  --shadow-sm:    0 1px 4px rgba(0,0,0,.5);
+  --shadow-md:    0 4px 20px rgba(0,0,0,.65);
+  --shadow-lg:    0 16px 48px rgba(0,0,0,.8);
 
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body:    'DM Sans', sans-serif;
@@ -49,17 +50,6 @@ body {
   min-height: 100vh;
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(170,184,245,.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(170,184,245,.04) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-  z-index: 0;
-}
 
 h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; }
 em { font-style: italic; }
@@ -168,11 +158,6 @@ select.input option { background: var(--bg-card); }
 
 /* ── Responsive layout ── */
 
-/* Sidebar hidden state */
-.sidebar-hidden {
-  display: none !important;
-}
-
 /* Header compact on small screens */
 @media (max-width: 600px) {
   .app-header {
@@ -183,10 +168,6 @@ select.input option { background: var(--bg-card); }
   .app-title { font-size: 1.1rem; }
   .week-label { display: none; }
   .header-actions { gap: 5px; }
-  .btn-ghost:not(.btn-icon-only) .btn-text { display: none; }
-  /* Show only icon on very small screens for ingredient/dish buttons */
-  #btn-ingredients,
-  #btn-dishes { font-size: .74rem; padding: 5px 9px; }
 }
 
 /* Mobile */
@@ -198,7 +179,6 @@ select.input option { background: var(--bg-card); }
     padding: 12px 12px 24px;
     gap: 16px;
   }
-  .sidebar.sidebar-hidden { display: none !important; }
 }
 
 /* Form hint text */
@@ -209,8 +189,3 @@ select.input option { background: var(--bg-card); }
   font-style: italic;
 }
 
-/* Icon-only button */
-.btn-icon-only {
-  padding: 6px 10px;
-  font-size: .9rem;
-}
