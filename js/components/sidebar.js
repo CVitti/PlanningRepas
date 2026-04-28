@@ -36,7 +36,7 @@ const Sidebar = (() => {
       container.innerHTML = `
         <div class="dish-list-empty">
           <strong>Aucun plat</strong>
-          Créez vos premiers plats avec le bouton <em>⊕ Plats</em>.
+          Cliquez sur <em>+ Nouveau</em> pour créer votre premier plat.
         </div>
       `;
       return;
@@ -52,14 +52,31 @@ const Sidebar = (() => {
           <span class="slot-pill ${Dishes.slotClass(dish.slot)}">${Dishes.slotLabel(dish.slot)}</span>
           ${dish.double ? '<span class="badge badge-double">\xd72</span>' : ''}
         </div>
-        <span class="drag-handle">⠿⠿</span>
+        <div class="dish-item-actions">
+          <button class="dish-action dish-action-edit" data-id="${dish.id}" title="Modifier">✎</button>
+          <button class="dish-action dish-action-delete" data-id="${dish.id}" title="Supprimer">✕</button>
+        </div>
       </div>
     `).join('');
 
-    /* Attach drag events */
+    /* Attach drag + action events */
     container.querySelectorAll('.dish-item').forEach(el => {
       el.addEventListener('dragstart', onDragStart);
       el.addEventListener('dragend',   onDragEnd);
+    });
+
+    container.querySelectorAll('.dish-action-edit').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        Dishes._startEdit(btn.dataset.id);
+      });
+    });
+
+    container.querySelectorAll('.dish-action-delete').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (confirm('Supprimer ce plat ?')) Dishes.remove(btn.dataset.id);
+      });
     });
   }
 
@@ -88,6 +105,8 @@ const Sidebar = (() => {
   function init() {
     initFilters();
     render();
+    document.getElementById('btn-new-dish')
+      ?.addEventListener('click', () => Dishes.openCreate());
   }
 
   return { init, render };

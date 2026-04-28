@@ -62,9 +62,12 @@ const Dates = (() => {
     return days;
   }
 
-  /** Format date as storage key: YYYY-MM-DD */
+  /** Format date as storage key: YYYY-MM-DD (local time, not UTC) */
   function formatKey(date) {
-    return date.toISOString().slice(0, 10);
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 
   /** Format display label: "12" */

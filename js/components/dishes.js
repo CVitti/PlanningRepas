@@ -29,6 +29,16 @@ const Dishes = (() => {
     Toast.success(`Plat « ${dish.name} » mis à jour !`);
   }
 
+  function setModalTitle(text) {
+    const el = document.querySelector('#modal-dishes .modal-title');
+    if (el) el.textContent = text;
+  }
+
+  function openCreate() {
+    cancelEdit();
+    Modal.open('modal-dishes');
+  }
+
   function startEdit(id) {
     const dish = list.find(d => d.id === id);
     if (!dish) return;
@@ -41,7 +51,8 @@ const Dishes = (() => {
     renderFormIngredients();
     document.getElementById('btn-dish-submit').textContent = 'Mettre à jour';
     document.getElementById('btn-cancel-edit').style.display = 'inline-flex';
-    document.getElementById('form-dish').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setModalTitle('Modifier un plat');
+    Modal.open('modal-dishes');
   }
 
   function cancelEdit() {
@@ -51,6 +62,7 @@ const Dishes = (() => {
     renderFormIngredients();
     document.getElementById('btn-dish-submit').textContent = 'Enregistrer le plat';
     document.getElementById('btn-cancel-edit').style.display = 'none';
+    setModalTitle('Créer un plat');
   }
 
   function add(name, slot, isDouble, ingredients) {
@@ -201,11 +213,11 @@ const Dishes = (() => {
       if (editingId) {
         update(editingId, name, slot, isDouble, [...formIngredients]);
         cancelEdit();
+        Modal.close('modal-dishes');
       } else {
         add(name, slot, isDouble, [...formIngredients]);
-        form.reset();
-        formIngredients = [];
-        renderFormIngredients();
+        cancelEdit();
+        Modal.close('modal-dishes');
       }
     });
   }
@@ -219,7 +231,7 @@ const Dishes = (() => {
   /* Exposed for inline onclick */
   return {
     init, load, getAll, getById, add, remove, slotLabel, slotClass,
-    renderExisting,
+    openCreate,
     _qtyUp:             (id)      => { changeQty(id,  Ingredients.getStep()); },
     _qtyDown:           (id)      => { changeQty(id, -Ingredients.getStep()); },
     _setQty:            (id, val) => { setQty(id, val); },

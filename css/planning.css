@@ -185,13 +185,6 @@
   border-left-color: var(--accent-red);
 }
 
-/* Weekend tint */
-.day-column.weekend .meal-slot:not(.locked) {
-  background: rgba(170,184,245,.03);
-}
-.day-column.weekend .meal-slot.past {
-  background: rgba(0,0,0,.25);
-}
 
 /* ═══════════════════════════════
    RESPONSIVE

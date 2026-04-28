@@ -101,7 +101,6 @@
       <div class="header-actions">
         <span class="sync-status" id="sync-status"></span>
         <button class="btn btn-ghost btn-sm" id="btn-ingredients">⊕ Ingrédients</button>
-        <button class="btn btn-ghost btn-sm" id="btn-dishes">⊕ Plats</button>
         <button class="btn btn-ghost btn-sm btn-icon-only" id="btn-toggle-sidebar" title="Afficher/masquer les plats" aria-label="Plats">☰</button>
         <button class="btn-disconnect" id="btn-disconnect" title="Déconnecter cet appareil">⏏</button>
       </div>
@@ -120,7 +119,10 @@
       </section>
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-          <h2>Mes plats</h2>
+          <div class="sidebar-header-top">
+            <h2>Mes plats</h2>
+            <button class="btn btn-primary btn-sm" id="btn-new-dish">+ Nouveau</button>
+          </div>
           <div class="filter-tabs">
             <button class="filter-tab active" data-filter="all">Tous</button>
             <button class="filter-tab" data-filter="midi">Midi</button>
@@ -208,9 +210,6 @@
             <button class="btn btn-ghost" type="button" id="btn-cancel-edit" style="display:none">Annuler</button>
           </div>
         </form>
-        <hr class="divider"/>
-        <h3 class="section-subtitle">Plats existants</h3>
-        <div class="existing-dishes" id="existing-dishes"></div>
       </div>
     </div>
   </div>

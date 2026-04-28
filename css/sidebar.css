@@ -25,10 +25,16 @@
   z-index: 1;
 }
 
-.sidebar-header h2 {
+.sidebar-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.sidebar-header-top h2 {
   font-size: .95rem;
   font-weight: 700;
-  margin-bottom: 10px;
   color: var(--ink);
 }
 
@@ -133,9 +139,47 @@
   border: 1px solid rgba(150,212,184,.35);
 }
 
-.drag-handle {
-  display: none;
+.drag-handle { display: none; }
+
+/* ── Card action buttons (edit / delete) ── */
+.dish-item-actions {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity var(--tr);
+  background: rgba(28, 32, 40, .82);
+  border-radius: var(--r-sm);
+  backdrop-filter: blur(2px);
 }
+
+.dish-item:hover .dish-item-actions { opacity: 1; }
+
+.dish-action {
+  padding: 5px 9px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  font-size: .75rem;
+  cursor: pointer;
+  background: transparent;
+  transition: all var(--tr);
+}
+
+.dish-action-edit {
+  color: var(--accent);
+  border-color: rgba(170,184,245,.35);
+}
+.dish-action-edit:hover { background: rgba(170,184,245,.18); }
+
+.dish-action-delete {
+  color: var(--accent-red);
+  border-color: rgba(245,160,144,.35);
+}
+.dish-action-delete:hover { background: rgba(245,160,144,.18); }
 
 .dish-list-empty {
   grid-column: 1 / -1;

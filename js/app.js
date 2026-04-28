@@ -17,12 +17,6 @@ const App = (() => {
       Modal.open('modal-ingredients');
     });
 
-    document.getElementById('btn-dishes').addEventListener('click', () => {
-      Dishes.renderExisting();
-      Ingredients.populateDishSelect();
-      Modal.open('modal-dishes');
-    });
-
     /* Sidebar toggle */
     const toggleBtn = document.getElementById('btn-toggle-sidebar');
     const sidebar   = document.getElementById('sidebar');
