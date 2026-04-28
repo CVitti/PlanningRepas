@@ -177,23 +177,33 @@
         <!-- Panel: Plats -->
         <div class="catalog-panel" id="panel-dishes">
           <form id="form-dish">
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="label">Nom du plat</label>
-                <input class="input" type="text" id="dish-name" placeholder="Ex: Quiche lorraine" required/>
-              </div>
-              <div class="form-group">
-                <label class="label">Disponible pour</label>
-                <div class="radio-group">
-                  <label class="radio-label"><input type="radio" name="dish-slot" value="both" checked/> Midi &amp; Soir</label>
-                  <label class="radio-label"><input type="radio" name="dish-slot" value="midi"/> Midi uniquement</label>
-                  <label class="radio-label"><input type="radio" name="dish-slot" value="soir"/> Soir uniquement</label>
+            <div class="form-group">
+              <label class="label">Nom du plat</label>
+              <input class="input" type="text" id="dish-name" placeholder="Ex: Quiche lorraine" required/>
+            </div>
+            <div class="dish-options">
+              <div class="form-group" style="flex:1;min-width:0;">
+                <label class="label">Créneau</label>
+                <div class="slot-selector">
+                  <label class="slot-btn slot-btn-both">
+                    <input type="radio" name="dish-slot" value="both" checked/>
+                    <span>Midi &amp; Soir</span>
+                  </label>
+                  <label class="slot-btn slot-btn-midi">
+                    <input type="radio" name="dish-slot" value="midi"/>
+                    <span>Midi</span>
+                  </label>
+                  <label class="slot-btn slot-btn-soir">
+                    <input type="radio" name="dish-slot" value="soir"/>
+                    <span>Soir</span>
+                  </label>
                 </div>
               </div>
-              <div class="form-group checkbox-group">
-                <label class="checkbox-label">
+              <div class="form-group">
+                <label class="label">Portions</label>
+                <label class="toggle-btn" id="double-toggle">
                   <input type="checkbox" id="dish-double"/>
-                  <span>Représente 2 portions (plat doublé)</span>
+                  <span>×2 Double</span>
                 </label>
               </div>
             </div>

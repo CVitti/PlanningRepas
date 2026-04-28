@@ -222,6 +222,69 @@
   background: var(--bg-card);
 }
 
+/* ── Dish form options row ── */
+.dish-options {
+  display: flex;
+  gap: 13px;
+  align-items: flex-end;
+  margin-bottom: 13px;
+}
+
+/* Segmented slot selector */
+.slot-selector {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+
+.slot-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 8px;
+  cursor: pointer;
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+  transition: all var(--tr);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.slot-btn:not(:last-child) { border-right: 1px solid var(--border); }
+.slot-btn input { display: none; }
+
+.slot-btn-both:has(input:checked)  { background: var(--accent);       color: var(--bg); }
+.slot-btn-midi:has(input:checked)  { background: var(--accent-warm);  color: var(--bg); }
+.slot-btn-soir:has(input:checked)  { background: var(--accent-blue);  color: var(--bg); }
+
+/* Toggle button for double portion */
+.toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+  transition: all var(--tr);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.toggle-btn input { display: none; }
+
+.toggle-btn:has(input:checked) {
+  background: rgba(245,201,160,.15);
+  border-color: var(--accent-warm);
+  color: var(--accent-warm);
+}
+
 /* ── Existing dishes ── */
 .existing-dishes {
   display: flex;
