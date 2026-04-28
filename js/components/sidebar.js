@@ -24,6 +24,15 @@ const Sidebar = (() => {
     return dishes.filter(d => d.slot === activeFilter || d.slot === 'both');
   }
 
+  /* ── Slot icons ── */
+  function slotIcons(slot) {
+    const sun  = '<span class="slot-icon slot-icon-midi">☀</span>';
+    const moon = '<span class="slot-icon slot-icon-soir">☽</span>';
+    if (slot === 'midi') return sun;
+    if (slot === 'soir') return moon;
+    return sun + moon;
+  }
+
   /* ── Render ── */
   function render() {
     const container = document.getElementById('dish-list');
@@ -48,9 +57,9 @@ const Sidebar = (() => {
            data-dish-id="${dish.id}"
            title="Glissez pour assigner">
         <div class="dish-item-name">${dish.name}</div>
-        <div class="dish-item-meta">
-          <span class="slot-pill ${Dishes.slotClass(dish.slot)}">${Dishes.slotLabel(dish.slot)}</span>
-          ${dish.double ? '<span class="badge badge-double">\xd72</span>' : ''}
+        <div class="dish-item-footer">
+          <div class="dish-item-slots">${slotIcons(dish.slot)}</div>
+          ${dish.double ? '<span class="dish-double-badge">\xd72</span>' : ''}
         </div>
         <div class="dish-item-actions">
           <button class="dish-action dish-action-edit" data-id="${dish.id}" title="Modifier">✎</button>
