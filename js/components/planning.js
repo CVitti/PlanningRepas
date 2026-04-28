@@ -1,4 +1,4 @@
-﻿/* ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    js/components/planning.js
    ═══════════════════════════════════════════════════════════ */
 
@@ -9,7 +9,7 @@ const Planning = (() => {
   let weekOffset      = 0;
 
   /* ── SPECIAL VALUES ── */
-  const FREE_MEAL = '__free__'; // repas marqué "libre"
+  const FREE_MEAL = '__free__'; // repas marque "libre"
 
   /* ── Storage ── */
   function load() {
@@ -138,7 +138,9 @@ const Planning = (() => {
 
     const lbl = document.createElement('div');
     lbl.className = 'meal-slot-label';
-    lbl.textContent = slot === 'midi' ? '\u2600 Midi' : '\uD83C\uDF19 Soir';
+    lbl.innerHTML = slot === 'midi'
+      ? '<span class="slot-icon slot-icon-midi">☀</span><span>Midi</span>'
+      : '<span class="slot-icon slot-icon-soir">🌙</span><span>Soir</span>';
     el.appendChild(lbl);
 
     if (locked) return el;
@@ -173,8 +175,8 @@ const Planning = (() => {
     const card = document.createElement('div');
     card.className = 'meal-card meal-card-free';
     card.innerHTML =
-      '<div class="meal-card-name free-label">\u2728 Repas libre</div>' +
-      '<button class="meal-card-remove" title="Retirer">\u2715</button>';
+      '<div class="meal-card-name free-label">✨ Repas libre</div>' +
+      '<button class="meal-card-remove" title="Retirer">✕</button>';
 
     card.querySelector('.meal-card-remove').addEventListener('click', e => {
       e.stopPropagation();
@@ -199,7 +201,7 @@ const Planning = (() => {
     const rmBtn = document.createElement('button');
     rmBtn.className = 'meal-card-remove';
     rmBtn.title     = 'Retirer ce plat';
-    rmBtn.textContent = '\u2715';
+    rmBtn.textContent = '✕';
 
     const nameEl = document.createElement('div');
     nameEl.className = 'meal-card-name';
@@ -236,7 +238,6 @@ const Planning = (() => {
       render();
     });
 
-    /* Drag from planning card */
     card.addEventListener('dragstart', e => {
       e.stopPropagation();
       e.dataTransfer.effectAllowed = 'all';
@@ -274,7 +275,6 @@ const Planning = (() => {
     e.preventDefault();
     this.classList.remove('drag-over');
 
-    /* Récupérer dishId depuis les deux MIME types possibles */
     const dishId   = e.dataTransfer.getData('text/dish-id') ||
                      e.dataTransfer.getData('text/plain');
     const srcDate  = e.dataTransfer.getData('text/source-date');
@@ -293,7 +293,6 @@ const Planning = (() => {
       return;
     }
 
-    /* Libérer la source si c'est un déplacement depuis le planning */
     if (srcDate && srcSlot && (srcDate !== destDate || srcSlot !== destSlot)) {
       clearSlot(srcDate, srcSlot);
     }
@@ -302,22 +301,92 @@ const Planning = (() => {
     render();
   }
 
+  /* ── Shopping list ── */
+  function formatQty(qty) {
+    if (qty % 1 === 0) return String(qty);
+    return parseFloat(qty.toFixed(4)).toString();
+  }
+
+  function buildShoppingList() {
+    const totals    = {}; // ingId -> { ing, qty }
+    const seenDouble = new Set();
+
+    days.forEach(dayInfo => {
+      const dayData = getDayData(dayInfo.key);
+      ['midi', 'soir'].forEach(slot => {
+        const dishId = dayData[slot];
+        if (!dishId || dishId === FREE_MEAL) return;
+        const dish = Dishes.getById(dishId);
+        if (!dish) return;
+        // Plat double : une seule preparation pour la semaine
+        if (dish.double) {
+          if (seenDouble.has(dishId)) return;
+          seenDouble.add(dishId);
+        }
+        dish.ingredients.forEach(item => {
+          const ing = Ingredients.getById(item.id);
+          if (!ing) return;
+          if (!totals[item.id]) totals[item.id] = { ing, qty: 0 };
+          totals[item.id].qty += item.qty;
+        });
+      });
+    });
+
+    return Object.values(totals).sort((a, b) => a.ing.name.localeCompare(b.ing.name, 'fr'));
+  }
+
+  function showShoppingList() {
+    const items = buildShoppingList();
+    const weekRange = Dates.formatWeekRange(days);
+
+    const titleEl = document.getElementById('shopping-title');
+    if (titleEl) titleEl.textContent = 'Liste de courses — ' + weekRange;
+
+    const bodyEl = document.getElementById('shopping-body');
+    if (!bodyEl) return;
+
+    if (!items.length) {
+      bodyEl.innerHTML = '<p class="panel-empty" style="padding:16px 0;">Aucun plat planifié cette semaine.</p>';
+      Modal.open('modal-shopping');
+      return;
+    }
+
+    bodyEl.innerHTML =
+      '<div class="shopping-list">' +
+      items.map((item, i) =>
+        '<label class="shopping-item">' +
+          '<input type="checkbox" class="shopping-check" id="sc-' + i + '">' +
+          '<span class="shopping-name">' + item.ing.name + '</span>' +
+          '<span class="shopping-qty">' + formatQty(item.qty) + ' ' + item.ing.unit + '</span>' +
+        '</label>'
+      ).join('') +
+      '</div>';
+
+    bodyEl.querySelectorAll('.shopping-check').forEach(cb => {
+      cb.addEventListener('change', () => {
+        cb.closest('.shopping-item').classList.toggle('checked', cb.checked);
+      });
+    });
+
+    Modal.open('modal-shopping');
+  }
+
   /* ── Detail modal ── */
   function showDetail(dish) {
     document.getElementById('meal-detail-title').textContent = dish.name;
     const rows = dish.ingredients.map(item => {
       const ing = Ingredients.getById(item.id);
-      return ing ? '<tr><td>' + ing.name + '</td><td>' + item.qty + ' ' + ing.unit + '</td></tr>' : '';
+      return ing ? '<tr><td>' + ing.name + '</td><td>' + item.qty + ' ' + ing.unit + '</td></tr>' : '';
     }).join('');
 
     document.getElementById('meal-detail-body').innerHTML =
       '<div class="meal-detail-info">' +
-        '<p>Creneau\u00a0: <strong>' + Dishes.slotLabel(dish.slot) + '</strong></p>' +
+        '<p>Créneau : <strong>' + Dishes.slotLabel(dish.slot) + '</strong></p>' +
         (dish.double ? '<p><strong>Plat double (2 portions)</strong></p>' : '') +
       '</div>' +
       (dish.ingredients.length
-        ? '<table class="ingredient-table"><thead><tr><th>Ingredient</th><th>Quantite</th></tr></thead><tbody>' + rows + '</tbody></table>'
-        : '<p style="color:var(--ink-faint);">Aucun ingredient renseigne.</p>');
+        ? '<table class="ingredient-table"><thead><tr><th>Ingrédient</th><th>Quantité</th></tr></thead><tbody>' + rows + '</tbody></table>'
+        : '<p style="color:var(--ink-faint);">Aucun ingrédient renseigné.</p>');
 
     Modal.open('modal-meal-detail');
   }
@@ -338,6 +407,7 @@ const Planning = (() => {
     document.getElementById('btn-prev-week')    ?.addEventListener('click', goToPrevWeek);
     document.getElementById('btn-next-week')    ?.addEventListener('click', goToNextWeek);
     document.getElementById('btn-week-current') ?.addEventListener('click', goToCurrentWeek);
+    document.getElementById('btn-shopping-list')?.addEventListener('click', showShoppingList);
   }
 
   return { init, load, render, assignDish, clearSlot, FREE_MEAL };

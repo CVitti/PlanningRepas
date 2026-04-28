@@ -39,7 +39,7 @@
 
 .modal-overlay.open .modal { transform: none; }
 
-.modal-wide { max-width: 660px; }
+.modal-wide { max-width: 820px; }
 
 .modal-close {
   position: absolute;
@@ -510,6 +510,58 @@
 }
 
 .ingredient-table tr:last-child td { border-bottom: none; }
+
+/* ── Shopping list ── */
+.shopping-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shopping-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 11px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all var(--tr);
+  user-select: none;
+}
+
+.shopping-item:hover { border-color: var(--ink-faint); }
+
+.shopping-check {
+  accent-color: var(--accent);
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.shopping-name {
+  flex: 1;
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--ink);
+  transition: color var(--tr);
+}
+
+.shopping-qty {
+  font-size: .82rem;
+  color: var(--ink-muted);
+  white-space: nowrap;
+  transition: color var(--tr);
+}
+
+.shopping-item.checked { opacity: .55; }
+.shopping-item.checked .shopping-name {
+  text-decoration: line-through;
+  color: var(--ink-faint);
+}
+.shopping-item.checked .shopping-qty { color: var(--ink-faint); }
 
 /* Responsive modals */
 @media (max-width: 600px) {

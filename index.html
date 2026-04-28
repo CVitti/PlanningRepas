@@ -108,6 +108,7 @@
       <section class="planning-section">
         <div class="planning-toolbar">
           <button class="btn btn-ghost btn-sm" id="btn-clear-week" title="Vider le planning affiché">🗑 Vider</button>
+          <button class="btn btn-ghost btn-sm" id="btn-shopping-list" title="Liste de courses de la semaine">🛒 Courses</button>
           <span class="spacer"></span>
           <button class="btn btn-ghost btn-sm" id="btn-prev-week">← Précédente</button>
           <button class="btn btn-ghost btn-sm" id="btn-week-current">Courante</button>
@@ -222,6 +223,15 @@
         </div>
 
       </div>
+    </div>
+  </div>
+
+  <!-- Modal: Liste de courses -->
+  <div class="modal-overlay" id="modal-shopping">
+    <div class="modal">
+      <button class="modal-close" data-modal="modal-shopping">✕</button>
+      <h2 class="modal-title" id="shopping-title">Liste de courses</h2>
+      <div class="modal-body" id="shopping-body"></div>
     </div>
   </div>
 

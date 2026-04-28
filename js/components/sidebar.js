@@ -27,7 +27,7 @@ const Sidebar = (() => {
   /* ── Slot icons ── */
   function slotIcons(slot) {
     const sun  = '<span class="slot-icon slot-icon-midi">☀</span>';
-    const moon = '<span class="slot-icon slot-icon-soir">☽</span>';
+    const moon = '<span class="slot-icon slot-icon-soir">🌙</span>';
     if (slot === 'midi') return sun;
     if (slot === 'soir') return moon;
     return sun + moon;

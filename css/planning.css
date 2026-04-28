@@ -82,14 +82,14 @@
   font-size: .68rem; font-weight: 600;
   text-transform: uppercase; letter-spacing: .09em;
   color: var(--ink-faint);
-  display: flex; align-items: center; gap: 3px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 4px; flex-shrink: 0;
 }
-.meal-slot-label::before {
-  content: ''; display: inline-block;
-  width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0;
+
+/* Slot icon sizing inside planning label */
+.meal-slot-label .slot-icon {
+  font-size: .8rem;
+  line-height: 1;
 }
-.meal-slot[data-slot="midi"] .meal-slot-label::before { background: var(--accent-warm); }
-.meal-slot[data-slot="soir"] .meal-slot-label::before { background: var(--accent-blue); }
 
 /* ── Hint (empty slot) ── */
 .slot-hint {
