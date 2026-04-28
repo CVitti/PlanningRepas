@@ -314,6 +314,9 @@ const Planning = (() => {
     days.forEach(dayInfo => {
       const dayData = getDayData(dayInfo.key);
       ['midi', 'soir'].forEach(slot => {
+        // Ignorer les slots verrouillés (appartiennent aux semaines adjacentes)
+        if (slot === 'midi' && dayInfo.midiLocked) return;
+        if (slot === 'soir' && dayInfo.soirLocked) return;
         const dishId = dayData[slot];
         if (!dishId || dishId === FREE_MEAL) return;
         const dish = Dishes.getById(dishId);
