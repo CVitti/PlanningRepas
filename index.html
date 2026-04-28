@@ -168,8 +168,7 @@
             </select>
             <button class="btn btn-primary" type="submit">Ajouter</button>
           </form>
-          <p class="form-hint">Les quantités sont ajustables par pas de 0,5 lors de la création d'un plat.</p>
-          <div class="ingredient-list" id="ingredient-list"></div>
+          <div class="ingredient-grid" id="ingredient-list"></div>
         </div>
 
         <!-- Panel: Plats -->
@@ -205,13 +204,15 @@
                 </label>
               </div>
             </div>
-            <div class="form-group">
-              <label class="label">Ingrédients</label>
-              <div class="ingredient-selector">
-                <select class="input" id="ing-select"></select>
-                <button class="btn btn-ghost" type="button" id="btn-add-ing">+ Ajouter</button>
+            <div class="dish-ingredient-editor">
+              <div class="ing-col">
+                <span class="ing-col-title">Ingrédients</span>
+                <div class="available-ingredients" id="available-ingredients"></div>
               </div>
-              <div class="dish-ingredients" id="dish-ingredients"></div>
+              <div class="ing-col">
+                <span class="ing-col-title">Recette <em class="drop-hint">← glissez ici</em></span>
+                <div class="dish-ingredients" id="dish-ingredients"></div>
+              </div>
             </div>
             <div class="form-actions">
               <button class="btn btn-primary" type="submit" id="btn-dish-submit">Enregistrer le plat</button>

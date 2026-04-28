@@ -8,8 +8,7 @@ const App = (() => {
     Modal.init();
     Ingredients.init();
     Dishes.init();
-    Ingredients.populateDishSelect();
-    Planning.init();
+Planning.init();
     Sidebar.init();
 
   }

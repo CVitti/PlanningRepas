@@ -26,7 +26,7 @@ const Dishes = (() => {
     renderExisting();
     Sidebar.render();
     Planning.render();
-    Toast.success(`Plat « ${dish.name} » mis à jour !`);
+    Toast.success(`Plat « ${dish.name} » mis à jour !`);
   }
 
   function openCreate() {
@@ -44,6 +44,7 @@ const Dishes = (() => {
     document.getElementById('dish-double').checked = dish.double;
     formIngredients = dish.ingredients.map(i => ({ ...i }));
     renderFormIngredients();
+    renderAvailableIngredients();
     document.getElementById('btn-dish-submit').textContent = 'Mettre à jour';
     document.getElementById('btn-cancel-edit').style.display = 'inline-flex';
     Modal.openCatalog('dishes');
@@ -51,11 +52,15 @@ const Dishes = (() => {
 
   function cancelEdit() {
     editingId = null;
-    document.getElementById('form-dish').reset();
+    const form = document.getElementById('form-dish');
+    if (form) form.reset();
     formIngredients = [];
     renderFormIngredients();
-    document.getElementById('btn-dish-submit').textContent = 'Enregistrer le plat';
-    document.getElementById('btn-cancel-edit').style.display = 'none';
+    renderAvailableIngredients();
+    const submitBtn = document.getElementById('btn-dish-submit');
+    if (submitBtn) submitBtn.textContent = 'Enregistrer le plat';
+    const cancelBtn = document.getElementById('btn-cancel-edit');
+    if (cancelBtn) cancelBtn.style.display = 'none';
   }
 
   function add(name, slot, isDouble, ingredients) {
@@ -63,9 +68,9 @@ const Dishes = (() => {
     const dish = {
       id:          Dates.uid(),
       name:        name.trim(),
-      slot,          // 'both' | 'midi' | 'soir'
+      slot,
       double:      isDouble,
-      ingredients, // [{id, qty}]
+      ingredients,
     };
     list.push(dish);
     save();
@@ -76,17 +81,13 @@ const Dishes = (() => {
   }
 
   function remove(id) {
-    /* Remove from planning too */
     const planning = Storage.get('planning', {});
     Object.keys(planning).forEach(dateKey => {
       ['midi', 'soir'].forEach(slot => {
-        if (planning[dateKey][slot] === id) {
-          delete planning[dateKey][slot];
-        }
+        if (planning[dateKey][slot] === id) delete planning[dateKey][slot];
       });
     });
     Storage.set('planning', planning);
-
     list = list.filter(d => d.id !== id);
     save();
     renderExisting();
@@ -95,35 +96,73 @@ const Dishes = (() => {
     Toast.info('Plat supprimé.');
   }
 
-  /* ── Slot labels ── */
+  /* ── Slot helpers ── */
   function slotLabel(slot) {
     return slot === 'both' ? 'Midi & Soir' : slot === 'midi' ? 'Midi' : 'Soir';
   }
-
   function slotClass(slot) {
     return slot === 'both' ? 'both' : slot;
   }
 
-  /* ── Form: ingredient builder ── */
-  function addIngToForm() {
-    const sel   = document.getElementById('ing-select');
-    const ingId = sel.value;
-    if (!ingId) return;
-    const ing = Ingredients.getById(ingId);
-    if (!ing) return;
-    if (formIngredients.find(i => i.id === ingId)) {
-      Toast.error('Cet ingredient est deja dans la liste.');
+  /* ── Available ingredients panel (left column) ── */
+  function renderAvailableIngredients() {
+    const container = document.getElementById('available-ingredients');
+    if (!container) return;
+    const all = Ingredients.getAll()
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    if (!all.length) {
+      container.innerHTML = '<p class="panel-empty">Créez d\'abord des ingrédients dans l\'onglet correspondant.</p>';
       return;
     }
-    const step = Ingredients.getStep();
-    formIngredients.push({ id: ingId, qty: step });
-    renderFormIngredients();
-    sel.value = '';
+    const usedIds = new Set(formIngredients.map(i => i.id));
+    container.innerHTML = all.map(ing => {
+      const used = usedIds.has(ing.id);
+      return `<div class="available-ing-item${used ? ' used' : ''}"
+                   draggable="${used ? 'false' : 'true'}"
+                   data-id="${ing.id}"
+                   ondragstart="Dishes._onDragStart(event,'${ing.id}')">
+        <span class="available-ing-name">${ing.name}</span>
+        <span class="available-ing-unit">${ing.unit}</span>
+      </div>`;
+    }).join('');
   }
 
+  /* ── Drag from available list ── */
+  function onDragStart(e, ingId) {
+    e.dataTransfer.setData('ing-id', ingId);
+    e.dataTransfer.effectAllowed = 'copy';
+  }
+
+  /* ── Recipe drop zone (right column) ── */
+  function initDropZone() {
+    const zone = document.getElementById('dish-ingredients');
+    if (!zone) return;
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.classList.add('drag-over');
+    });
+    zone.addEventListener('dragleave', e => {
+      if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over');
+    });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const ingId = e.dataTransfer.getData('ing-id');
+      if (!ingId) return;
+      if (!Ingredients.getById(ingId)) return;
+      if (formIngredients.find(i => i.id === ingId)) return;
+      formIngredients.push({ id: ingId, qty: Ingredients.getStep() });
+      renderFormIngredients();
+      renderAvailableIngredients();
+    });
+  }
+
+  /* ── Recipe ingredient rows ── */
   function removeIngFromForm(ingId) {
     formIngredients = formIngredients.filter(i => i.id !== ingId);
     renderFormIngredients();
+    renderAvailableIngredients();
   }
 
   function changeQty(ingId, delta) {
@@ -145,7 +184,7 @@ const Dishes = (() => {
     const container = document.getElementById('dish-ingredients');
     if (!container) return;
     if (!formIngredients.length) {
-      container.innerHTML = '<p style="color:var(--ink-faint);font-size:.8rem;padding:8px 0;">Aucun ingrédient sélectionné.</p>';
+      container.innerHTML = '<p class="drop-hint-text">Glissez des ingrédients ici…</p>';
       return;
     }
     container.innerHTML = formIngredients.map(item => {
@@ -155,18 +194,17 @@ const Dishes = (() => {
         <div class="dish-ing-row">
           <span class="dish-ing-name">${ing.name}</span>
           <div class="qty-control">
-            <button class="qty-btn" onclick="Dishes._qtyDown('${ing.id}')">−</button>
-            <input type="number" class="qty-value" data-id="${ing.id}" value="${item.qty}" min="0.5" step="0.5" oninput="Dishes._setQty('${ing.id}', this.value)">
+            <button class="qty-btn" type="button" onclick="Dishes._qtyDown('${ing.id}')">−</button>
+            <input type="number" class="qty-value" data-id="${ing.id}" value="${item.qty}" min="0.5" step="0.5" oninput="Dishes._setQty('${ing.id}',this.value)">
             <span class="qty-unit">${ing.unit}</span>
-            <button class="qty-btn" onclick="Dishes._qtyUp('${ing.id}')">+</button>
+            <button class="qty-btn" type="button" onclick="Dishes._qtyUp('${ing.id}')">+</button>
           </div>
-          <button class="btn btn-danger btn-sm" onclick="Dishes._removeIngFromForm('${ing.id}')">✕</button>
-        </div>
-      `;
+          <button class="btn btn-danger btn-sm" type="button" onclick="Dishes._removeIngFromForm('${ing.id}')">✕</button>
+        </div>`;
     }).join('');
   }
 
-  /* ── Render existing dishes in modal ── */
+  /* ── Render existing dishes list (modal, if container present) ── */
   function renderExisting() {
     const container = document.getElementById('existing-dishes');
     if (!container) return;
@@ -174,31 +212,34 @@ const Dishes = (() => {
       container.innerHTML = '<p style="color:var(--ink-faint);font-size:.85rem;">Aucun plat créé.</p>';
       return;
     }
-    container.innerHTML = [...list].sort((a, b) => a.name.localeCompare(b.name, 'fr')).map(d => `
-      <div class="existing-dish-row">
-        <span class="existing-dish-name">${d.name}</span>
-        <div class="existing-dish-meta">
-          ${d.double ? '<span class="badge badge-double">×2</span>' : ''}
-          <span class="slot-pill ${slotClass(d.slot)}">${slotLabel(d.slot)}</span>
-          <button class="btn btn-ghost btn-sm" onclick="Dishes._startEdit('${d.id}')">Modifier</button>
-          <button class="btn btn-danger btn-sm" onclick="Dishes.remove('${d.id}')">Supprimer</button>
-        </div>
-      </div>
-    `).join('');
+    container.innerHTML = [...list]
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+      .map(d => `
+        <div class="existing-dish-row">
+          <span class="existing-dish-name">${d.name}</span>
+          <div class="existing-dish-meta">
+            ${d.double ? '<span class="badge badge-double">×2</span>' : ''}
+            <span class="slot-pill ${slotClass(d.slot)}">${slotLabel(d.slot)}</span>
+            <button class="btn btn-ghost btn-sm" onclick="Dishes._startEdit('${d.id}')">Modifier</button>
+            <button class="btn btn-danger btn-sm" onclick="Dishes.remove('${d.id}')">Supprimer</button>
+          </div>
+        </div>`
+      ).join('');
   }
 
-  /* ── Form submit ── */
+  /* ── Form init ── */
   function initForm() {
     const form = document.getElementById('form-dish');
     if (!form) return;
 
-    document.getElementById('btn-add-ing').addEventListener('click', addIngToForm);
     document.getElementById('btn-cancel-edit').addEventListener('click', cancelEdit);
+
+    initDropZone();
 
     form.addEventListener('submit', e => {
       e.preventDefault();
-      const name = document.getElementById('dish-name').value;
-      const slot = document.querySelector('input[name="dish-slot"]:checked')?.value || 'both';
+      const name     = document.getElementById('dish-name').value;
+      const slot     = document.querySelector('input[name="dish-slot"]:checked')?.value || 'both';
       const isDouble = document.getElementById('dish-double').checked;
 
       if (!name.trim()) { Toast.error('Donnez un nom au plat.'); return; }
@@ -206,12 +247,11 @@ const Dishes = (() => {
       if (editingId) {
         update(editingId, name, slot, isDouble, [...formIngredients]);
         cancelEdit();
-        Modal.close('modal-catalog');
       } else {
         add(name, slot, isDouble, [...formIngredients]);
         cancelEdit();
-        Modal.close('modal-catalog');
       }
+      Modal.close('modal-catalog');
     });
   }
 
@@ -221,14 +261,14 @@ const Dishes = (() => {
     initForm();
   }
 
-  /* Exposed for inline onclick */
   return {
     init, load, getAll, getById, add, remove, slotLabel, slotClass,
-    openCreate,
-    _qtyUp:             (id)      => { changeQty(id,  Ingredients.getStep()); },
-    _qtyDown:           (id)      => { changeQty(id, -Ingredients.getStep()); },
-    _setQty:            (id, val) => { setQty(id, val); },
-    _removeIngFromForm: (id)      => { removeIngFromForm(id); },
-    _startEdit:         (id)      => { startEdit(id); },
+    openCreate, renderAvailableIngredients,
+    _qtyUp:             id      => changeQty(id,  Ingredients.getStep()),
+    _qtyDown:           id      => changeQty(id, -Ingredients.getStep()),
+    _setQty:            (id, v) => setQty(id, v),
+    _removeIngFromForm: id      => removeIngFromForm(id),
+    _startEdit:         id      => startEdit(id),
+    _onDragStart:       (e, id) => onDragStart(e, id),
   };
 })();

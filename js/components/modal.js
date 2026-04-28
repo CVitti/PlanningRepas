@@ -32,6 +32,9 @@ const Modal = (() => {
       t.classList.toggle('active', t.dataset.tab === tab));
     document.querySelectorAll('.catalog-panel').forEach(p =>
       p.classList.toggle('active', p.id === `panel-${tab}`));
+    if (tab === 'dishes' && typeof Dishes !== 'undefined') {
+      Dishes.renderAvailableIngredients();
+    }
     open('modal-catalog');
   }
 
