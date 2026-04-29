@@ -53,10 +53,15 @@ const Planning = (() => {
     const dish = Dishes.getById(dishId);
     if (!dish || !dish.double) return null;
 
+    // Restreint aux slots visibles et non-verrouillés de la semaine affichée
     const placements = [];
-    Object.keys(planningData).sort().forEach(dk => {
+    days.forEach(dayInfo => {
       ['midi', 'soir'].forEach(s => {
-        if (planningData[dk]?.[s] === dishId) placements.push({ dk, s });
+        if (s === 'midi' && dayInfo.midiLocked) return;
+        if (s === 'soir' && dayInfo.soirLocked) return;
+        if (planningData[dayInfo.key]?.[s] === dishId) {
+          placements.push({ dk: dayInfo.key, s });
+        }
       });
     });
 
