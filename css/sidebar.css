@@ -94,6 +94,16 @@
   background: var(--bg-card-alt);
 }
 
+/* Plat déjà placé dans la semaine affichée */
+.dish-item--in-use {
+  border-left: 2px solid var(--accent);
+  background: rgba(144,184,255,.06);
+}
+
+.dish-item--in-use:hover {
+  background: rgba(144,184,255,.12);
+}
+
 .dish-item:active { cursor: grabbing; }
 
 .dish-item.dragging { opacity: .35; transform: scale(.97); }

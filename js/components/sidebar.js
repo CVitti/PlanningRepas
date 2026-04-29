@@ -51,8 +51,10 @@ const Sidebar = (() => {
       return;
     }
 
-    container.innerHTML = filtered.map(dish => `
-      <div class="dish-item"
+    container.innerHTML = filtered.map(dish => {
+      const inUse = typeof Planning !== 'undefined' && Planning.isUsedThisWeek(dish.id);
+      return `
+      <div class="dish-item${inUse ? ' dish-item--in-use' : ''}"
            draggable="true"
            data-dish-id="${dish.id}"
            title="Glissez pour assigner">
@@ -66,7 +68,8 @@ const Sidebar = (() => {
           <button class="dish-action dish-action-delete" data-id="${dish.id}" title="Supprimer">✕</button>
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
 
     /* Attach drag + action events */
     container.querySelectorAll('.dish-item').forEach(el => {

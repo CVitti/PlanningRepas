@@ -127,6 +127,8 @@ const Planning = (() => {
     });
 
     initDropZones();
+    /* Sync sidebar "in-use" highlights after every planning render */
+    if (typeof Sidebar !== 'undefined') Sidebar.render();
   }
 
   function buildSlot(dayInfo, slot, value) {
@@ -418,5 +420,16 @@ const Planning = (() => {
     document.getElementById('btn-shopping-list')?.addEventListener('click', showShoppingList);
   }
 
-  return { init, load, render, assignDish, clearSlot, FREE_MEAL };
+  /* ── Vérifie si un plat est posé au moins une fois dans la semaine affichée ── */
+  function isUsedThisWeek(dishId) {
+    return days.some(dayInfo =>
+      ['midi', 'soir'].some(slot => {
+        if (slot === 'midi' && dayInfo.midiLocked) return false;
+        if (slot === 'soir' && dayInfo.soirLocked) return false;
+        return planningData[dayInfo.key]?.[slot] === dishId;
+      })
+    );
+  }
+
+  return { init, load, render, assignDish, clearSlot, FREE_MEAL, isUsedThisWeek };
 })();
