@@ -199,38 +199,69 @@ const Planning = (() => {
     const card = document.createElement('div');
     card.className = 'meal-card meal-card-free';
 
-    /* Header: label + remove button */
-    const header = document.createElement('div');
-    header.className = 'free-card-header';
+    /* Display content */
+    const content = document.createElement('div');
+    content.className = 'free-card-content';
 
     const label = document.createElement('div');
     label.className = 'meal-card-name free-label';
     label.textContent = '✨ Repas libre';
 
+    const notePreview = document.createElement('div');
+    notePreview.className = 'free-note-preview';
+    notePreview.textContent = getNote(dateKey, slot);
+
+    content.appendChild(label);
+    content.appendChild(notePreview);
+    card.appendChild(content);
+
+    /* Overlay (same pattern as meal card) */
+    const actionsEl = document.createElement('div');
+    actionsEl.className = 'meal-card-actions';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'dish-action dish-action-edit';
+    editBtn.title = 'Modifier la note';
+    editBtn.textContent = '✎';
+
     const rmBtn = document.createElement('button');
-    rmBtn.className = 'free-card-remove';
+    rmBtn.className = 'dish-action dish-action-delete';
     rmBtn.title = 'Retirer';
     rmBtn.textContent = '✕';
+
     rmBtn.addEventListener('click', e => {
       e.stopPropagation();
       clearSlot(dateKey, slot);
       render();
     });
 
-    header.appendChild(label);
-    header.appendChild(rmBtn);
+    actionsEl.appendChild(editBtn);
+    actionsEl.appendChild(rmBtn);
+    card.appendChild(actionsEl);
 
-    /* Note textarea */
+    /* Note textarea (hidden until edit mode) */
     const noteEl = document.createElement('textarea');
     noteEl.className = 'free-meal-note';
     noteEl.placeholder = 'Note…';
     noteEl.value = getNote(dateKey, slot);
-    noteEl.addEventListener('input', () => setNote(dateKey, slot, noteEl.value));
+    card.appendChild(noteEl);
+
+    /* Edit mode toggle */
+    editBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      card.classList.add('editing');
+      noteEl.focus();
+    });
+
+    noteEl.addEventListener('input', () => {
+      const val = noteEl.value;
+      setNote(dateKey, slot, val);
+      notePreview.textContent = val;
+    });
+
+    noteEl.addEventListener('blur', () => card.classList.remove('editing'));
     noteEl.addEventListener('click',     e => e.stopPropagation());
     noteEl.addEventListener('mousedown', e => e.stopPropagation());
-
-    card.appendChild(header);
-    card.appendChild(noteEl);
 
     return card;
   }
