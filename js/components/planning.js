@@ -580,16 +580,20 @@ const Planning = (() => {
     document.getElementById('btn-shopping-list')?.addEventListener('click', showShoppingList);
   }
 
-  /* ── Vérifie si un plat est posé au moins une fois dans la semaine affichée ── */
-  function isUsedThisWeek(dishId) {
-    return days.some(dayInfo =>
-      ['midi', 'soir'].some(slot => {
-        if (slot === 'midi' && dayInfo.midiLocked) return false;
-        if (slot === 'soir' && dayInfo.soirLocked) return false;
-        return planningData[dayInfo.key]?.[slot] === dishId;
+  /* ── Compte combien de fois un plat est posé dans la semaine affichée ── */
+  function countUsedThisWeek(dishId) {
+    let count = 0;
+    days.forEach(dayInfo =>
+      ['midi', 'soir'].forEach(slot => {
+        if (slot === 'midi' && dayInfo.midiLocked) return;
+        if (slot === 'soir' && dayInfo.soirLocked) return;
+        if (planningData[dayInfo.key]?.[slot] === dishId) count++;
       })
     );
+    return count;
   }
 
-  return { init, load, render, assignDish, clearSlot, FREE_MEAL, isUsedThisWeek };
+  function isUsedThisWeek(dishId) { return countUsedThisWeek(dishId) > 0; }
+
+  return { init, load, render, assignDish, clearSlot, FREE_MEAL, isUsedThisWeek, countUsedThisWeek };
 })();

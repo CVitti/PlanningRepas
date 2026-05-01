@@ -104,6 +104,16 @@
   background: rgba(144,184,255,.12);
 }
 
+/* Plat double avec une seule portion placée dans la semaine */
+.dish-item--partial {
+  border-left: 2px solid var(--accent-warm);
+  background: rgba(255,184,112,.06);
+}
+
+.dish-item--partial:hover {
+  background: rgba(255,184,112,.12);
+}
+
 .dish-item:active { cursor: grabbing; }
 
 .dish-item.dragging { opacity: .35; transform: scale(.97); }

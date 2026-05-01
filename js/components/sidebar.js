@@ -52,9 +52,11 @@ const Sidebar = (() => {
     }
 
     container.innerHTML = filtered.map(dish => {
-      const inUse = typeof Planning !== 'undefined' && Planning.isUsedThisWeek(dish.id);
+      const count     = typeof Planning !== 'undefined' ? Planning.countUsedThisWeek(dish.id) : 0;
+      const inUse     = count > 0;
+      const isPartial = dish.double && count === 1;
       return `
-      <div class="dish-item${inUse ? ' dish-item--in-use' : ''}"
+      <div class="dish-item${inUse ? ' dish-item--in-use' : ''}${isPartial ? ' dish-item--partial' : ''}"
            draggable="true"
            data-dish-id="${dish.id}"
            title="Glissez pour assigner">
