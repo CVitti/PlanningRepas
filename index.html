@@ -44,7 +44,7 @@
           Le token est stocké localement sur cet appareil, jamais envoyé ailleurs que GitHub.
         </p>
         <div class="token-input-group">
-          <input class="input" type="password" id="setup-token" placeholder="github_pat_…" autocomplete="off" spellcheck="false"/>
+          <input class="input" type="password" id="setup-token" placeholder="github_pat_…" autocomplete="off" spellcheck="false" aria-label="Token GitHub"/>
           <button class="btn-icon" id="btn-toggle-token" title="Afficher/masquer">👁</button>
         </div>
         <p class="setup-error" id="token-error"></p>
@@ -68,7 +68,7 @@
         </div>
         <div class="or-divider">ou</div>
         <div class="form-row" style="margin-bottom:8px">
-          <input class="input" type="text" id="existing-gist-id" placeholder="Identifiant du Gist existant (ex: a1b2c3d4…)" autocomplete="off" spellcheck="false"/>
+          <input class="input" type="text" id="existing-gist-id" placeholder="Identifiant du Gist existant (ex: a1b2c3d4…)" autocomplete="off" spellcheck="false" aria-label="Identifiant du Gist existant"/>
           <button class="btn btn-ghost" id="btn-use-existing">Utiliser ce Gist</button>
         </div>
         <p class="setup-error" id="gist-error"></p>
@@ -148,8 +148,8 @@
         <!-- Panel: Ingrédients -->
         <div class="catalog-panel active" id="panel-ingredients">
           <form class="form-row" id="form-ingredient">
-            <input class="input" type="text" id="ing-name" placeholder="Nom de l'ingrédient" required/>
-            <select class="input select-unit" id="ing-unit">
+            <input class="input" type="text" id="ing-name" placeholder="Nom de l'ingrédient" required aria-label="Nom de l'ingrédient"/>
+            <select class="input select-unit" id="ing-unit" aria-label="Unité de mesure">
               <optgroup label="Poids">
                 <option value="g">g</option>
                 <option value="kg">kg</option>
@@ -177,12 +177,12 @@
         <div class="catalog-panel" id="panel-dishes">
           <form id="form-dish">
             <div class="form-group">
-              <label class="label">Nom du plat</label>
+              <label class="label" for="dish-name">Nom du plat</label>
               <input class="input" type="text" id="dish-name" placeholder="Ex: Quiche lorraine" required/>
             </div>
             <div class="dish-options">
               <div class="form-group" style="flex:1;min-width:0;">
-                <label class="label">Créneau</label>
+                <div class="label">Créneau</div>
                 <div class="slot-selector">
                   <label class="slot-btn slot-btn-both">
                     <input type="radio" name="dish-slot" value="both" checked/>
@@ -199,14 +199,14 @@
                 </div>
               </div>
               <div class="form-group">
-                <label class="label">Portions</label>
+                <div class="label">Portions</div>
                 <label class="toggle-btn" id="double-toggle">
                   <input type="checkbox" id="dish-double"/>
                   <span>×2 Double</span>
                 </label>
               </div>
               <div class="form-group">
-                <label class="label">Génération</label>
+                <div class="label">Génération</div>
                 <label class="toggle-btn" id="random-toggle">
                   <input type="checkbox" id="dish-random" checked/>
                   <span>🎲 Aléatoire</span>
