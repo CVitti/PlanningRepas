@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background -->
+  <rect width="32" height="32" rx="7" fill="#1a1a1a"/>
+
+  <!-- Fork (accent bleu) -->
+  <!-- 3 dents -->
+  <rect x="7"    y="4" width="2" height="9" rx="1" fill="#90b8ff"/>
+  <rect x="11.5" y="4" width="2" height="9" rx="1" fill="#90b8ff"/>
+  <rect x="16"   y="4" width="2" height="9" rx="1" fill="#90b8ff"/>
+  <!-- Épaulement -->
+  <rect x="7" y="11" width="11" height="2" rx="1" fill="#90b8ff"/>
+  <!-- Manche -->
+  <rect x="10.5" y="12.5" width="3" height="15.5" rx="1.5" fill="#90b8ff"/>
+
+  <!-- Couteau (accent warm) -->
+  <!-- Lame (effilée) -->
+  <path d="M22 4 C24.5 4 25.5 7 25.5 13 L22 13 Z" fill="#ffb870"/>
+  <!-- Garde -->
+  <rect x="21.5" y="13" width="4.5" height="2" rx="1" fill="#ffb870"/>
+  <!-- Manche -->
+  <rect x="22.5" y="14.5" width="2.5" height="13.5" rx="1.25" fill="#ffb870"/>
+</svg>
