@@ -109,6 +109,7 @@
         <div class="planning-toolbar">
           <button class="btn btn-ghost btn-sm" id="btn-clear-week" title="Vider le planning affiché">🗑 Vider</button>
           <button class="btn btn-ghost btn-sm" id="btn-shopping-list" title="Liste de courses de la semaine">🛒 Courses</button>
+          <button class="btn btn-primary btn-sm" id="btn-generate" title="Générer le planning aléatoirement">🎲 Générer</button>
           <span class="spacer"></span>
           <button class="btn btn-ghost btn-sm" id="btn-prev-week">← Précédente</button>
           <button class="btn btn-ghost btn-sm" id="btn-week-current">Courante</button>
@@ -202,6 +203,13 @@
                 <label class="toggle-btn" id="double-toggle">
                   <input type="checkbox" id="dish-double"/>
                   <span>×2 Double</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label class="label">Génération</label>
+                <label class="toggle-btn" id="random-toggle">
+                  <input type="checkbox" id="dish-random" checked/>
+                  <span>🎲 Aléatoire</span>
                 </label>
               </div>
             </div>

@@ -478,6 +478,15 @@
   align-items: center;
 }
 
+.badge-excluded {
+  font-size: .6rem; font-weight: 600;
+  padding: 1px 5px; border-radius: 99px;
+  background: rgba(255,255,255,.06);
+  color: var(--ink-faint);
+  border: 1px solid rgba(255,255,255,.1);
+  letter-spacing: .02em;
+}
+
 /* ── Meal detail modal ── */
 .meal-detail-info {
   display: flex;

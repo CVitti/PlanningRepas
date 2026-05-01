@@ -15,13 +15,14 @@ const Dishes = (() => {
   function getById(id) { return list.find(d => d.id === id) || null; }
 
   /* ── CRUD ── */
-  function update(id, name, slot, isDouble, ingredients) {
+  function update(id, name, slot, isDouble, ingredients, excludeFromRandom) {
     const dish = list.find(d => d.id === id);
     if (!dish) return;
     dish.name = name.trim();
     dish.slot = slot;
     dish.double = isDouble;
     dish.ingredients = ingredients;
+    dish.excludeFromRandom = !!excludeFromRandom;
     save();
     renderExisting();
     Sidebar.render();
@@ -42,6 +43,7 @@ const Dishes = (() => {
     const slotInput = document.querySelector(`input[name="dish-slot"][value="${dish.slot}"]`);
     if (slotInput) slotInput.checked = true;
     document.getElementById('dish-double').checked = dish.double;
+    document.getElementById('dish-random').checked = !dish.excludeFromRandom;
     formIngredients = dish.ingredients.map(i => ({ ...i }));
     renderFormIngredients();
     renderAvailableIngredients();
@@ -63,13 +65,14 @@ const Dishes = (() => {
     if (cancelBtn) cancelBtn.style.display = 'none';
   }
 
-  function add(name, slot, isDouble, ingredients) {
+  function add(name, slot, isDouble, ingredients, excludeFromRandom) {
     if (!name.trim()) return null;
     const dish = {
-      id:          Dates.uid(),
-      name:        name.trim(),
+      id:               Dates.uid(),
+      name:             name.trim(),
       slot,
-      double:      isDouble,
+      double:           isDouble,
+      excludeFromRandom: !!excludeFromRandom,
       ingredients,
     };
     list.push(dish);
@@ -219,6 +222,7 @@ const Dishes = (() => {
           <span class="existing-dish-name">${d.name}</span>
           <div class="existing-dish-meta">
             ${d.double ? '<span class="badge badge-double">×2</span>' : ''}
+            ${d.excludeFromRandom ? '<span class="badge badge-excluded" title="Exclu de la génération aléatoire">–🎲</span>' : ''}
             <span class="slot-pill ${slotClass(d.slot)}">${slotLabel(d.slot)}</span>
             <button class="btn btn-ghost btn-sm" onclick="Dishes._startEdit('${d.id}')">Modifier</button>
             <button class="btn btn-danger btn-sm" onclick="Dishes.remove('${d.id}')">Supprimer</button>
@@ -238,17 +242,18 @@ const Dishes = (() => {
 
     form.addEventListener('submit', e => {
       e.preventDefault();
-      const name     = document.getElementById('dish-name').value;
-      const slot     = document.querySelector('input[name="dish-slot"]:checked')?.value || 'both';
-      const isDouble = document.getElementById('dish-double').checked;
+      const name             = document.getElementById('dish-name').value;
+      const slot             = document.querySelector('input[name="dish-slot"]:checked')?.value || 'both';
+      const isDouble         = document.getElementById('dish-double').checked;
+      const excludeFromRandom = !document.getElementById('dish-random').checked;
 
       if (!name.trim()) { Toast.error('Donnez un nom au plat.'); return; }
 
       if (editingId) {
-        update(editingId, name, slot, isDouble, [...formIngredients]);
+        update(editingId, name, slot, isDouble, [...formIngredients], excludeFromRandom);
         cancelEdit();
       } else {
-        add(name, slot, isDouble, [...formIngredients]);
+        add(name, slot, isDouble, [...formIngredients], excludeFromRandom);
         cancelEdit();
       }
       Modal.close('modal-catalog');

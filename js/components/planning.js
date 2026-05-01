@@ -442,6 +442,123 @@ const Planning = (() => {
 
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
+  /* ── Random week generation ── */
+  function generateWeek() {
+    if (!confirm('Générer les plats de la semaine ? Les repas libres seront conservés, les autres créneaux seront remplacés.')) return;
+
+    /* 1. Collect fillable slots (non-locked, non-libre) */
+    const slots = [];
+    days.forEach(dayInfo => {
+      ['midi', 'soir'].forEach(slot => {
+        if (slot === 'midi' && dayInfo.midiLocked) return;
+        if (slot === 'soir' && dayInfo.soirLocked) return;
+        if (planningData[dayInfo.key]?.[slot] === FREE_MEAL) return;
+        slots.push({ dayInfo, slot });
+      });
+    });
+
+    /* 2. Eligible dishes (not excluded from random) */
+    const eligible = Dishes.getAll().filter(d => !d.excludeFromRandom);
+    if (!eligible.length) {
+      Toast.error('Aucun plat disponible pour la génération. Activez l\'option "Aléatoire" sur vos plats.');
+      return;
+    }
+
+    /* 3. Shuffle eligible list */
+    const shuffled = eligible.slice().sort(() => Math.random() - 0.5);
+
+    /* 4. Helpers */
+    const slotKey = (dayInfo, slot) => `${dayInfo.key}|${slot}`;
+    const slotMs  = (dayInfo, slot) => {
+      const d = new Date(dayInfo.date);
+      d.setHours(slot === 'midi' ? 12 : 19, 0, 0, 0);
+      return d.getTime();
+    };
+    const MS72H = 72 * 3600 * 1000;
+
+    /* 5. Pre-fill occupied keys (libre slots = already taken) */
+    const filledKeys = new Set();
+    days.forEach(dayInfo => {
+      ['midi', 'soir'].forEach(slot => {
+        if (slot === 'midi' && dayInfo.midiLocked) return;
+        if (slot === 'soir' && dayInfo.soirLocked) return;
+        if (planningData[dayInfo.key]?.[slot] === FREE_MEAL) {
+          filledKeys.add(slotKey(dayInfo, slot));
+        }
+      });
+    });
+
+    /* 6. Greedy assignment */
+    const result      = {}; // key -> dishId
+    const usedDishIds = new Set();
+
+    for (const { dayInfo, slot } of slots) {
+      const k1 = slotKey(dayInfo, slot);
+      if (filledKeys.has(k1)) continue;
+      const t1 = slotMs(dayInfo, slot);
+
+      /* Find first compatible unused dish */
+      const candidate = shuffled.find(dish => {
+        if (usedDishIds.has(dish.id)) return false;
+        if (!canAssign(dish, slot, dayInfo)) return false;
+        if (dish.double) {
+          /* Require at least one free compatible second slot within 72 h */
+          return slots.some(({ dayInfo: d2, slot: s2 }) => {
+            const k2 = slotKey(d2, s2);
+            return k2 !== k1 &&
+                   !filledKeys.has(k2) &&
+                   canAssign(dish, s2, d2) &&
+                   Math.abs(slotMs(d2, s2) - t1) <= MS72H;
+          });
+        }
+        return true;
+      });
+
+      if (!candidate) continue;
+
+      if (candidate.double) {
+        /* Pick closest free second slot within 72 h */
+        const second = slots
+          .filter(({ dayInfo: d2, slot: s2 }) => {
+            const k2 = slotKey(d2, s2);
+            return k2 !== k1 &&
+                   !filledKeys.has(k2) &&
+                   canAssign(candidate, s2, d2) &&
+                   Math.abs(slotMs(d2, s2) - t1) <= MS72H;
+          })
+          .sort((a, b) => Math.abs(slotMs(a.dayInfo, a.slot) - t1) - Math.abs(slotMs(b.dayInfo, b.slot) - t1))[0];
+
+        result[k1] = candidate.id;
+        result[slotKey(second.dayInfo, second.slot)] = candidate.id;
+        filledKeys.add(k1);
+        filledKeys.add(slotKey(second.dayInfo, second.slot));
+      } else {
+        result[k1] = candidate.id;
+        filledKeys.add(k1);
+      }
+
+      usedDishIds.add(candidate.id);
+    }
+
+    /* 7. Apply to planning */
+    Object.entries(result).forEach(([key, dishId]) => {
+      const pipe    = key.indexOf('|');
+      const dateKey = key.substring(0, pipe);
+      const slot    = key.substring(pipe + 1);
+      assignDish(dateKey, slot, dishId);
+    });
+
+    render();
+
+    const filled = Object.keys(result).length;
+    const total  = slots.length;
+    if (filled < total) {
+      Toast.info(`Planning généré (${filled}/${total} créneaux — plats insuffisants pour les autres).`);
+    } else {
+      Toast.success('Planning généré !');
+    }
+  }
+
   /* ── Init ── */
   function init() {
     load();
@@ -453,6 +570,7 @@ const Planning = (() => {
       ?.addEventListener('click', () => {
         if (confirm('Vider tous les repas du planning affiche ?')) clearCurrentWeek();
       });
+    document.getElementById('btn-generate')     ?.addEventListener('click', generateWeek);
     document.getElementById('btn-prev-week')    ?.addEventListener('click', goToPrevWeek);
     document.getElementById('btn-next-week')    ?.addEventListener('click', goToNextWeek);
     document.getElementById('btn-week-current') ?.addEventListener('click', goToCurrentWeek);
