@@ -239,19 +239,29 @@ const Planning = (() => {
     actionsEl.appendChild(rmBtn);
     card.appendChild(actionsEl);
 
-    /* Note textarea (hidden until edit mode) */
+    /* Note textarea — masquée en JS (indépendant du cache CSS) */
     const noteEl = document.createElement('textarea');
     noteEl.className = 'free-meal-note';
     noteEl.placeholder = 'Note…';
     noteEl.value = getNote(dateKey, slot);
+    noteEl.style.display = 'none';
     card.appendChild(noteEl);
 
-    /* Edit mode toggle */
-    editBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      card.classList.add('editing');
+    function enterEdit() {
+      content.style.visibility = 'hidden';
+      actionsEl.style.opacity  = '0';
+      actionsEl.style.pointerEvents = 'none';
+      noteEl.style.display     = 'block';
       noteEl.focus();
-    });
+    }
+    function exitEdit() {
+      noteEl.style.display     = 'none';
+      content.style.visibility = '';
+      actionsEl.style.opacity  = '';
+      actionsEl.style.pointerEvents = '';
+    }
+
+    editBtn.addEventListener('click', e => { e.stopPropagation(); enterEdit(); });
 
     noteEl.addEventListener('input', () => {
       const val = noteEl.value;
@@ -259,9 +269,9 @@ const Planning = (() => {
       notePreview.textContent = val;
     });
 
-    noteEl.addEventListener('blur', () => card.classList.remove('editing'));
-    noteEl.addEventListener('click',     e => e.stopPropagation());
-    noteEl.addEventListener('mousedown', e => e.stopPropagation());
+    noteEl.addEventListener('blur',      () => exitEdit());
+    noteEl.addEventListener('click',     e  => e.stopPropagation());
+    noteEl.addEventListener('mousedown', e  => e.stopPropagation());
 
     return card;
   }
