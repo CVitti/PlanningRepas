@@ -208,7 +208,7 @@ const Planning = (() => {
     label.textContent = '✨ Repas libre';
 
     const rmBtn = document.createElement('button');
-    rmBtn.className = 'meal-card-remove free-card-remove';
+    rmBtn.className = 'free-card-remove';
     rmBtn.title = 'Retirer';
     rmBtn.textContent = '✕';
     rmBtn.addEventListener('click', e => {
@@ -247,11 +247,6 @@ const Planning = (() => {
     card.dataset.date   = dateKey;
     card.dataset.slot   = slot;
 
-    const rmBtn = document.createElement('button');
-    rmBtn.className = 'meal-card-remove';
-    rmBtn.title     = 'Retirer ce plat';
-    rmBtn.textContent = '✕';
-
     const nameEl = document.createElement('div');
     nameEl.className = 'meal-card-name';
     nameEl.textContent = dish.name;
@@ -271,20 +266,28 @@ const Planning = (() => {
       badges.appendChild(b);
     }
 
-    card.appendChild(rmBtn);
-    card.appendChild(nameEl);
-    card.appendChild(badges);
-
-    card.addEventListener('click', e => {
-      if (e.target === rmBtn || rmBtn.contains(e.target)) return;
-      if (card.classList.contains('is-dragging')) return;
-      showDetail(dish);
-    });
-
+    /* Overlay actions (same pattern as sidebar/ingredients) */
+    const actionsEl = document.createElement('div');
+    actionsEl.className = 'meal-card-actions';
+    const rmBtn = document.createElement('button');
+    rmBtn.className = 'dish-action dish-action-delete';
+    rmBtn.title     = 'Retirer ce plat';
+    rmBtn.textContent = '✕';
     rmBtn.addEventListener('click', e => {
       e.stopPropagation();
       clearSlot(dateKey, slot);
       render();
+    });
+    actionsEl.appendChild(rmBtn);
+
+    card.appendChild(nameEl);
+    card.appendChild(badges);
+    card.appendChild(actionsEl);
+
+    card.addEventListener('click', e => {
+      if (actionsEl.contains(e.target)) return;
+      if (card.classList.contains('is-dragging')) return;
+      showDetail(dish);
     });
 
     card.addEventListener('dragstart', e => {

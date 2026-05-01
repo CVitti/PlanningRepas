@@ -118,7 +118,7 @@
   background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
-  padding: 4px 26px;
+  padding: 4px 8px;
   cursor: grab;
   position: relative;
   transition: border-color var(--tr);
@@ -157,15 +157,20 @@
   gap: 4px; flex-shrink: 0;
 }
 
-/* Remove button overrides for free card (inline, not absolute strip) */
 .free-card-remove {
-  position: static !important;
   width: 20px; height: 20px;
-  border-radius: var(--r-sm) !important;
-  border: 1px solid transparent !important;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-faint);
+  font-size: .7rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--tr);
   flex-shrink: 0; opacity: 0;
 }
 .meal-card-free:hover .free-card-remove { opacity: 1; }
+.free-card-remove:hover { color: var(--accent-red); border-color: rgba(255,155,155,.35); }
 
 .free-meal-note {
   flex: 1; width: 100%; box-sizing: border-box;
@@ -204,26 +209,21 @@
   font-weight: 700; letter-spacing: .03em;
 }
 
-/* ── Remove button — full-height right strip ── */
-.meal-card-remove {
+/* ── Actions overlay (same pattern as sidebar / ingredients) ── */
+.meal-card-actions {
   position: absolute;
-  top: 0; right: 0; bottom: 0;
-  width: 26px;
-  border-radius: 0 var(--r-sm) var(--r-sm) 0;
-  border: none; border-left: 1px solid transparent;
-  background: transparent;
-  color: var(--ink-faint);
-  font-size: .7rem;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: background var(--tr), color var(--tr), border-color var(--tr);
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   opacity: 0;
+  transition: opacity var(--tr);
+  background: rgba(15,15,15,.82);
+  border-radius: var(--r-sm);
+  backdrop-filter: blur(2px);
 }
-.meal-card:hover .meal-card-remove { opacity: 1; }
-.meal-card-remove:hover {
-  background: var(--accent-red); color: #fff;
-  border-left-color: var(--accent-red);
-}
+.meal-card:hover .meal-card-actions { opacity: 1; }
+.meal-card.is-dragging .meal-card-actions { opacity: 0; }
 
 
 /* ═══════════════════════════════
