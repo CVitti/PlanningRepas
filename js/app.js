@@ -32,6 +32,10 @@ Planning.init();
         Toast.error('Token GitHub expire ou revoque. Reconfigurez l\'acces.');
         Gist.clearCreds();
         Setup.show();
+      } else if (err.message === 'TOKEN_FORBIDDEN') {
+        Toast.error('Permission refusee : recreez un token avec le scope "gist".');
+        Gist.clearCreds();
+        Setup.show();
       } else if (err.message === 'GIST_NOT_FOUND') {
         Toast.error('Gist introuvable. Reconfigurez l\'acces.');
         Gist.clearCreds();

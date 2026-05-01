@@ -60,6 +60,7 @@ const Gist = (() => {
     });
 
     if (res.status === 401) throw new Error('TOKEN_INVALID');
+    if (res.status === 403) throw new Error('TOKEN_FORBIDDEN');
     if (res.status === 404) throw new Error('GIST_NOT_FOUND');
     if (!res.ok) throw new Error(`API_ERROR_${res.status}`);
     return res.json();
@@ -135,7 +136,11 @@ const Gist = (() => {
       setSyncStatus('ok');
     } catch (err) {
       setSyncStatus('error');
-      Toast.error('Erreur de synchronisation Gist.');
+      if (err.message === 'TOKEN_FORBIDDEN') {
+        Toast.error('Permission refusee : le token n\'a pas le scope gist.');
+      } else {
+        Toast.error('Erreur de synchronisation Gist.');
+      }
       console.error('[Gist] save error', err);
     }
   }

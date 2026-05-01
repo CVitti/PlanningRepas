@@ -21,6 +21,19 @@ const Planning = (() => {
 
   function getDayData(key) { return planningData[key] || {}; }
 
+  function getNote(dateKey, slot) {
+    return planningData[dateKey]?.[slot + '_note'] || '';
+  }
+  function setNote(dateKey, slot, text) {
+    if (!planningData[dateKey]) planningData[dateKey] = {};
+    if (text) {
+      planningData[dateKey][slot + '_note'] = text;
+    } else {
+      delete planningData[dateKey][slot + '_note'];
+    }
+    save();
+  }
+
   function assignDish(dateKey, slot, value) {
     if (!planningData[dateKey]) planningData[dateKey] = {};
     planningData[dateKey][slot] = value;
@@ -30,6 +43,7 @@ const Planning = (() => {
   function clearSlot(dateKey, slot) {
     if (!planningData[dateKey]) return;
     delete planningData[dateKey][slot];
+    delete planningData[dateKey][slot + '_note'];
     if (!Object.keys(planningData[dateKey]).length) delete planningData[dateKey];
     save();
   }
@@ -181,15 +195,40 @@ const Planning = (() => {
   function buildFreeCard(dateKey, slot) {
     const card = document.createElement('div');
     card.className = 'meal-card meal-card-free';
-    card.innerHTML =
-      '<div class="meal-card-name free-label">✨ Repas libre</div>' +
-      '<button class="meal-card-remove" title="Retirer">✕</button>';
 
-    card.querySelector('.meal-card-remove').addEventListener('click', e => {
+    /* Header: label + remove button */
+    const header = document.createElement('div');
+    header.className = 'free-card-header';
+
+    const label = document.createElement('div');
+    label.className = 'meal-card-name free-label';
+    label.textContent = '✨ Repas libre';
+
+    const rmBtn = document.createElement('button');
+    rmBtn.className = 'meal-card-remove free-card-remove';
+    rmBtn.title = 'Retirer';
+    rmBtn.textContent = '✕';
+    rmBtn.addEventListener('click', e => {
       e.stopPropagation();
       clearSlot(dateKey, slot);
       render();
     });
+
+    header.appendChild(label);
+    header.appendChild(rmBtn);
+
+    /* Note textarea */
+    const noteEl = document.createElement('textarea');
+    noteEl.className = 'free-meal-note';
+    noteEl.placeholder = 'Note…';
+    noteEl.value = getNote(dateKey, slot);
+    noteEl.addEventListener('input', () => setNote(dateKey, slot, noteEl.value));
+    noteEl.addEventListener('click',     e => e.stopPropagation());
+    noteEl.addEventListener('mousedown', e => e.stopPropagation());
+
+    card.appendChild(header);
+    card.appendChild(noteEl);
+
     return card;
   }
 
