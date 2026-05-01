@@ -85,7 +85,10 @@ const Planning = (() => {
   }
 
   function clearCurrentWeek() {
-    days.forEach(d => { clearSlot(d.key, 'midi'); clearSlot(d.key, 'soir'); });
+    days.forEach(d => {
+      if (!d.midiLocked) clearSlot(d.key, 'midi');
+      if (!d.soirLocked) clearSlot(d.key, 'soir');
+    });
     render();
     Toast.info('Planning vide.');
   }
