@@ -127,6 +127,8 @@
   padding: 8px 9px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 5px;
   animation: slideIn 150ms ease;
   transition: border-color var(--tr);
