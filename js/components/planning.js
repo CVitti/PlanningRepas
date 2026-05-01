@@ -264,6 +264,7 @@ const Planning = (() => {
     /* Note textarea — masquée en JS (indépendant du cache CSS) */
     const noteEl = document.createElement('textarea');
     noteEl.className = 'free-meal-note';
+    noteEl.name      = `free-note-${dateKey}-${slot}`;
     noteEl.placeholder = 'Note…';
     noteEl.value = getNote(dateKey, slot);
     noteEl.style.display = 'none';
