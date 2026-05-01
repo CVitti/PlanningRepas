@@ -122,11 +122,33 @@ const Planning = (() => {
     return now > cutoff;
   }
 
+  /* ── Palette de couleurs pour badges de portions ── */
+  const PORTION_COLORS = 6; // nombre de couleurs disponibles
+
+  function buildDoubleColorMap() {
+    const map = {};
+    let idx = 0;
+    days.forEach(dayInfo => {
+      ['midi', 'soir'].forEach(slot => {
+        if (slot === 'midi' && dayInfo.midiLocked) return;
+        if (slot === 'soir' && dayInfo.soirLocked) return;
+        const dishId = planningData[dayInfo.key]?.[slot];
+        if (!dishId || dishId === FREE_MEAL) return;
+        const dish = Dishes.getById(dishId);
+        if (!dish || !dish.double) return;
+        if (!(dishId in map)) map[dishId] = (idx++) % PORTION_COLORS;
+      });
+    });
+    return map;
+  }
+
   /* ── Render ── */
   function render() {
     const grid = document.getElementById('planning-grid');
     if (!grid) return;
     grid.innerHTML = '';
+
+    const colorMap = buildDoubleColorMap();
 
     days.forEach(dayInfo => {
       const dayData = getDayData(dayInfo.key);
@@ -138,8 +160,8 @@ const Planning = (() => {
       hdr.innerHTML = '<span class="day-name">' + cap(dayInfo.dayName) + '</span>' +
                       '<span class="day-date">' + dayInfo.label + '</span>';
       col.appendChild(hdr);
-      col.appendChild(buildSlot(dayInfo, 'midi', dayData.midi));
-      col.appendChild(buildSlot(dayInfo, 'soir', dayData.soir));
+      col.appendChild(buildSlot(dayInfo, 'midi', dayData.midi, colorMap));
+      col.appendChild(buildSlot(dayInfo, 'soir', dayData.soir, colorMap));
       grid.appendChild(col);
     });
 
@@ -148,7 +170,7 @@ const Planning = (() => {
     if (typeof Sidebar !== 'undefined') Sidebar.render();
   }
 
-  function buildSlot(dayInfo, slot, value) {
+  function buildSlot(dayInfo, slot, value, colorMap) {
     const locked = (slot === 'midi' && dayInfo.midiLocked) ||
                    (slot === 'soir' && dayInfo.soirLocked);
     const past   = !locked && isPast(dayInfo.key, slot);
@@ -172,7 +194,7 @@ const Planning = (() => {
     if (value === FREE_MEAL) {
       el.appendChild(buildFreeCard(dayInfo.key, slot));
     } else if (value) {
-      el.appendChild(buildMealCard(dayInfo.key, slot, value));
+      el.appendChild(buildMealCard(dayInfo.key, slot, value, colorMap));
     } else {
       el.appendChild(buildHint());
     }
@@ -277,7 +299,7 @@ const Planning = (() => {
   }
 
   /* ── Meal card ── */
-  function buildMealCard(dateKey, slot, dishId) {
+  function buildMealCard(dateKey, slot, dishId, colorMap) {
     const dish = Dishes.getById(dishId);
     if (!dish) { clearSlot(dateKey, slot); return document.createTextNode(''); }
 
@@ -298,7 +320,8 @@ const Planning = (() => {
       const b = document.createElement('span');
       const portionIdx = getPortionIndex(dishId, dateKey, slot);
       if (portionIdx !== null) {
-        b.className = 'badge badge-portion';
+        const ci = colorMap?.[dishId] ?? 0;
+        b.className = 'badge badge-portion badge-portion-' + ci;
         b.textContent = 'P' + portionIdx;
       } else {
         b.className = 'badge badge-double';
