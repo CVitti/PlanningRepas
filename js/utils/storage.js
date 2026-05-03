@@ -1,30 +1,47 @@
 /* ═══════════════════════════════════════════════════════════
-   js/utils/storage.js — Thin adapter over Gist.get / Gist.set
-   Tous les composants appellent Storage.get/set comme avant,
-   mais les données vivent dans le Gist (in-memory + sync).
+   js/utils/storage.js — Adaptateur mince vers Gist.get / Gist.set
+   ═══════════════════════════════════════════════════════════
+
+   Tous les composants appellent Storage.get/set comme s'ils
+   parlaient à un localStorage, mais les données vivent en mémoire
+   dans l'objet Gist et sont synchronisées automatiquement
+   vers l'API GitHub Gist (lecture au démarrage, écriture debounced).
+
+   Clés gérées : "ingredients", "dishes", "planning"
    ═══════════════════════════════════════════════════════════ */
 
 const Storage = (() => {
+
+  /* ── Lecture / écriture (délèguent à Gist) ── */
 
   function get(key, fallback = null) {
     return Gist.get(key, fallback);
   }
 
   function set(key, value) {
-    Gist.set(key, value);
+    Gist.set(key, value); // déclenche un save debounced vers l'API
   }
 
-  /* remove n'est plus nécessaire mais on le garde pour compatibilité */
+  /** Remove est conservé pour compatibilité mais passe par Gist.set(undefined) */
   function remove(key) {
     Gist.set(key, undefined);
   }
 
-  /* Plus de seed local — les données viennent du Gist.
-     Appelé après load() si le Gist est vide (premier usage). */
+  /* ── Initialisation des données par défaut ── */
+
+  /**
+   * Appelé après Gist.load() au premier démarrage (Gist vide).
+   * Si la clé "ingredients" est déjà présente dans le Gist, on ne touche
+   * à rien — les données existantes de l'utilisateur sont conservées.
+   *
+   * Insère un jeu de données d'exemple (ingrédients + plats + planning vide)
+   * pour que l'application soit utilisable immédiatement.
+   */
   function maybeInit() {
     const ings = get('ingredients', null);
-    if (ings !== null) return; // déjà initialisé côté Gist
+    if (ings !== null) return; // données déjà présentes, rien à faire
 
+    /* Ingrédients de démonstration */
     set('ingredients', [
       { id: 'ing1', name: 'Farine',         unit: 'g'         },
       { id: 'ing2', name: 'Oeufs',          unit: 'unite'     },
@@ -36,6 +53,8 @@ const Storage = (() => {
       { id: 'ing8', name: 'Viande hachee',  unit: 'g'         },
       { id: 'ing9', name: "Huile d'olive",  unit: 'c. a s.'   },
     ]);
+
+    /* Plats de démonstration associés aux ingrédients ci-dessus */
     set('dishes', [
       {
         id: 'dish1', name: 'Quiche lorraine', slot: 'both', double: false,
@@ -59,6 +78,8 @@ const Storage = (() => {
         ]
       },
     ]);
+
+    /* Planning vide — l'utilisateur commence à planifier depuis zéro */
     set('planning', {});
   }
 

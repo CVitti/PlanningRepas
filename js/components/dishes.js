@@ -1,27 +1,45 @@
 /* ═══════════════════════════════════════════════════════════
-   js/components/dishes.js — Dish CRUD & ingredient builder
+   js/components/dishes.js — CRUD des plats + éditeur d'ingrédients
+   ═══════════════════════════════════════════════════════════
+
+   Gère la liste des plats affichée dans le panneau "Plats"
+   de la modale catalogue (onglet droit).
+
+   Fonctionnalités :
+     - Ajout / modification / suppression de plats
+     - Éditeur de recette par glisser-déposer depuis la liste d'ingrédients
+     - Contrôle des quantités par ingrédient (±0,25)
+     - Options : créneau (midi / soir / les deux), double portion, exclusion aléatoire
+     - Badge "–🎲" affiché sur les plats exclus de la génération aléatoire
+     - Synchronisation avec Storage, Planning et Sidebar après chaque modification
    ═══════════════════════════════════════════════════════════ */
 
 const Dishes = (() => {
 
-  let list = [];
-  let formIngredients = [];
-  let editingId = null;
+  let list           = []; // liste des plats en mémoire
+  let formIngredients = []; // ingrédients en cours d'édition dans le formulaire
+  let editingId      = null; // identifiant du plat en cours de modification
 
-  /* ── State ── */
-  function load() { list = Storage.get('dishes', []); }
-  function save() { Storage.set('dishes', list); }
-  function getAll() { return list; }
+  /* ── Accès à l'état ── */
+  function load()      { list = Storage.get('dishes', []); }
+  function save()      { Storage.set('dishes', list); }
+  function getAll()    { return list; }
   function getById(id) { return list.find(d => d.id === id) || null; }
 
   /* ── CRUD ── */
+
+  /**
+   * Met à jour un plat existant avec les nouvelles valeurs.
+   * Déclenche un rendu de la sidebar et du planning pour
+   * refléter immédiatement les changements.
+   */
   function update(id, name, slot, isDouble, ingredients, excludeFromRandom) {
     const dish = list.find(d => d.id === id);
     if (!dish) return;
-    dish.name = name.trim();
-    dish.slot = slot;
-    dish.double = isDouble;
-    dish.ingredients = ingredients;
+    dish.name             = name.trim();
+    dish.slot             = slot;
+    dish.double           = isDouble;
+    dish.ingredients      = ingredients;
     dish.excludeFromRandom = !!excludeFromRandom;
     save();
     renderExisting();
@@ -30,28 +48,44 @@ const Dishes = (() => {
     Toast.success(`Plat « ${dish.name} » mis à jour !`);
   }
 
+  /** Ouvre la modale catalogue sur l'onglet "Plats" en mode création */
   function openCreate() {
     cancelEdit();
     Modal.openCatalog('dishes');
   }
 
+  /**
+   * Passe en mode édition pour le plat identifié.
+   * Pré-remplit le formulaire avec les valeurs actuelles du plat,
+   * puis ouvre la modale sur l'onglet "Plats".
+   */
   function startEdit(id) {
     const dish = list.find(d => d.id === id);
     if (!dish) return;
     editingId = id;
+
     document.getElementById('dish-name').value = dish.name;
+
     const slotInput = document.querySelector(`input[name="dish-slot"][value="${dish.slot}"]`);
     if (slotInput) slotInput.checked = true;
+
     document.getElementById('dish-double').checked = dish.double;
     document.getElementById('dish-random').checked = !dish.excludeFromRandom;
+
+    /* Copie les ingrédients existants dans le formulaire temporaire */
     formIngredients = dish.ingredients.map(i => ({ ...i }));
     renderFormIngredients();
     renderAvailableIngredients();
-    document.getElementById('btn-dish-submit').textContent = 'Mettre à jour';
+
+    document.getElementById('btn-dish-submit').textContent  = 'Mettre à jour';
     document.getElementById('btn-cancel-edit').style.display = 'inline-flex';
     Modal.openCatalog('dishes');
   }
 
+  /**
+   * Annule le mode édition et réinitialise complètement le formulaire.
+   * Masque le bouton "Annuler" et remet le bouton de soumission en mode création.
+   */
   function cancelEdit() {
     editingId = null;
     const form = document.getElementById('form-dish');
@@ -65,13 +99,17 @@ const Dishes = (() => {
     if (cancelBtn) cancelBtn.style.display = 'none';
   }
 
+  /**
+   * Crée un nouveau plat et l'ajoute à la liste.
+   * Retourne le plat créé ou null si le nom est vide.
+   */
   function add(name, slot, isDouble, ingredients, excludeFromRandom) {
     if (!name.trim()) return null;
     const dish = {
-      id:               Dates.uid(),
-      name:             name.trim(),
+      id:                Dates.uid(),
+      name:              name.trim(),
       slot,
-      double:           isDouble,
+      double:            isDouble,
       excludeFromRandom: !!excludeFromRandom,
       ingredients,
     };
@@ -83,7 +121,12 @@ const Dishes = (() => {
     return dish;
   }
 
+  /**
+   * Supprime un plat et nettoie toutes ses occurrences dans le planning.
+   * Déclenche un rendu complet (sidebar + planning).
+   */
   function remove(id) {
+    /* Retire le plat de tous les créneaux du planning */
     const planning = Storage.get('planning', {});
     Object.keys(planning).forEach(dateKey => {
       ['midi', 'soir'].forEach(slot => {
@@ -91,6 +134,7 @@ const Dishes = (() => {
       });
     });
     Storage.set('planning', planning);
+
     list = list.filter(d => d.id !== id);
     save();
     renderExisting();
@@ -99,25 +143,38 @@ const Dishes = (() => {
     Toast.info('Plat supprimé.');
   }
 
-  /* ── Slot helpers ── */
+  /* ── Helpers de créneau ── */
+
+  /** Retourne le libellé lisible d'un créneau : "Midi & Soir", "Midi" ou "Soir" */
   function slotLabel(slot) {
     return slot === 'both' ? 'Midi & Soir' : slot === 'midi' ? 'Midi' : 'Soir';
   }
+
+  /** Retourne la classe CSS associée à un créneau pour les pills colorées */
   function slotClass(slot) {
     return slot === 'both' ? 'both' : slot;
   }
 
-  /* ── Available ingredients panel (left column) ── */
+  /* ── Panneau "Ingrédients disponibles" (colonne gauche du formulaire) ── */
+
+  /**
+   * Affiche la liste triée des ingrédients existants.
+   * Les ingrédients déjà présents dans la recette sont marqués "used"
+   * et rendus non-draggables pour éviter les doublons.
+   */
   function renderAvailableIngredients() {
     const container = document.getElementById('available-ingredients');
     if (!container) return;
+
     const all = Ingredients.getAll()
       .slice()
       .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+
     if (!all.length) {
       container.innerHTML = '<p class="panel-empty">Créez d\'abord des ingrédients dans l\'onglet correspondant.</p>';
       return;
     }
+
     const usedIds = new Set(formIngredients.map(i => i.id));
     container.innerHTML = all.map(ing => {
       const used = usedIds.has(ing.id);
@@ -131,65 +188,91 @@ const Dishes = (() => {
     }).join('');
   }
 
-  /* ── Drag from available list ── */
+  /* ── Glisser-déposer depuis la liste d'ingrédients ── */
+
+  /** Stocke l'identifiant de l'ingrédient dans dataTransfer au début du drag */
   function onDragStart(e, ingId) {
     e.dataTransfer.setData('ing-id', ingId);
     e.dataTransfer.effectAllowed = 'copy';
   }
 
-  /* ── Recipe drop zone (right column) ── */
+  /* ── Zone de dépôt de la recette (colonne droite du formulaire) ── */
+
+  /**
+   * Initialise la zone de drop #dish-ingredients.
+   * À chaque dépôt, l'ingrédient est ajouté avec une quantité par défaut de 1
+   * et les deux colonnes sont rafraîchies.
+   */
   function initDropZone() {
     const zone = document.getElementById('dish-ingredients');
     if (!zone) return;
+
     zone.addEventListener('dragover', e => {
       e.preventDefault();
       zone.classList.add('drag-over');
     });
+
     zone.addEventListener('dragleave', e => {
       if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over');
     });
+
     zone.addEventListener('drop', e => {
       e.preventDefault();
       zone.classList.remove('drag-over');
       const ingId = e.dataTransfer.getData('ing-id');
       if (!ingId) return;
       if (!Ingredients.getById(ingId)) return;
-      if (formIngredients.find(i => i.id === ingId)) return;
+      if (formIngredients.find(i => i.id === ingId)) return; // déjà présent
       formIngredients.push({ id: ingId, qty: 1 });
       renderFormIngredients();
       renderAvailableIngredients();
     });
   }
 
-  /* ── Recipe ingredient rows ── */
+  /* ── Lignes d'ingrédients de la recette ── */
+
+  /** Retire un ingrédient de la recette en cours d'édition */
   function removeIngFromForm(ingId) {
     formIngredients = formIngredients.filter(i => i.id !== ingId);
     renderFormIngredients();
     renderAvailableIngredients();
   }
 
+  /**
+   * Modifie la quantité d'un ingrédient par delta (±STEP).
+   * Lit d'abord la valeur affichée dans l'input pour ne pas écraser
+   * une modification manuelle non encore enregistrée.
+   */
   function changeQty(ingId, delta) {
-    const item = formIngredients.find(i => i.id === ingId);
+    const item  = formIngredients.find(i => i.id === ingId);
     if (!item) return;
+    /* Récupère la valeur saisie manuellement avant d'appliquer le delta */
     const input = document.querySelector(`.qty-value[data-id="${ingId}"]`);
     if (input) item.qty = parseFloat(input.value) || item.qty;
-    const step = Ingredients.getStep();
-    item.qty = Math.max(step, parseFloat((item.qty + delta).toFixed(2)));
+    const step  = Ingredients.getStep();
+    item.qty    = Math.max(step, parseFloat((item.qty + delta).toFixed(2)));
     renderFormIngredients();
   }
 
+  /** Met à jour la quantité d'un ingrédient depuis la saisie manuelle */
   function setQty(ingId, val) {
     const item = formIngredients.find(i => i.id === ingId);
     if (item) item.qty = parseFloat(val) || item.qty;
   }
 
+  /**
+   * Reconstruit la liste des ingrédients de la recette en cours de composition.
+   * Chaque ligne affiche : nom | contrôle ±qty | unité | bouton ✕.
+   */
   function renderFormIngredients() {
     const container = document.getElementById('dish-ingredients');
     if (!container) return;
+
     if (!formIngredients.length) {
       container.innerHTML = '<p class="drop-hint-text">Glissez des ingrédients ici…</p>';
       return;
     }
+
     container.innerHTML = formIngredients.map(item => {
       const ing = Ingredients.getById(item.id);
       if (!ing) return '';
@@ -207,14 +290,21 @@ const Dishes = (() => {
     }).join('');
   }
 
-  /* ── Render existing dishes list (modal, if container present) ── */
+  /* ── Liste des plats existants (dans la modale, si présente) ── */
+
+  /**
+   * Affiche la liste des plats existants dans #existing-dishes (si l'élément existe).
+   * Chaque ligne montre le nom, les badges (×2, –🎲), le créneau et les boutons Modifier/Supprimer.
+   */
   function renderExisting() {
     const container = document.getElementById('existing-dishes');
     if (!container) return;
+
     if (!list.length) {
       container.innerHTML = '<p style="color:var(--ink-faint);font-size:.85rem;">Aucun plat créé.</p>';
       return;
     }
+
     container.innerHTML = [...list]
       .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
       .map(d => `
@@ -231,13 +321,19 @@ const Dishes = (() => {
       ).join('');
   }
 
-  /* ── Form init ── */
+  /* ── Initialisation du formulaire ── */
+
+  /**
+   * Câble le formulaire #form-dish :
+   *   - bouton "Annuler" → cancelEdit()
+   *   - zone de dépôt d'ingrédients → initDropZone()
+   *   - soumission → création ou mise à jour selon editingId
+   */
   function initForm() {
     const form = document.getElementById('form-dish');
     if (!form) return;
 
     document.getElementById('btn-cancel-edit').addEventListener('click', cancelEdit);
-
     initDropZone();
 
     form.addEventListener('submit', e => {
@@ -260,15 +356,18 @@ const Dishes = (() => {
     });
   }
 
+  /** Charge les données, affiche la liste et initialise le formulaire */
   function init() {
     load();
     renderExisting();
     initForm();
   }
 
+  /* ── API publique ── */
   return {
     init, load, getAll, getById, add, remove, slotLabel, slotClass,
     openCreate, renderAvailableIngredients,
+    /* Exposées pour les onclick inline générés dans les templates HTML */
     _qtyUp:             id      => changeQty(id,  Ingredients.getStep()),
     _qtyDown:           id      => changeQty(id, -Ingredients.getStep()),
     _setQty:            (id, v) => setQty(id, v),
