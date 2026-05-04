@@ -229,12 +229,14 @@
 }
 .meal-card.is-dragging .meal-card-actions { opacity: 0; pointer-events: none; }
 
-/* Bouton "voir les ingrédients" — couleur bleue pour le distinguer du bouton de suppression */
+/* Bouton "voir les ingrédients" — couleur bleue, même patron que edit/delete */
 .dish-action-info {
-  color: var(--accent-blue, #82d4f0) !important;
-  font-size: 1rem !important;
-  line-height: 1;
+  color: var(--accent-blue, #82d4f0);
+  border-color: rgba(130,212,240,.35);
+  font-size: .8rem;
+  font-style: normal;
 }
+.dish-action-info:hover { background: rgba(130,212,240,.18); }
 
 
 /* ═══════════════════════════════
