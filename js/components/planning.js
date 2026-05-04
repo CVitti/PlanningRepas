@@ -526,6 +526,18 @@ const Planning = (() => {
     /* Overlay d'action au survol (même patron que sidebar/ingrédients) */
     const actionsEl = document.createElement('div');
     actionsEl.className = 'meal-card-actions';
+
+    /* Bouton "voir les ingrédients" */
+    const infoBtn = document.createElement('button');
+    infoBtn.className   = 'dish-action dish-action-info';
+    infoBtn.title       = 'Voir les ingrédients';
+    infoBtn.textContent = '≡';
+    infoBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      showDetail(dish);
+    });
+
+    /* Bouton "retirer le plat" */
     const rmBtn = document.createElement('button');
     rmBtn.className   = 'dish-action dish-action-delete';
     rmBtn.title       = 'Retirer ce plat';
@@ -535,6 +547,8 @@ const Planning = (() => {
       clearSlot(dateKey, slot);
       render();
     });
+
+    actionsEl.appendChild(infoBtn);
     actionsEl.appendChild(rmBtn);
 
     card.appendChild(nameEl);
@@ -725,12 +739,14 @@ const Planning = (() => {
   function showDetail(dish) {
     document.getElementById('meal-detail-title').textContent = dish.name;
 
-    const rows = dish.ingredients.map(item => {
-      const ing = Ingredients.getById(item.id);
-      return ing
-        ? '<tr><td>' + ing.name + '</td><td>' + item.qty + ' ' + ing.unit + '</td></tr>'
-        : '';
-    }).join('');
+    /* Tri alphabétique (fr-FR) des ingrédients avant affichage */
+    const rows = dish.ingredients
+      .map(item => ({ item, ing: Ingredients.getById(item.id) }))
+      .filter(({ ing }) => ing !== null)
+      .sort((a, b) => a.ing.name.localeCompare(b.ing.name, 'fr'))
+      .map(({ item, ing }) =>
+        '<tr><td>' + ing.name + '</td><td>' + item.qty + ' ' + ing.unit + '</td></tr>'
+      ).join('');
 
     document.getElementById('meal-detail-body').innerHTML =
       '<div class="meal-detail-info">' +
