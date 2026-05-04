@@ -531,7 +531,7 @@ const Planning = (() => {
     const infoBtn = document.createElement('button');
     infoBtn.className   = 'dish-action dish-action-info';
     infoBtn.title       = 'Voir les ingrédients';
-    infoBtn.textContent = 'ℹ';
+    infoBtn.textContent = '👁';
     infoBtn.addEventListener('click', e => {
       e.stopPropagation();
       showDetail(dish);

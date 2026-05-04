@@ -229,14 +229,12 @@
 }
 .meal-card.is-dragging .meal-card-actions { opacity: 0; pointer-events: none; }
 
-/* Bouton "voir les ingrédients" — couleur bleue, même patron que edit/delete */
+/* Bouton "voir les ingrédients" — même visuel que dish-action-edit */
 .dish-action-info {
-  color: var(--accent-blue, #82d4f0);
-  border-color: rgba(130,212,240,.35);
-  font-size: .8rem;
-  font-style: normal;
+  color: var(--accent);
+  border-color: rgba(144,184,255,.35);
 }
-.dish-action-info:hover { background: rgba(130,212,240,.18); }
+.dish-action-info:hover { background: rgba(144,184,255,.18); }
 
 
 /* ═══════════════════════════════
