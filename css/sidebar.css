@@ -233,6 +233,13 @@
 }
 .dish-action-delete:hover { background: rgba(255,155,155,.18); }
 
+/* Bouton "voir les ingrédients" */
+.dish-action-info {
+  border: 1px solid rgba(144,184,255,.35);
+  color: var(--accent);
+}
+.dish-action-info:hover { background: rgba(144,184,255,.18); }
+
 .dish-list-empty {
   grid-column: 1 / -1;
   text-align: center;

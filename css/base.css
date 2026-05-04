@@ -4,14 +4,14 @@
 
 :root {
   /* Palette — neutral dark, pastel accents */
-  --bg:           #111111;
-  --bg-card:      #1a1a1a;
-  --bg-card-alt:  #222222;
+  --bg:           #191919;
+  --bg-card:      #222222;
+  --bg-card-alt:  #2a2a2a;
   --bg-raised:    #2d2d2d;
   --ink:          #f0f0f0;
   --ink-muted:    #8a8a8a;
   --ink-faint:    #525252;
-  --accent:       #90b8ff;   /* bleu pastel — primaire */
+  --accent:       #24deff;   /* bleu pastel — primaire */
   --accent-hover: #6a9bff;
   --accent-warm:  #ffb870;   /* orange pastel */
   --accent-green: #7dd9a0;   /* vert pastel */

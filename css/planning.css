@@ -229,14 +229,6 @@
 }
 .meal-card.is-dragging .meal-card-actions { opacity: 0; pointer-events: none; }
 
-/* Bouton "voir les ingrédients" — même visuel que dish-action-edit */
-.dish-action-info {
-  color: var(--accent);
-  border-color: rgba(144,184,255,.35);
-}
-.dish-action-info:hover { background: rgba(144,184,255,.18); }
-
-
 /* ═══════════════════════════════
    RESPONSIVE
    ═══════════════════════════════ */
