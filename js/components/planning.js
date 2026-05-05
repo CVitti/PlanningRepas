@@ -602,11 +602,18 @@ const Planning = (() => {
   }
 
   /**
-   * Gère le dépôt d'un plat sur un créneau :
-   *   1. Récupère dishId + source (si déplacement depuis un autre créneau)
-   *   2. Vérifie la compatibilité du plat avec le créneau cible
-   *   3. Retire le plat de la source si déplacement (pas copie)
-   *   4. Assigne le plat au créneau cible et redessine
+   * Gère le dépôt d'un plat sur un créneau.
+   *
+   * Deux comportements selon l'origine du drag :
+   *
+   *   Depuis la sidebar (srcDate/srcSlot absents) :
+   *     → Remplace le contenu du créneau cible (comportement inchangé).
+   *
+   *   Depuis une carte du planning (srcDate/srcSlot présents) :
+   *     → Destination vide ou repas libre : déplacement simple.
+   *     → Destination occupée par un plat : interversion des deux créneaux.
+   *        Si le plat de destination est incompatible avec le créneau source
+   *        (contrainte midi/soir), le plat source est simplement retiré.
    */
   function onDrop(e) {
     e.preventDefault();
@@ -630,9 +637,28 @@ const Planning = (() => {
       return;
     }
 
-    /* Déplacement (pas duplication) : retire la source si différente de la cible */
-    if (srcDate && srcSlot && (srcDate !== destDate || srcSlot !== destSlot)) {
-      clearSlot(srcDate, srcSlot);
+    /* Déplacement depuis une carte du planning (srcDate + srcSlot renseignés) */
+    const isMoveFromPlanning = !!(srcDate && srcSlot) &&
+                               (srcDate !== destDate || srcSlot !== destSlot);
+
+    if (isMoveFromPlanning) {
+      const destValue  = planningData[destDate]?.[destSlot];
+      const srcDayInfo = days.find(d => d.key === srcDate);
+
+      if (destValue && destValue !== FREE_MEAL && srcDayInfo) {
+        /* Le créneau cible contient un plat → tentative d'interversion */
+        const destDish = Dishes.getById(destValue);
+        if (destDish && canAssign(destDish, srcSlot, srcDayInfo)) {
+          /* Les deux créneaux sont compatibles → échange */
+          assignDish(srcDate, srcSlot, destValue);
+        } else {
+          /* Plat de destination incompatible avec le créneau source → déplacement simple */
+          clearSlot(srcDate, srcSlot);
+        }
+      } else {
+        /* Destination vide ou repas libre → déplacement simple */
+        clearSlot(srcDate, srcSlot);
+      }
     }
 
     assignDish(destDate, destSlot, dishId);
