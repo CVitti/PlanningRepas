@@ -56,15 +56,34 @@
 .day-header.today .day-name,
 .day-header.today .day-date { color: var(--bg); }
 
+/* ── En-têtes de colonnes Midi / Soir ── */
+.planning-col-headers {
+  position: sticky;
+  top: 49px; /* hauteur de .app-header */
+  z-index: 10;
+  background: var(--bg);
+  padding: 2px 0 4px;
+  margin-bottom: -2px;
+}
+
+.planning-col-header {
+  font-size: .68rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .09em;
+  color: var(--ink-faint);
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+
+.planning-col-header .slot-icon { font-size: .8rem; line-height: 1; }
+
 /* ── Meal slot ── */
 .meal-slot {
   background: var(--bg-card);
   border: 1px dashed var(--border);
   border-radius: var(--r-md);
-  padding: 5px 5px 4px;
+  padding: 5px;
   display: flex; flex-direction: column; gap: 3px;
   transition: border-color var(--tr), background var(--tr);
-  min-height: 5.5rem;
+  min-height: 4rem;
 }
 .meal-slot.past { background: rgba(0,0,0,.5); }
 .meal-slot.past .meal-slot-label { opacity: .45; }

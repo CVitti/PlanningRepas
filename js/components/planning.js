@@ -278,6 +278,21 @@ const Planning = (() => {
 
     const colorMap = buildDoubleColorMap();
 
+    /* Ligne d'en-tête fixe : cellule vide (colonne jour) + Midi + Soir */
+    const colHeaders = document.createElement('div');
+    colHeaders.className = 'day-column planning-col-headers';
+    const emptyCell = document.createElement('div');
+    const midiHdr   = document.createElement('div');
+    midiHdr.className = 'planning-col-header';
+    midiHdr.innerHTML = '<span class="slot-icon slot-icon-midi">☀</span><span>Midi</span>';
+    const soirHdr   = document.createElement('div');
+    soirHdr.className = 'planning-col-header';
+    soirHdr.innerHTML = '<span class="slot-icon slot-icon-soir">🌙</span><span>Soir</span>';
+    colHeaders.appendChild(emptyCell);
+    colHeaders.appendChild(midiHdr);
+    colHeaders.appendChild(soirHdr);
+    grid.appendChild(colHeaders);
+
     days.forEach(dayInfo => {
       const dayData = getDayData(dayInfo.key);
 
@@ -326,14 +341,6 @@ const Planning = (() => {
                     (past   ? ' past'   : '');
     el.dataset.date = dayInfo.key;
     el.dataset.slot = slot;
-
-    /* Label du créneau (☀ Midi / 🌙 Soir) */
-    const lbl = document.createElement('div');
-    lbl.className = 'meal-slot-label';
-    lbl.innerHTML = slot === 'midi'
-      ? '<span class="slot-icon slot-icon-midi">☀</span><span>Midi</span>'
-      : '<span class="slot-icon slot-icon-soir">🌙</span><span>Soir</span>';
-    el.appendChild(lbl);
 
     /* Slots verrouillés : pas de contenu interactif */
     if (locked) return el;
