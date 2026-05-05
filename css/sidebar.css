@@ -85,7 +85,7 @@
   transition: all var(--tr);
   position: relative;
   min-width: 0;
-  height: 5.5rem;
+  height: 4.5rem;
   display: flex;
   flex-direction: column;
 }
