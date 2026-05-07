@@ -898,19 +898,15 @@ const Planning = (() => {
       if (!candidate) continue; // aucun plat compatible pour ce créneau
 
       if (candidate.double) {
-        /* Choisit le deuxième créneau le plus proche temporellement */
-        const second = slots
-          .filter(({ dayInfo: d2, slot: s2 }) => {
-            const k2 = slotKey(d2, s2);
-            return k2 !== k1 &&
-                   !filledKeys.has(k2) &&
-                   canAssign(candidate, s2, d2) &&
-                   Math.abs(slotMs(d2, s2) - t1) <= MS72H;
-          })
-          .sort((a, b) =>
-            Math.abs(slotMs(a.dayInfo, a.slot) - t1) -
-            Math.abs(slotMs(b.dayInfo, b.slot) - t1)
-          )[0];
+        /* Choisit aléatoirement un deuxième créneau parmi tous les compatibles dans les 72h */
+        const candidates2 = slots.filter(({ dayInfo: d2, slot: s2 }) => {
+          const k2 = slotKey(d2, s2);
+          return k2 !== k1 &&
+                 !filledKeys.has(k2) &&
+                 canAssign(candidate, s2, d2) &&
+                 Math.abs(slotMs(d2, s2) - t1) <= MS72H;
+        });
+        const second = candidates2[Math.floor(Math.random() * candidates2.length)];
 
         /* Attribue les deux portions */
         result[k1] = candidate.id;
