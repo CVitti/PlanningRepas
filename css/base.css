@@ -181,6 +181,20 @@ select.input option { background: var(--bg-card); }
   }
 }
 
+/* ── Version ── */
+#app-version {
+  position: fixed;
+  bottom: 8px;
+  right: 12px;
+  font-size: .62rem;
+  color: var(--ink-faint);
+  opacity: .4;
+  z-index: 50;
+  pointer-events: none;
+  letter-spacing: .05em;
+  user-select: none;
+}
+
 /* Form hint text */
 .form-hint {
   font-size: .75rem;
