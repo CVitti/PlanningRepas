@@ -403,15 +403,22 @@ const Planning = (() => {
     content.className = 'free-card-content';
 
     const label = document.createElement('div');
-    label.className  = 'meal-card-name free-label';
-    label.textContent = '✨ Repas libre';
+    label.className = 'meal-card-name free-label';
 
-    const notePreview = document.createElement('div');
-    notePreview.className  = 'free-note-preview';
-    notePreview.textContent = getNote(dateKey, slot);
+    /* Icône toujours visible */
+    const iconEl = document.createElement('span');
+    iconEl.className  = 'free-label-icon';
+    iconEl.textContent = '✨';
 
+    /* Texte remplaçable : note si elle existe, sinon "Repas libre" */
+    const textEl = document.createElement('span');
+    const currentNote = getNote(dateKey, slot);
+    textEl.className  = 'free-label-text' + (currentNote ? ' free-label-has-note' : '');
+    textEl.textContent = currentNote || 'Repas libre';
+
+    label.appendChild(iconEl);
+    label.appendChild(textEl);
     content.appendChild(label);
-    content.appendChild(notePreview);
     card.appendChild(content);
 
     /* ── Overlay d'actions (même patron que les cartes de plat) ── */
@@ -470,7 +477,9 @@ const Planning = (() => {
     noteEl.addEventListener('input', () => {
       const val = noteEl.value;
       setNote(dateKey, slot, val);
-      notePreview.textContent = val; // mise à jour temps réel de l'aperçu
+      /* Remplace le texte en temps réel ; bascule le style note/défaut */
+      textEl.textContent = val || 'Repas libre';
+      textEl.classList.toggle('free-label-has-note', !!val);
     });
 
     noteEl.addEventListener('blur',      () => exitEdit());
