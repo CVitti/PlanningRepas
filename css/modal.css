@@ -368,11 +368,11 @@
 .qty-btn:hover { background: var(--border); }
 
 .qty-value {
-  width: 46px;
+  width: 62px;
   text-align: center;
   font-size: .8rem;
   font-weight: 500;
-  padding: 0 3px;
+  padding: 0 4px;
   color: var(--ink);
   background: var(--bg-card);
   border: none;
