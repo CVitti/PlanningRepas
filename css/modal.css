@@ -29,7 +29,7 @@
   box-shadow: var(--shadow-lg);
   width: 100%;
   max-width: 500px;
-  max-height: 85vh;
+  max-height: 92vh;
   overflow-y: auto;
   position: relative;
   padding: 26px 26px 22px;
@@ -39,7 +39,7 @@
 
 .modal-overlay.open .modal { transform: none; }
 
-.modal-wide { max-width: 820px; }
+.modal-wide { max-width: 1020px; }
 
 .modal-close {
   position: absolute;
@@ -110,7 +110,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 6px;
-  max-height: 270px;
+  max-height: 480px;
   overflow-y: auto;
   padding-right: 2px;
 }
@@ -244,7 +244,7 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
-  max-height: 190px;
+  max-height: 340px;
   overflow-y: auto;
 }
 
@@ -283,7 +283,7 @@
 .dish-ingredients {
   flex: 1;
   min-height: 80px;
-  max-height: 190px;
+  max-height: 340px;
   overflow-y: auto;
   border: 1px dashed var(--border);
   border-radius: var(--r-sm);
@@ -459,7 +459,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-height: 240px;
+  max-height: 380px;
   overflow-y: auto;
 }
 
