@@ -254,15 +254,22 @@ const Dishes = (() => {
     renderFormIngredients();
   }
 
-  /** Met à jour la quantité d'un ingrédient depuis la saisie manuelle */
+  /**
+   * Met à jour la quantité d'un ingrédient depuis la saisie manuelle
+   * et rafraîchit le tableau nutritionnel en temps réel.
+   */
   function setQty(ingId, val) {
     const item = formIngredients.find(i => i.id === ingId);
-    if (item) item.qty = parseFloat(val) || item.qty;
+    if (item) {
+      item.qty = parseFloat(val) || item.qty;
+      refreshNutritionTable();
+    }
   }
 
   /**
    * Reconstruit la liste des ingrédients de la recette en cours de composition.
    * Chaque ligne affiche : nom | contrôle ±qty | unité | bouton ✕.
+   * Déclenche ensuite le recalcul du tableau nutritionnel.
    */
   function renderFormIngredients() {
     const container = document.getElementById('dish-ingredients');
@@ -270,6 +277,7 @@ const Dishes = (() => {
 
     if (!formIngredients.length) {
       container.innerHTML = '<p class="drop-hint-text">Glissez des ingrédients ici…</p>';
+      refreshNutritionTable();
       return;
     }
 
@@ -288,6 +296,20 @@ const Dishes = (() => {
           <button class="btn btn-danger btn-sm" type="button" onclick="Dishes._removeIngFromForm('${ing.id}')">✕</button>
         </div>`;
     }).join('');
+
+    refreshNutritionTable();
+  }
+
+  /**
+   * Recalcule et injecte le tableau nutritionnel dans #dish-nutrition-table
+   * à partir des ingrédients actuellement dans le formulaire.
+   * Appelé après chaque modification de la liste ou d'une quantité.
+   */
+  function refreshNutritionTable() {
+    const el = document.getElementById('dish-nutrition-table');
+    if (!el) return;
+    if (typeof Nutrition === 'undefined') return;
+    el.innerHTML = Nutrition.buildTableHTML({ ingredients: formIngredients });
   }
 
   /* ── Liste des plats existants (dans la modale, si présente) ── */
@@ -366,7 +388,7 @@ const Dishes = (() => {
   /* ── API publique ── */
   return {
     init, load, getAll, getById, add, remove, slotLabel, slotClass,
-    openCreate, renderAvailableIngredients,
+    openCreate, renderAvailableIngredients, refreshNutritionTable,
     /* Exposées pour les onclick inline générés dans les templates HTML */
     _qtyUp:             id      => changeQty(id,  Ingredients.getStep()),
     _qtyDown:           id      => changeQty(id, -Ingredients.getStep()),

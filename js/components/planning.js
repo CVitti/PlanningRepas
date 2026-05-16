@@ -520,6 +520,19 @@ const Planning = (() => {
     nameEl.className  = 'meal-card-name';
     nameEl.textContent = dish.name;
 
+    /* Kcal par portion (total ÷ nombre de portions du plat) */
+    const portions = dish.double ? 2 : 1;
+    const nutTotals = (typeof Nutrition !== 'undefined') ? Nutrition.calcDish(dish) : null;
+    if (nutTotals?.kcal !== null && nutTotals?.kcal !== undefined) {
+      const kcalEl = document.createElement('div');
+      kcalEl.className   = 'meal-card-kcal';
+      kcalEl.textContent = Math.round(nutTotals.kcal / portions) + ' kcal';
+      card.appendChild(nameEl);
+      card.appendChild(kcalEl);
+    } else {
+      card.appendChild(nameEl);
+    }
+
     /* Badges (portion ou double) */
     const badges = document.createElement('div');
     badges.className = 'meal-card-badges';
@@ -567,7 +580,6 @@ const Planning = (() => {
     actionsEl.appendChild(infoBtn);
     actionsEl.appendChild(rmBtn);
 
-    card.appendChild(nameEl);
     card.appendChild(badges);
     card.appendChild(actionsEl);
 
@@ -790,6 +802,10 @@ const Planning = (() => {
         '<tr><td>' + ing.name + '</td><td>' + item.qty + ' ' + ing.unit + '</td></tr>'
       ).join('');
 
+    const nutrTable = (typeof Nutrition !== 'undefined')
+      ? Nutrition.buildTableHTML(dish)
+      : '';
+
     document.getElementById('meal-detail-body').innerHTML =
       '<div class="meal-detail-info">' +
         '<p>Créneau : <strong>' + Dishes.slotLabel(dish.slot) + '</strong></p>' +
@@ -797,7 +813,8 @@ const Planning = (() => {
       '</div>' +
       (dish.ingredients.length
         ? '<table class="ingredient-table"><thead><tr><th>Ingrédient</th><th>Quantité</th></tr></thead><tbody>' + rows + '</tbody></table>'
-        : '<p style="color:var(--ink-faint);">Aucun ingrédient renseigné.</p>');
+        : '<p style="color:var(--ink-faint);">Aucun ingrédient renseigné.</p>') +
+      nutrTable;
 
     Modal.open('modal-meal-detail');
   }

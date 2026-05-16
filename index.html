@@ -149,29 +149,89 @@
 
         <!-- Panel: Ingrédients -->
         <div class="catalog-panel active" id="panel-ingredients">
-          <form class="form-row" id="form-ingredient">
-            <input class="input" type="text" id="ing-name" placeholder="Nom de l'ingrédient" required aria-label="Nom de l'ingrédient"/>
-            <select class="input select-unit" id="ing-unit" aria-label="Unité de mesure">
-              <optgroup label="Poids">
-                <option value="g">g</option>
-                <option value="kg">kg</option>
-              </optgroup>
-              <optgroup label="Volume">
-                <option value="ml">ml</option>
-                <option value="cl">cl</option>
-                <option value="l">l</option>
-              </optgroup>
-              <optgroup label="Cuisine">
-                <option value="c. à s.">c. à s.</option>
-                <option value="c. à c.">c. à c.</option>
-                <option value="pincée">pincée</option>
-              </optgroup>
-              <optgroup label="Autre">
-                <option value="unité">unité</option>
-              </optgroup>
-            </select>
-            <button class="btn btn-primary" type="submit">Ajouter</button>
-          </form>
+          <div id="ing-form-wrap">
+            <form class="form-row" id="form-ingredient">
+              <input class="input" type="text" id="ing-name" placeholder="Nom de l'ingrédient" required aria-label="Nom de l'ingrédient"/>
+              <select class="input select-unit" id="ing-unit" aria-label="Unité de mesure">
+                <optgroup label="Poids">
+                  <option value="g">g</option>
+                  <option value="kg">kg</option>
+                </optgroup>
+                <optgroup label="Volume">
+                  <option value="ml">ml</option>
+                  <option value="cl">cl</option>
+                  <option value="l">l</option>
+                </optgroup>
+                <optgroup label="Cuisine">
+                  <option value="c. à s.">c. à s.</option>
+                  <option value="c. à c.">c. à c.</option>
+                  <option value="pincée">pincée</option>
+                </optgroup>
+                <optgroup label="Autre">
+                  <option value="unité">unité</option>
+                </optgroup>
+              </select>
+              <button class="btn btn-primary" type="submit" id="btn-ing-submit">Ajouter</button>
+              <button class="btn btn-ghost" type="button" id="btn-cancel-ing-edit" style="display:none">Annuler</button>
+            </form>
+
+            <!-- Équivalent grammes (affiché si unité ≠ g / kg) -->
+            <div class="ing-gpu-row" id="ing-gpu-row" style="display:none">
+              <span>1&nbsp;<strong id="ing-unit-label"></strong>&nbsp;=</span>
+              <input class="input" type="number" id="ing-gramsPerUnit" min="0.01" step="0.01" placeholder="équiv. grammes"/>
+              <span>g</span>
+              <span class="ing-gpu-hint" id="ing-gpu-hint"></span>
+            </div>
+
+            <!-- Valeurs nutritionnelles (section repliable) -->
+            <div class="ing-nutrition-section" id="ing-nutrition-section">
+              <div class="ing-nutrition-toggle" id="ing-nutrition-toggle">
+                <span class="toggle-arrow">▸</span>
+                Valeurs nutritionnelles <em class="ing-nutrition-subtitle">(optionnel)</em>
+              </div>
+              <div class="ing-nutrition-body">
+                <div class="ing-nutrition-ref-row">
+                  <span>Valeurs pour</span>
+                  <input class="input" type="number" id="ing-nut-per" value="100" min="1" step="1" aria-label="Quantité de référence en grammes"/>
+                  <span>g</span>
+                </div>
+                <div class="ing-nut-grid">
+                  <div class="ing-nut-field">
+                    <span class="ing-nut-label">Énergie (kcal)</span>
+                    <input class="input" type="number" id="ing-nut-kcal" min="0" step="1" placeholder="—"/>
+                  </div>
+                  <div class="ing-nut-field">
+                    <span class="ing-nut-label">Graisses (g)</span>
+                    <input class="input" type="number" id="ing-nut-fat" min="0" step="0.1" placeholder="—"/>
+                  </div>
+                  <div class="ing-nut-field">
+                    <span class="ing-nut-label nutr-sub">dont Saturés (g)</span>
+                    <input class="input" type="number" id="ing-nut-satFat" min="0" step="0.1" placeholder="—"/>
+                  </div>
+                  <div class="ing-nut-field">
+                    <span class="ing-nut-label">Glucides (g)</span>
+                    <input class="input" type="number" id="ing-nut-carbs" min="0" step="0.1" placeholder="—"/>
+                  </div>
+                  <div class="ing-nut-field">
+                    <span class="ing-nut-label nutr-sub">dont Sucres (g)</span>
+                    <input class="input" type="number" id="ing-nut-sugars" min="0" step="0.1" placeholder="—"/>
+                  </div>
+                  <div class="ing-nut-field">
+                    <span class="ing-nut-label">Fibres (g)</span>
+                    <input class="input" type="number" id="ing-nut-fiber" min="0" step="0.1" placeholder="—"/>
+                  </div>
+                  <div class="ing-nut-field">
+                    <span class="ing-nut-label">Protéines (g)</span>
+                    <input class="input" type="number" id="ing-nut-protein" min="0" step="0.1" placeholder="—"/>
+                  </div>
+                  <div class="ing-nut-field">
+                    <span class="ing-nut-label">Sel (g)</span>
+                    <input class="input" type="number" id="ing-nut-salt" min="0" step="0.01" placeholder="—"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div><!-- /ing-form-wrap -->
           <div class="ingredient-grid" id="ingredient-list"></div>
         </div>
 
@@ -229,6 +289,8 @@
               <button class="btn btn-primary" type="submit" id="btn-dish-submit">Enregistrer le plat</button>
               <button class="btn btn-ghost" type="button" id="btn-cancel-edit" style="display:none">Annuler</button>
             </div>
+            <!-- Tableau nutritionnel (recalculé à chaque modification de la recette) -->
+            <div id="dish-nutrition-table"></div>
           </form>
         </div>
 
@@ -254,6 +316,7 @@
     </div>
   </div>
 
+  <script src="js/utils/nutrition.js"></script>
   <script src="js/utils/gist.js"></script>
   <script src="js/utils/storage.js"></script>
   <script src="js/utils/dates.js"></script>
@@ -265,6 +328,6 @@
   <script src="js/components/planning.js"></script>
   <script src="js/components/sidebar.js"></script>
   <script src="js/app.js"></script>
-  <div id="app-version">v1.0.3</div>
+  <div id="app-version">v1.1.0</div>
 </body>
 </html>

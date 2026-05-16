@@ -226,6 +226,15 @@
   text-align: center;
 }
 
+/* Calories affichées sous le nom du repas */
+.meal-card-kcal {
+  font-size: .62rem;
+  color: var(--ink-faint);
+  text-align: center;
+  line-height: 1;
+  margin-top: -1px;
+}
+
 .meal-card-badges { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 2px; justify-content: center; }
 .badge { font-size: .65rem; padding: 1px 5px; border-radius: 99px; font-weight: 500; }
 .badge-double {

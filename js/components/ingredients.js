@@ -6,21 +6,28 @@
    "Ingrédients" de la modale catalogue.
 
    Fonctionnalités :
-     - Ajout via formulaire (#form-ingredient)
-     - Modification inline (clic sur ✎ → champs éditables dans la carte)
+     - Ajout et modification via le formulaire supérieur
+       (même formulaire pour les deux modes, comme dishes.js)
      - Suppression (bloquée si l'ingrédient est utilisé dans un plat)
+     - Champ "équivalent grammes" affiché si l'unité n'est pas g/kg
+     - Section repliable "Valeurs nutritionnelles" avec 8 champs + référence
      - Tri alphabétique (fr-FR) à chaque rendu
+     - Badge kcal/100 g affiché sur la carte si la valeur est connue
      - Synchronisation automatique avec Storage après chaque modification
 
-   Les boutons d'action (✎ / ✕) utilisent des attributs onclick
-   avec les fonctions exposées via le préfixe _ de l'API publique.
+   Règle null vs 0 pour la nutrition :
+     champ vide → null (valeur inconnue, affiche "—")
+     champ à 0  → 0    (valeur nulle volontaire)
    ═══════════════════════════════════════════════════════════ */
 
 const Ingredients = (() => {
 
-  const STEP = 0.25; // incrément minimal pour les quantités
+  const STEP = 0.25; // incrément minimal pour les quantités de plat
   let list      = []; // tableau des ingrédients en mémoire
   let editingId = null; // identifiant de l'ingrédient en cours de modification
+
+  /* ── Clés nutritionnelles (même ordre que Nutrition.KEYS) ── */
+  const NUT_KEYS = ['kcal', 'fat', 'satFat', 'carbs', 'sugars', 'fiber', 'protein', 'salt'];
 
   /* ── Accès à l'état ── */
   function load()      { list = Storage.get('ingredients', []); }
@@ -29,9 +36,7 @@ const Ingredients = (() => {
   function getById(id) { return list.find(i => i.id === id) || null; }
   function getStep()   { return STEP; }
 
-  /* ── Construction du HTML des options d'unité ── */
-
-  /** Groupes d'unités affichés dans les <select> de l'application */
+  /* ── Groupes d'unités pour les <select> ── */
   const UNIT_GROUPS = [
     { label: 'Poids',   opts: ['g', 'kg'] },
     { label: 'Volume',  opts: ['ml', 'cl', 'l'] },
@@ -41,7 +46,7 @@ const Ingredients = (() => {
 
   /**
    * Génère le HTML des <optgroup> pour un <select> d'unité.
-   * La valeur selected est pré-sélectionnée si elle correspond à l'unité actuelle.
+   * selected : valeur pré-sélectionnée.
    */
   function unitOptionsHTML(selected) {
     return UNIT_GROUPS.map(g =>
@@ -53,13 +58,91 @@ const Ingredients = (() => {
     ).join('');
   }
 
-  /* ── CRUD ── */
+  /* ══════════════════════════════════════════════════════════
+     LECTURE DU FORMULAIRE
+     ══════════════════════════════════════════════════════════ */
 
   /**
-   * Ajoute un nouvel ingrédient à la liste après validation :
-   *   - nom non vide
-   *   - pas de doublon (insensible à la casse)
-   * Déclenche un rendu et met à jour la liste côté formulaire de plat.
+   * Retourne la valeur de gramsPerUnit depuis le formulaire.
+   * null si l'unité est g ou kg (conversion native), ou si le champ est vide.
+   */
+  function readGramsPerUnit(unit) {
+    if (unit === 'g' || unit === 'kg') return null;
+    const val = document.getElementById('ing-gramsPerUnit')?.value;
+    return (val !== '' && val !== undefined) ? parseFloat(val) || null : null;
+  }
+
+  /**
+   * Lit les champs nutritionnels du formulaire.
+   * Retourne null si aucun champ n'est renseigné (pas de section nutrition).
+   * Retourne l'objet { per, kcal, fat, satFat, … } sinon.
+   * Champ vide → null (inconnu). Champ à "0" → 0 (zéro volontaire).
+   */
+  function readNutritionForm() {
+    const anyFilled = NUT_KEYS.some(k => {
+      const el = document.getElementById(`ing-nut-${k}`);
+      return el && el.value !== '';
+    });
+    if (!anyFilled) return null;
+
+    const per = parseFloat(document.getElementById('ing-nut-per')?.value) || 100;
+    const nutrition = { per };
+    NUT_KEYS.forEach(k => {
+      const el = document.getElementById(`ing-nut-${k}`);
+      nutrition[k] = (el && el.value !== '') ? parseFloat(el.value) : null;
+    });
+    return nutrition;
+  }
+
+  /* ── Affichage / masquage du champ gramsPerUnit ── */
+
+  /**
+   * Unités pour lesquelles un équivalent grammes par défaut est connu.
+   * Le champ reste visible mais le hint indique la valeur par défaut.
+   */
+  const DEFAULT_GPU = { ml: 1, cl: 10, l: 1000 };
+
+  /**
+   * Met à jour la visibilité du champ "équivalent grammes" selon l'unité choisie.
+   * - g / kg : masqué (conversion native)
+   * - ml / cl / l : visible avec hint sur la valeur par défaut
+   * - autres : visible, requis pour le calcul nutritionnel
+   * value : valeur à pré-remplir dans le champ (optionnel)
+   */
+  function updateGpuRow(unit, value) {
+    const row   = document.getElementById('ing-gpu-row');
+    const label = document.getElementById('ing-unit-label');
+    const input = document.getElementById('ing-gramsPerUnit');
+    const hint  = document.getElementById('ing-gpu-hint');
+    if (!row) return;
+
+    if (unit === 'g' || unit === 'kg') {
+      row.style.display = 'none';
+      return;
+    }
+
+    row.style.display = 'flex';
+    if (label) label.textContent = unit;
+    if (input && value !== undefined) input.value = value ?? '';
+
+    /* Hint contextuel */
+    if (hint) {
+      if (DEFAULT_GPU[unit]) {
+        hint.textContent = `(défaut eau : ${DEFAULT_GPU[unit]} g)`;
+      } else {
+        hint.textContent = 'requis pour le calcul nutritionnel';
+      }
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     CRUD
+     ══════════════════════════════════════════════════════════ */
+
+  /**
+   * Ajoute un nouvel ingrédient à la liste.
+   * Valide : nom non vide + pas de doublon (insensible à la casse).
+   * Lit gramsPerUnit et nutrition depuis le formulaire.
    */
   function add(name, unit) {
     const trimmed = name.trim();
@@ -68,31 +151,49 @@ const Ingredients = (() => {
       Toast.error('Cet ingrédient existe déjà.');
       return null;
     }
+
     const ing = { id: Dates.uid(), name: trimmed, unit: unit || 'g' };
+
+    const gpu = readGramsPerUnit(unit);
+    if (gpu) ing.gramsPerUnit = gpu;
+
+    const nutrition = readNutritionForm();
+    if (nutrition) ing.nutrition = nutrition;
+
     list.push(ing);
     save();
     render();
     if (typeof Dishes !== 'undefined') Dishes.renderAvailableIngredients();
-    Toast.success('"' + ing.name + '" ajouté !');
+    Toast.success(`"${ing.name}" ajouté !`);
     return ing;
   }
 
   /**
-   * Met à jour le nom et l'unité d'un ingrédient existant.
-   * Bloque la mise à jour si le nom est vide.
+   * Met à jour les données d'un ingrédient existant.
+   * Lit toutes les valeurs depuis le formulaire (nom, unité, gramsPerUnit, nutrition).
    */
   function update(id, name, unit) {
     const ing     = list.find(i => i.id === id);
     if (!ing) return;
     const trimmed = name.trim();
     if (!trimmed) { Toast.error('Le nom ne peut pas être vide.'); return; }
-    ing.name  = trimmed;
-    ing.unit  = unit;
+
+    ing.name = trimmed;
+    ing.unit = unit;
+
+    const gpu = readGramsPerUnit(unit);
+    if (gpu) ing.gramsPerUnit = gpu;
+    else     delete ing.gramsPerUnit;
+
+    const nutrition = readNutritionForm();
+    if (nutrition) ing.nutrition = nutrition;
+    else           delete ing.nutrition;
+
     save();
     editingId = null;
     render();
     if (typeof Dishes !== 'undefined') Dishes.renderAvailableIngredients();
-    Toast.success('"' + ing.name + '" mis à jour !');
+    Toast.success(`"${ing.name}" mis à jour !`);
   }
 
   /**
@@ -113,39 +214,99 @@ const Ingredients = (() => {
     Toast.info('Ingrédient supprimé.');
   }
 
-  /* ── Modification inline ── */
+  /* ══════════════════════════════════════════════════════════
+     MODE ÉDITION (formulaire supérieur)
+     ══════════════════════════════════════════════════════════ */
 
-  /** Active le mode édition sur la carte de l'ingrédient ciblé */
+  /**
+   * Passe le formulaire en mode édition pour l'ingrédient ciblé :
+   *   - pré-remplit tous les champs (nom, unité, gramsPerUnit, nutrition)
+   *   - ouvre la section nutritionnelle si des valeurs sont définies
+   *   - met en évidence la carte dans la grille
+   *   - fait défiler jusqu'au formulaire
+   */
   function startEdit(id) {
+    const ing = list.find(i => i.id === id);
+    if (!ing) return;
     editingId = id;
+
+    /* Champs de base */
+    const nameEl = document.getElementById('ing-name');
+    const unitEl = document.getElementById('ing-unit');
+    if (nameEl) { nameEl.value = ing.name; nameEl.focus(); nameEl.select(); }
+    if (unitEl)   unitEl.value = ing.unit;
+
+    /* Équivalent grammes */
+    updateGpuRow(ing.unit, ing.gramsPerUnit ?? '');
+
+    /* Valeurs nutritionnelles */
+    const n = ing.nutrition || {};
+    const perEl = document.getElementById('ing-nut-per');
+    if (perEl) perEl.value = n.per ?? 100;
+    NUT_KEYS.forEach(k => {
+      const el = document.getElementById(`ing-nut-${k}`);
+      if (el) el.value = (n[k] !== null && n[k] !== undefined) ? n[k] : '';
+    });
+
+    /* Ouvre la section nutrition si l'ingrédient a des données */
+    const section = document.getElementById('ing-nutrition-section');
+    if (section) section.classList.toggle('open', !!ing.nutrition);
+
+    /* Boutons */
+    const submitBtn = document.getElementById('btn-ing-submit');
+    const cancelBtn = document.getElementById('btn-cancel-ing-edit');
+    if (submitBtn) submitBtn.textContent = 'Mettre à jour';
+    if (cancelBtn) cancelBtn.style.display = 'inline-flex';
+
+    /* Met en évidence la carte */
     render();
-    /* Place le focus sur le champ nom après le rendu */
-    const input = document.querySelector(`.ing-card[data-id="${id}"] .ing-edit-name`);
-    if (input) { input.focus(); input.select(); }
+
+    /* Scroll vers le formulaire */
+    document.getElementById('ing-form-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  /** Annule la modification en cours et retourne à l'affichage normal */
+  /**
+   * Annule le mode édition et réinitialise entièrement le formulaire.
+   */
   function cancelEdit() {
     editingId = null;
+
+    const form = document.getElementById('form-ingredient');
+    if (form) form.reset();
+
+    /* Réinitialise les champs supplémentaires non couverts par form.reset() */
+    updateGpuRow('g'); // masque le champ gramsPerUnit
+    document.getElementById('ing-nut-per').value = 100;
+    NUT_KEYS.forEach(k => {
+      const el = document.getElementById(`ing-nut-${k}`);
+      if (el) el.value = '';
+    });
+
+    /* Ferme la section nutrition */
+    document.getElementById('ing-nutrition-section')?.classList.remove('open');
+
+    /* Boutons */
+    const submitBtn = document.getElementById('btn-ing-submit');
+    const cancelBtn = document.getElementById('btn-cancel-ing-edit');
+    if (submitBtn) submitBtn.textContent = 'Ajouter';
+    if (cancelBtn) cancelBtn.style.display = 'none';
+
     render();
   }
 
-  /** Lit les valeurs des champs inline et appelle update() */
-  function saveEdit(id) {
-    const card = document.querySelector(`.ing-card[data-id="${id}"]`);
-    if (!card) return;
-    const nameVal = card.querySelector('.ing-edit-name').value;
-    const unitVal = card.querySelector('.ing-edit-unit').value;
-    update(id, nameVal, unitVal);
-  }
-
-  /* ── Rendu ── */
+  /* ══════════════════════════════════════════════════════════
+     RENDU DE LA GRILLE
+     ══════════════════════════════════════════════════════════ */
 
   /**
    * Reconstruit la grille des ingrédients dans #ingredient-list.
    * Chaque carte affiche :
-   *   - en mode normal  : nom + overlay actions (✎ / ✕)
-   *   - en mode édition : champs input + select + boutons valider/annuler
+   *   - nom de l'ingrédient
+   *   - badge kcal/100 g si la valeur est connue
+   *   - overlay au survol : ✎ (éditer) / ✕ (supprimer)
+   *
+   * La carte de l'ingrédient en cours d'édition reçoit la classe
+   * ing-card-active pour le mettre en évidence.
    */
   function render() {
     const container = document.getElementById('ingredient-list');
@@ -159,22 +320,17 @@ const Ingredients = (() => {
     container.innerHTML = [...list]
       .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
       .map(ing => {
-        /* Carte en mode édition */
-        if (editingId === ing.id) {
-          return `
-            <div class="ing-card ing-card-editing" data-id="${ing.id}">
-              <input class="input ing-edit-name" type="text" value="${ing.name}" autocomplete="off" spellcheck="false"/>
-              <select class="input ing-edit-unit">${unitOptionsHTML(ing.unit)}</select>
-              <div class="ing-edit-actions">
-                <button class="ing-edit-btn ing-edit-confirm" type="button" onclick="Ingredients._saveEdit('${ing.id}')" title="Valider">✓</button>
-                <button class="ing-edit-btn ing-edit-cancel"  type="button" onclick="Ingredients._cancelEdit()" title="Annuler">✕</button>
-              </div>
-            </div>`;
+        /* Badge kcal/100g : normalisé sur 100 g, arrondi à l'entier */
+        let kcalBadge = '';
+        if (ing.nutrition?.kcal != null) {
+          const per100 = Math.round(ing.nutrition.kcal / (ing.nutrition.per || 100) * 100);
+          kcalBadge = `<span class="ing-card-kcal">${per100} kcal</span>`;
         }
-        /* Carte en mode affichage normal */
+
         return `
-          <div class="ing-card" data-id="${ing.id}">
+          <div class="ing-card${editingId === ing.id ? ' ing-card-active' : ''}" data-id="${ing.id}">
             <span class="ing-card-name">${ing.name}</span>
+            ${kcalBadge}
             <div class="ing-card-actions">
               <button class="ing-action-btn ing-action-edit"   type="button" onclick="Ingredients._startEdit('${ing.id}')" title="Modifier">✎</button>
               <button class="ing-action-btn ing-action-delete" type="button" onclick="Ingredients.remove('${ing.id}')" title="Supprimer">✕</button>
@@ -184,20 +340,46 @@ const Ingredients = (() => {
   }
 
   /* ── No-op de compatibilité ── */
-  /** Ancienne fonction de peuplement d'un <select> de plat, conservée pour éviter les erreurs */
   function populateDishSelect() {}
 
-  /* ── Initialisation du formulaire ── */
+  /* ══════════════════════════════════════════════════════════
+     INITIALISATION
+     ══════════════════════════════════════════════════════════ */
 
-  /** Câble la soumission du formulaire #form-ingredient */
+  /**
+   * Câble tous les éléments du formulaire :
+   *   - changement d'unité → affiche/masque le champ gramsPerUnit
+   *   - toggle de la section nutritionnelle
+   *   - bouton Annuler
+   *   - soumission du formulaire (create ou update selon editingId)
+   */
   function initForm() {
     const form = document.getElementById('form-ingredient');
     if (!form) return;
+
+    /* Changement d'unité → met à jour le champ gramsPerUnit */
+    const unitSel = document.getElementById('ing-unit');
+    unitSel?.addEventListener('change', () => updateGpuRow(unitSel.value));
+
+    /* Toggle de la section nutritionnelle */
+    const toggle  = document.getElementById('ing-nutrition-toggle');
+    const section = document.getElementById('ing-nutrition-section');
+    toggle?.addEventListener('click', () => section?.classList.toggle('open'));
+
+    /* Bouton Annuler édition */
+    document.getElementById('btn-cancel-ing-edit')?.addEventListener('click', cancelEdit);
+
+    /* Soumission */
     form.addEventListener('submit', e => {
       e.preventDefault();
       const name = document.getElementById('ing-name').value;
       const unit = document.getElementById('ing-unit').value;
-      if (add(name, unit)) form.reset(); // réinitialise si l'ajout a réussi
+      if (editingId) {
+        update(editingId, name, unit);
+        cancelEdit();
+      } else {
+        if (add(name, unit)) cancelEdit();
+      }
     });
   }
 
@@ -208,8 +390,6 @@ const Ingredients = (() => {
   return {
     init, load, getAll, getById, getStep, add, remove, render, populateDishSelect,
     /* Exposées pour les onclick inline générés dans render() */
-    _startEdit:  id => startEdit(id),
-    _saveEdit:   id => saveEdit(id),
-    _cancelEdit: ()  => cancelEdit(),
+    _startEdit: id => startEdit(id),
   };
 })();

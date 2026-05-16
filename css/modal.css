@@ -575,6 +575,252 @@
 }
 .shopping-item.checked .shopping-qty { color: var(--ink-faint); }
 
+/* ════════════════════════════════════════════════════════════
+   FORMULAIRE INGRÉDIENT — champ gramsPerUnit + section nutrition
+   ════════════════════════════════════════════════════════════ */
+
+#ing-form-wrap {
+  margin-bottom: 12px;
+}
+
+/* Ligne "1 unité = X g" */
+.ing-gpu-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 2px;
+  font-size: .82rem;
+  color: var(--ink-muted);
+}
+
+.ing-gpu-row .input { width: 90px; }
+
+.ing-gpu-hint {
+  font-size: .7rem;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+/* Section nutritionnelle repliable */
+.ing-nutrition-section {
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+
+.ing-nutrition-toggle {
+  padding: 7px 12px;
+  cursor: pointer;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  background: var(--bg-raised);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--tr);
+}
+
+.ing-nutrition-toggle:hover { background: var(--bg-card-alt); }
+
+.ing-nutrition-subtitle {
+  font-size: .65rem;
+  color: var(--ink-faint);
+  text-transform: none;
+  letter-spacing: 0;
+  font-style: italic;
+  font-weight: 400;
+  margin-left: 2px;
+}
+
+.toggle-arrow {
+  display: inline-block;
+  transition: transform var(--tr);
+  font-size: .7rem;
+  color: var(--ink-faint);
+}
+
+.ing-nutrition-section.open .toggle-arrow { transform: rotate(90deg); }
+
+.ing-nutrition-body {
+  display: none;
+  padding: 12px;
+}
+
+.ing-nutrition-section.open .ing-nutrition-body { display: block; }
+
+/* Ligne "Valeurs pour X g" */
+.ing-nutrition-ref-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: .82rem;
+  color: var(--ink-muted);
+}
+
+.ing-nutrition-ref-row .input { width: 72px; }
+
+/* Grille des 8 champs nutritionnels */
+.ing-nut-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 10px;
+}
+
+.ing-nut-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ing-nut-label {
+  font-size: .68rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* Sous-valeurs (dont Saturés, dont Sucres) */
+.ing-nut-label.nutr-sub { color: var(--ink-faint); }
+
+/* Badge kcal/100g sur les cartes ingrédient */
+.ing-card-kcal {
+  font-size: .62rem;
+  color: var(--ink-faint);
+  text-align: center;
+  margin-top: -2px;
+}
+
+/* Carte en cours d'édition */
+.ing-card-active {
+  border-color: var(--accent) !important;
+  background: rgba(36,222,255,.05) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   TABLEAU NUTRITIONNEL (plat)
+   ════════════════════════════════════════════════════════════ */
+
+.nutr-table-wrap { margin-top: 16px; }
+
+.nutr-table-title {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 6px;
+}
+
+/* Conteneur scrollable horizontalement */
+.nutr-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+}
+
+.nutr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .74rem;
+  white-space: nowrap;
+}
+
+/* En-têtes */
+.nutr-table thead tr { background: var(--bg-raised); }
+
+.nutr-th-name,
+.nutr-th {
+  padding: 6px 10px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  font-size: .64rem;
+  vertical-align: bottom;
+}
+
+.nutr-th-name { text-align: left; min-width: 140px; width: 28%; }
+.nutr-th      { text-align: right; min-width: 58px; }
+.nutr-th.nutr-sub { color: var(--ink-faint); }
+
+/* Unité sous le libellé */
+.nutr-unit {
+  display: block;
+  font-size: .58rem;
+  font-weight: 400;
+  font-style: normal;
+  opacity: .7;
+  margin-top: 1px;
+}
+
+/* Corps */
+.nutr-table tbody tr:nth-child(even) { background: rgba(255,255,255,.02); }
+.nutr-table tbody tr:hover           { background: rgba(255,255,255,.04); }
+
+.nutr-td-name,
+.nutr-td {
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.nutr-td-name {
+  text-align: left;
+  color: var(--ink-muted);
+  font-size: .76rem;
+}
+
+.nutr-td {
+  text-align: right;
+  color: var(--ink);
+}
+
+.nutr-td.nutr-sub { color: var(--ink-faint); }
+
+/* Quantité en italique après le nom */
+.nutr-qty-label {
+  color: var(--ink-faint);
+  font-size: .66rem;
+  font-style: normal;
+}
+
+/* Valeur inconnue / non calculable */
+.nutr-dash   { color: var(--ink-faint); }
+.nutr-unknown {
+  color: var(--accent-warm);
+  cursor: help;
+  font-size: .7rem;
+}
+
+/* Pied de tableau (ligne Total) */
+.nutr-table tfoot tr { background: var(--bg-raised); }
+
+.nutr-table tfoot td {
+  padding: 6px 10px;
+  border-top: 1px solid var(--border);
+  font-weight: 700;
+  font-size: .76rem;
+}
+
+.nutr-table tfoot .nutr-td-name { color: var(--ink); }
+.nutr-table tfoot .nutr-td      { color: var(--ink); }
+.nutr-table tfoot .nutr-td.nutr-sub { color: var(--ink-muted); }
+
+/* Aucun ingrédient */
+.nutr-empty {
+  color: var(--ink-faint);
+  font-size: .8rem;
+  font-style: italic;
+  padding: 8px 0 4px;
+}
+
 /* Responsive modals */
 @media (max-width: 600px) {
   .modal {
