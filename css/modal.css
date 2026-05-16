@@ -775,6 +775,17 @@
   text-align: left;
   color: var(--ink-muted);
   font-size: .76rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.nutr-ing-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nutr-td {

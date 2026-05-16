@@ -226,13 +226,15 @@
   text-align: center;
 }
 
-/* Calories affichées sous le nom du repas */
+/* Calories affichées sous le badge de portion */
 .meal-card-kcal {
-  font-size: .62rem;
-  color: var(--ink-faint);
+  font-size: .65rem;
+  font-weight: 600;
+  color: var(--accent-green);
   text-align: center;
   line-height: 1;
-  margin-top: -1px;
+  margin-top: 2px;
+  letter-spacing: .02em;
 }
 
 .meal-card-badges { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 2px; justify-content: center; }

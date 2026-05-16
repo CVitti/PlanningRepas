@@ -520,18 +520,12 @@ const Planning = (() => {
     nameEl.className  = 'meal-card-name';
     nameEl.textContent = dish.name;
 
-    /* Kcal par portion (total ÷ nombre de portions du plat) */
-    const portions = dish.double ? 2 : 1;
-    const nutTotals = (typeof Nutrition !== 'undefined') ? Nutrition.calcDish(dish) : null;
-    if (nutTotals?.kcal !== null && nutTotals?.kcal !== undefined) {
-      const kcalEl = document.createElement('div');
-      kcalEl.className   = 'meal-card-kcal';
-      kcalEl.textContent = Math.round(nutTotals.kcal / portions) + ' kcal';
-      card.appendChild(nameEl);
-      card.appendChild(kcalEl);
-    } else {
-      card.appendChild(nameEl);
-    }
+    /* Kcal par portion : calculé maintenant, inséré après les badges */
+    const portions   = dish.double ? 2 : 1;
+    const nutTotals  = (typeof Nutrition !== 'undefined') ? Nutrition.calcDish(dish) : null;
+    const kcalKnown  = nutTotals?.kcal !== null && nutTotals?.kcal !== undefined;
+
+    card.appendChild(nameEl);
 
     /* Badges (portion ou double) */
     const badges = document.createElement('div');
@@ -581,6 +575,15 @@ const Planning = (() => {
     actionsEl.appendChild(rmBtn);
 
     card.appendChild(badges);
+
+    /* Kcal sous le badge, plus visible que sous le nom */
+    if (kcalKnown) {
+      const kcalEl       = document.createElement('div');
+      kcalEl.className   = 'meal-card-kcal';
+      kcalEl.textContent = Math.round(nutTotals.kcal / portions) + ' kcal';
+      card.appendChild(kcalEl);
+    }
+
     card.appendChild(actionsEl);
 
     /* Clic → modale de détail (sauf si clic sur l'overlay ou pendant un drag) */

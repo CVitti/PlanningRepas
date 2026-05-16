@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════════════
+﻿/* ═══════════════════════════════════════════════════════════
    js/utils/nutrition.js — Calcul des valeurs nutritionnelles
    ═══════════════════════════════════════════════════════════
 
@@ -188,7 +188,7 @@ const Nutrition = (() => {
       }).join('');
 
       return `<tr>
-        <td class="nutr-td-name">${ing.name}<em class="nutr-qty-label"> ${item.qty} ${ing.unit}</em></td>
+        <td class="nutr-td-name"><span class="nutr-ing-name">${ing.name}</span><em class="nutr-qty-label">${item.qty}&nbsp;${ing.unit}</em></td>
         ${cols}
       </tr>`;
     }).join('');
