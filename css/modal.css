@@ -751,14 +751,14 @@
 .nutr-th      { text-align: right; min-width: 58px; }
 .nutr-th.nutr-sub { color: var(--ink-faint); }
 
-/* Unité sous le libellé */
+/* Unité entre parenthèses, inline après le libellé */
 .nutr-unit {
-  display: block;
-  font-size: .58rem;
+  display: inline;
+  font-size: .72em;
   font-weight: 400;
   font-style: normal;
-  opacity: .7;
-  margin-top: 1px;
+  opacity: .75;
+  white-space: nowrap;
 }
 
 /* Corps */

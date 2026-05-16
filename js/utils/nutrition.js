@@ -168,7 +168,7 @@ const Nutrition = (() => {
 
     /* En-têtes */
     const heads = KEYS.map(k =>
-      `<th class="nutr-th${IS_SUB[k] ? ' nutr-sub' : ''}">${LABELS[k]}<em class="nutr-unit">${UNIT_LABELS[k]}</em></th>`
+      `<th class="nutr-th${IS_SUB[k] ? ' nutr-sub' : ''}">${LABELS[k]}<span class="nutr-unit">&thinsp;(${UNIT_LABELS[k]})</span></th>`
     ).join('');
 
     /* Lignes par ingrédient */
