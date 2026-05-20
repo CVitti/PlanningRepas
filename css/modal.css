@@ -718,18 +718,11 @@
   background: rgba(36,222,255,.05) !important;
 }
 
-/* Ligne catégorie dans le formulaire ingrédient */
-.ing-cat-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 5px 2px 2px;
-  font-size: .82rem;
-  color: var(--ink-muted);
-}
+/* Unité : largeur compacte, pas de flex-grow */
+#ing-unit { flex: 0 0 auto; width: auto; }
 
-.ing-cat-row label { flex-shrink: 0; font-weight: 500; }
-.ing-cat-row .input { flex: 1; min-width: 0; }
+/* Catégorie : largeur contrôlée dans la form-row */
+.select-cat { flex: 0 1 170px; min-width: 120px; cursor: pointer; }
 
 /* ── Catégories — liste ── */
 .cat-row {

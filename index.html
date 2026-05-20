@@ -172,6 +172,9 @@
                   <option value="unité">unité</option>
                 </optgroup>
               </select>
+              <select class="input select-cat" id="ing-category" aria-label="Catégorie de l'ingrédient">
+                <option value="">— Sans catégorie —</option>
+              </select>
               <button class="btn btn-primary" type="submit" id="btn-ing-submit">Ajouter</button>
               <button class="btn btn-ghost" type="button" id="btn-cancel-ing-edit" style="display:none">Annuler</button>
             </form>
@@ -182,14 +185,6 @@
               <input class="input" type="number" id="ing-gramsPerUnit" min="0.01" step="0.01" placeholder="équiv. grammes"/>
               <span>g</span>
               <span class="ing-gpu-hint" id="ing-gpu-hint"></span>
-            </div>
-
-            <!-- Catégorie de l'ingrédient -->
-            <div class="ing-cat-row">
-              <label for="ing-category">Catégorie</label>
-              <select class="input" id="ing-category" aria-label="Catégorie de l'ingrédient">
-                <option value="">— Sans catégorie —</option>
-              </select>
             </div>
 
             <!-- Valeurs nutritionnelles (section repliable) -->
