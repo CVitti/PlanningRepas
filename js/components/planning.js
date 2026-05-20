@@ -766,16 +766,54 @@ const Planning = (() => {
       return;
     }
 
-    bodyEl.innerHTML =
-      '<div class="shopping-list">' +
-      items.map((item, i) =>
-        '<label class="shopping-item">' +
-          '<input type="checkbox" class="shopping-check" id="sc-' + i + '">' +
-          '<span class="shopping-name">' + item.ing.name + '</span>' +
-          '<span class="shopping-qty">' + formatQty(item.qty) + ' ' + item.ing.unit + '</span>' +
-        '</label>'
-      ).join('') +
-      '</div>';
+    /* ── Groupement par catégorie ── */
+    const catGroups   = {}; // catId → { name, items[] }
+    const uncategorized = [];
+
+    items.forEach(item => {
+      const catId = item.ing.categoryId;
+      const cat   = (catId && typeof Categories !== 'undefined') ? Categories.getById(catId) : null;
+      if (cat) {
+        if (!catGroups[catId]) catGroups[catId] = { name: cat.name, items: [] };
+        catGroups[catId].items.push(item);
+      } else {
+        uncategorized.push(item);
+      }
+    });
+
+    /* Catégories triées alphabétiquement, "Autres" (sans catégorie) toujours en dernier */
+    const sortedGroups = Object.values(catGroups)
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    if (uncategorized.length) {
+      sortedGroups.push({ name: sortedGroups.length ? 'Autres' : null, items: uncategorized });
+    }
+
+    /* Construction du HTML */
+    let checkIdx = 0;
+    let html = '';
+
+    const buildItem = item => {
+      const i = checkIdx++;
+      return '<label class="shopping-item">' +
+        '<input type="checkbox" class="shopping-check" id="sc-' + i + '">' +
+        '<span class="shopping-name">' + item.ing.name + '</span>' +
+        '<span class="shopping-qty">' + formatQty(item.qty) + ' ' + item.ing.unit + '</span>' +
+        '</label>';
+    };
+
+    sortedGroups.forEach(group => {
+      const hasHeader = group.name !== null;
+      if (hasHeader) {
+        html += '<div class="shopping-group">';
+        html += '<h3 class="shopping-group-header">' + group.name + '</h3>';
+      }
+      html += '<div class="shopping-list">';
+      group.items.forEach(item => { html += buildItem(item); });
+      html += '</div>';
+      if (hasHeader) html += '</div>';
+    });
+
+    bodyEl.innerHTML = html;
 
     /* Coche → ajoute la classe .checked sur la ligne pour la barrer visuellement */
     bodyEl.querySelectorAll('.shopping-check').forEach(cb => {

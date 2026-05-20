@@ -524,6 +524,21 @@
 .ingredient-table tr:last-child td { border-bottom: none; }
 
 /* ── Shopping list ── */
+.shopping-group {
+  margin-bottom: 14px;
+}
+
+.shopping-group-header {
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: var(--accent);
+  padding: 4px 2px 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+
 .shopping-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -701,6 +716,63 @@
 .ing-card-active {
   border-color: var(--accent) !important;
   background: rgba(36,222,255,.05) !important;
+}
+
+/* Ligne catégorie dans le formulaire ingrédient */
+.ing-cat-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 2px 2px;
+  font-size: .82rem;
+  color: var(--ink-muted);
+}
+
+.ing-cat-row label { flex-shrink: 0; font-weight: 500; }
+.ing-cat-row .input { flex: 1; min-width: 0; }
+
+/* ── Catégories — liste ── */
+.cat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  animation: slideIn 150ms ease;
+  transition: border-color var(--tr);
+}
+
+.cat-row-active {
+  border-color: var(--accent) !important;
+  background: rgba(36,222,255,.05) !important;
+}
+
+.cat-row-name {
+  flex: 1;
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--ink);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cat-row-actions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+#category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 14px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 /* ════════════════════════════════════════════════════════════

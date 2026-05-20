@@ -144,6 +144,7 @@
       <div class="catalog-tabs">
         <button class="catalog-tab active" data-tab="ingredients">Ingrédients</button>
         <button class="catalog-tab" data-tab="dishes">Plats</button>
+        <button class="catalog-tab" data-tab="categories">Catégories</button>
       </div>
       <div class="modal-body">
 
@@ -181,6 +182,14 @@
               <input class="input" type="number" id="ing-gramsPerUnit" min="0.01" step="0.01" placeholder="équiv. grammes"/>
               <span>g</span>
               <span class="ing-gpu-hint" id="ing-gpu-hint"></span>
+            </div>
+
+            <!-- Catégorie de l'ingrédient -->
+            <div class="ing-cat-row">
+              <label for="ing-category">Catégorie</label>
+              <select class="input" id="ing-category" aria-label="Catégorie de l'ingrédient">
+                <option value="">— Sans catégorie —</option>
+              </select>
             </div>
 
             <!-- Valeurs nutritionnelles (section repliable) -->
@@ -233,6 +242,16 @@
             </div>
           </div><!-- /ing-form-wrap -->
           <div class="ingredient-grid" id="ingredient-list"></div>
+        </div>
+
+        <!-- Panel: Catégories -->
+        <div class="catalog-panel" id="panel-categories">
+          <form class="form-row" id="form-category">
+            <input class="input" type="text" id="cat-name" placeholder="Nom de la catégorie" required aria-label="Nom de la catégorie"/>
+            <button class="btn btn-primary" type="submit" id="btn-cat-submit">Ajouter</button>
+            <button class="btn btn-ghost" type="button" id="btn-cancel-cat-edit" style="display:none">Annuler</button>
+          </form>
+          <div id="category-list"></div>
         </div>
 
         <!-- Panel: Plats -->
@@ -323,11 +342,12 @@
   <script src="js/utils/toast.js"></script>
   <script src="js/components/modal.js"></script>
   <script src="js/components/setup.js"></script>
+  <script src="js/components/categories.js"></script>
   <script src="js/components/ingredients.js"></script>
   <script src="js/components/dishes.js"></script>
   <script src="js/components/planning.js"></script>
   <script src="js/components/sidebar.js"></script>
   <script src="js/app.js"></script>
-  <div id="app-version">v1.1.3</div>
+  <div id="app-version">v1.2.0</div>
 </body>
 </html>

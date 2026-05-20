@@ -154,6 +154,9 @@ const Ingredients = (() => {
 
     const ing = { id: Dates.uid(), name: trimmed, unit: unit || 'g' };
 
+    const catId = document.getElementById('ing-category')?.value || '';
+    if (catId) ing.categoryId = catId;
+
     const gpu = readGramsPerUnit(unit);
     if (gpu) ing.gramsPerUnit = gpu;
 
@@ -180,6 +183,10 @@ const Ingredients = (() => {
 
     ing.name = trimmed;
     ing.unit = unit;
+
+    const catId = document.getElementById('ing-category')?.value || '';
+    if (catId) ing.categoryId = catId;
+    else       delete ing.categoryId;
 
     const gpu = readGramsPerUnit(unit);
     if (gpu) ing.gramsPerUnit = gpu;
@@ -236,6 +243,9 @@ const Ingredients = (() => {
     if (nameEl) { nameEl.value = ing.name; nameEl.focus(); nameEl.select(); }
     if (unitEl)   unitEl.value = ing.unit;
 
+    /* Catégorie */
+    renderCategorySelect(ing.categoryId || '');
+
     /* Équivalent grammes */
     updateGpuRow(ing.unit, ing.gramsPerUnit ?? '');
 
@@ -275,6 +285,7 @@ const Ingredients = (() => {
     if (form) form.reset();
 
     /* Réinitialise les champs supplémentaires non couverts par form.reset() */
+    renderCategorySelect(''); // remet sur "Sans catégorie"
     updateGpuRow('g'); // masque le champ gramsPerUnit
     document.getElementById('ing-nut-per').value = 100;
     NUT_KEYS.forEach(k => {
@@ -339,6 +350,26 @@ const Ingredients = (() => {
       }).join('');
   }
 
+  /* ══════════════════════════════════════════════════════════
+     SELECT DE CATÉGORIE
+     ══════════════════════════════════════════════════════════ */
+
+  /**
+   * Reconstruit le <select id="ing-category"> à partir des catégories connues.
+   * selectedId : identifiant de la catégorie à pré-sélectionner (optionnel).
+   */
+  function renderCategorySelect(selectedId) {
+    const sel = document.getElementById('ing-category');
+    if (!sel) return;
+    const cats = (typeof Categories !== 'undefined') ? Categories.getAll() : [];
+    const sorted = [...cats].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    sel.innerHTML =
+      '<option value="">— Sans catégorie —</option>' +
+      sorted.map(c =>
+        `<option value="${c.id}"${c.id === selectedId ? ' selected' : ''}>${c.name}</option>`
+      ).join('');
+  }
+
   /* ── No-op de compatibilité ── */
   function populateDishSelect() {}
 
@@ -384,11 +415,12 @@ const Ingredients = (() => {
   }
 
   /** Charge les données, affiche la liste et active le formulaire */
-  function init() { load(); render(); initForm(); }
+  function init() { load(); render(); initForm(); renderCategorySelect(); }
 
   /* ── API publique ── */
   return {
     init, load, getAll, getById, getStep, add, remove, render, populateDishSelect,
+    renderCategorySelect,
     /* Exposées pour les onclick inline générés dans render() */
     _startEdit: id => startEdit(id),
   };

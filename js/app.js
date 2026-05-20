@@ -32,6 +32,7 @@ const App = (() => {
    */
   function boot() {
     Modal.init();
+    Categories.init();
     Ingredients.init();
     Dishes.init();
     Planning.init();
