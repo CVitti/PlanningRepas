@@ -33,6 +33,10 @@ const Planning = (() => {
   let days         = [];  // fenêtre de 8 jours de la semaine affichée
   let weekOffset   = 0;   // décalage hebdomadaire : 0=courante, -1=précédente, +1=suivante
 
+  /* ── Coches de la liste de courses (persistées par semaine, en mémoire) ── */
+  let checkedIngIds      = new Set(); // ingId des éléments cochés
+  let checkedWeekOffset  = null;      // offset pour lequel les coches sont valides
+
   /* ── Valeur spéciale pour les repas libres ── */
   const FREE_MEAL = '__free__';
 
@@ -97,10 +101,14 @@ const Planning = (() => {
 
   /* ── Navigation hebdomadaire ── */
 
+  /** Réinitialise les coches de la liste de courses */
+  function resetChecked() { checkedIngIds = new Set(); checkedWeekOffset = null; }
+
   /** Passe à la semaine précédente (minimum : S-1) */
   function goToPrevWeek() {
     weekOffset = Math.max(-1, weekOffset - 1);
     days = Dates.getPlanningDays(weekOffset);
+    resetChecked();
     render();
     updateLabel();
   }
@@ -109,6 +117,7 @@ const Planning = (() => {
   function goToNextWeek() {
     weekOffset = Math.min(1, weekOffset + 1);
     days = Dates.getPlanningDays(weekOffset);
+    resetChecked();
     render();
     updateLabel();
   }
@@ -117,6 +126,7 @@ const Planning = (() => {
   function goToCurrentWeek() {
     weekOffset = 0;
     days = Dates.getPlanningDays(0);
+    resetChecked();
     render();
     updateLabel();
   }
@@ -177,6 +187,7 @@ const Planning = (() => {
       if (!d.midiLocked) clearSlot(d.key, 'midi');
       if (!d.soirLocked) clearSlot(d.key, 'soir');
     });
+    resetChecked();
     render();
     Toast.info('Planning vidé.');
   }
@@ -788,16 +799,23 @@ const Planning = (() => {
       sortedGroups.push({ name: sortedGroups.length ? 'Autres' : null, items: uncategorized });
     }
 
+    /* Si on change de semaine entre deux ouvertures, reinitialise les coches */
+    if (checkedWeekOffset !== weekOffset) {
+      checkedIngIds     = new Set();
+      checkedWeekOffset = weekOffset;
+    }
+
     /* Construction du HTML */
     let checkIdx = 0;
     let html = '';
 
     const buildItem = item => {
-      const i = checkIdx++;
-      return '<label class="shopping-item">' +
-        '<input type="checkbox" class="shopping-check" id="sc-' + i + '">' +
+      const i       = checkIdx++;
+      const checked = checkedIngIds.has(item.ing.id);
+      return '<label class="shopping-item' + (checked ? ' checked' : '') + '" data-ing-id="' + item.ing.id + '">' +
+        '<input type="checkbox" class="shopping-check" id="sc-' + i + '"' + (checked ? ' checked' : '') + '>' +
         '<span class="shopping-name">' + item.ing.name + '</span>' +
-        '<span class="shopping-qty">' + formatQty(item.qty) + ' ' + item.ing.unit + '</span>' +
+        '<span class="shopping-qty">' + formatQty(item.qty) + ' ' + item.ing.unit + '</span>' +
         '</label>';
     };
 
@@ -815,10 +833,14 @@ const Planning = (() => {
 
     bodyEl.innerHTML = html;
 
-    /* Coche → ajoute la classe .checked sur la ligne pour la barrer visuellement */
+    /* Coche -> barre la ligne et memorise l'etat pour rouvrir la modale */
     bodyEl.querySelectorAll('.shopping-check').forEach(cb => {
       cb.addEventListener('change', () => {
-        cb.closest('.shopping-item').classList.toggle('checked', cb.checked);
+        const label = cb.closest('.shopping-item');
+        label.classList.toggle('checked', cb.checked);
+        const ingId = label.dataset.ingId;
+        if (cb.checked) checkedIngIds.add(ingId);
+        else            checkedIngIds.delete(ingId);
       });
     });
 
