@@ -33,9 +33,9 @@ const Planning = (() => {
   let days         = [];  // fenêtre de 8 jours de la semaine affichée
   let weekOffset   = 0;   // décalage hebdomadaire : 0=courante, -1=précédente, +1=suivante
 
-  /* ── Coches de la liste de courses (persistées par semaine, en mémoire) ── */
-  let checkedIngIds      = new Set(); // ingId des éléments cochés
-  let checkedWeekOffset  = null;      // offset pour lequel les coches sont valides
+    /* -- Coches de la liste de courses (persistees dans Storage, sync Gist) -- */
+  let checkedIngIds     = new Set(); // cache en memoire des ingId coches
+  let checkedWeekOffset = null;      // weekOffset pour lequel le cache est valide
 
   /* ── Valeur spéciale pour les repas libres ── */
   const FREE_MEAL = '__free__';
@@ -101,8 +101,34 @@ const Planning = (() => {
 
   /* ── Navigation hebdomadaire ── */
 
-  /** Réinitialise les coches de la liste de courses */
-  function resetChecked() { checkedIngIds = new Set(); checkedWeekOffset = null; }
+    /** Cle stable identifiant la semaine affichee (date du premier jour de la fenetre) */
+  function getShoppingWeekKey() { return days.length ? days[0].key : 'unknown'; }
+
+  /** Charge les coches depuis Storage pour la semaine courante (sync inter-appareils) */
+  function loadChecked() {
+    const all = Storage.get('shoppingChecked', {});
+    checkedIngIds     = new Set(all[getShoppingWeekKey()] || []);
+    checkedWeekOffset = weekOffset;
+  }
+
+  /** Persiste les coches dans Storage (declenche le sync Gist debounced) */
+  function saveChecked() {
+    const all = Storage.get('shoppingChecked', {});
+    const key = getShoppingWeekKey();
+    if (checkedIngIds.size > 0) { all[key] = [...checkedIngIds]; }
+    else                         { delete all[key]; }
+    /* Garde au plus 3 semaines pour ne pas accumuler indefiniment */
+    const sorted = Object.keys(all).sort();
+    sorted.slice(0, Math.max(0, sorted.length - 3)).forEach(k => delete all[k]);
+    Storage.set('shoppingChecked', all);
+  }
+
+  /** Vide les coches de la semaine courante (planning vide ou changement de semaine) */
+  function resetChecked() {
+    checkedIngIds     = new Set();
+    checkedWeekOffset = weekOffset;
+    saveChecked();
+  }
 
   /** Passe à la semaine précédente (minimum : S-1) */
   function goToPrevWeek() {
@@ -799,11 +825,8 @@ const Planning = (() => {
       sortedGroups.push({ name: sortedGroups.length ? 'Autres' : null, items: uncategorized });
     }
 
-    /* Si on change de semaine entre deux ouvertures, reinitialise les coches */
-    if (checkedWeekOffset !== weekOffset) {
-      checkedIngIds     = new Set();
-      checkedWeekOffset = weekOffset;
-    }
+        /* Recharge depuis Storage a chaque ouverture (sync inter-appareils) */
+    loadChecked();
 
     /* Construction du HTML */
     let checkIdx = 0;
@@ -841,6 +864,7 @@ const Planning = (() => {
         const ingId = label.dataset.ingId;
         if (cb.checked) checkedIngIds.add(ingId);
         else            checkedIngIds.delete(ingId);
+        saveChecked();
       });
     });
 
