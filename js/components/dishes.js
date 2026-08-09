@@ -73,6 +73,7 @@ const Dishes = (() => {
     document.getElementById('dish-double').checked = dish.double;
     document.getElementById('dish-random').checked = !dish.excludeFromRandom;
     document.getElementById('dish-recipe').value    = dish.recipe || '';
+    renderRecipePreview();
 
     /* Copie les ingrédients existants dans le formulaire temporaire */
     formIngredients = dish.ingredients.map(i => ({ ...i }));
@@ -95,6 +96,7 @@ const Dishes = (() => {
     formIngredients = [];
     renderFormIngredients();
     renderAvailableIngredients();
+    renderRecipePreview();
     const submitBtn = document.getElementById('btn-dish-submit');
     if (submitBtn) submitBtn.textContent = 'Enregistrer le plat';
     const cancelBtn = document.getElementById('btn-cancel-edit');
@@ -346,6 +348,23 @@ const Dishes = (() => {
       ).join('');
   }
 
+  /* ── Aperçu en direct des étapes de préparation ── */
+
+  /**
+   * Reconstruit l'aperçu des étapes sous le textarea #dish-recipe,
+   * avec la même mise en valeur du préfixe "Étape N" que la modale
+   * de détail du planning (via l'utilitaire partagé Recipe).
+   */
+  function renderRecipePreview() {
+    const el = document.getElementById('dish-recipe-preview');
+    if (!el || typeof Recipe === 'undefined') return;
+    const textarea  = document.getElementById('dish-recipe');
+    const stepsHTML = Recipe.buildStepsListHTML(textarea?.value || '');
+    el.innerHTML = stepsHTML
+      ? '<div class="recipe-preview-title">Aperçu</div>' + stepsHTML
+      : '';
+  }
+
   /* ── Initialisation du formulaire ── */
 
   /**
@@ -359,6 +378,7 @@ const Dishes = (() => {
     if (!form) return;
 
     document.getElementById('btn-cancel-edit').addEventListener('click', cancelEdit);
+    document.getElementById('dish-recipe')?.addEventListener('input', renderRecipePreview);
     initDropZone();
 
     form.addEventListener('submit', e => {

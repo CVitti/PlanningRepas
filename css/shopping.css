@@ -57,7 +57,7 @@
   cursor: pointer;
 }
 
-/* Bouton d'import : icône seule, mise en avant (couleur pleine + flèche marquée) */
+/* Bouton d'import : icône seule, contour cyan, intérieur transparent */
 .sl-import-btn {
   flex: 0 0 auto;
   width: 40px;
@@ -70,9 +70,13 @@
   font-weight: 700;
   line-height: 1;
   border-radius: var(--r-sm);
-  border-width: 2px;
-  border-color: var(--bg);
-  box-shadow: 0 0 0 1px var(--accent), var(--shadow-sm);
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+}
+
+.sl-import-btn:hover {
+  background: rgba(36,222,255,.12);
 }
 
 /* ── État vide ── */

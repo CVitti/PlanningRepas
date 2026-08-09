@@ -720,16 +720,9 @@ const Planning = (() => {
       : '';
 
     /* Étapes de préparation : une ligne du textarea = une étape */
-    const steps = (dish.recipe || '')
-      .split(/\r?\n/)
-      .map(s => s.trim())
-      .filter(Boolean);
-
-    const recipeHTML = steps.length
-      ? '<div class="recipe-section">' +
-          '<h3 class="recipe-title">Préparation</h3>' +
-          '<ol class="recipe-steps">' + steps.map(buildStepHTML).join('') + '</ol>' +
-        '</div>'
+    const stepsListHTML = Recipe.buildStepsListHTML(dish.recipe);
+    const recipeHTML = stepsListHTML
+      ? '<div class="recipe-section"><h3 class="recipe-title">Préparation</h3>' + stepsListHTML + '</div>'
       : '';
 
     document.getElementById('meal-detail-body').innerHTML =
@@ -750,25 +743,6 @@ const Planning = (() => {
 
   /** Capitalise la première lettre d'une chaîne */
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-
-  /** Échappe les caractères HTML sensibles d'une chaîne de texte libre */
-  function escapeHtml(s) {
-    const div = document.createElement('div');
-    div.textContent = s;
-    return div.innerHTML;
-  }
-
-  /* Détecte un préfixe "Étape <n>" en début de ligne pour le mettre en valeur */
-  const STEP_LABEL_RE = /^(Étape\s*\d+\s*:?)/i;
-
-  /** Construit le <li> d'une étape, avec le préfixe "Étape N" mis en valeur */
-  function buildStepHTML(s) {
-    const match = s.match(STEP_LABEL_RE);
-    if (!match) return '<li>' + escapeHtml(s) + '</li>';
-    const label = escapeHtml(match[1]);
-    const rest  = escapeHtml(s.slice(match[1].length));
-    return '<li><span class="recipe-step-label">' + label + '</span>' + rest + '</li>';
-  }
 
   /* ══════════════════════════════════════════════════════════
      GÉNÉRATION ALÉATOIRE DU PLANNING

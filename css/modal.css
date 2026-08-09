@@ -548,19 +548,14 @@
   display: flex;
   flex-direction: column;
   gap: 9px;
-  padding-left: 22px;
+  list-style: none;
+  padding-left: 0;
 }
 
 .recipe-steps li {
   font-size: .85rem;
   color: var(--ink);
   line-height: 1.5;
-  padding-left: 4px;
-}
-
-.recipe-steps li::marker {
-  color: var(--accent);
-  font-weight: 700;
 }
 
 .recipe-step-label {
@@ -568,6 +563,29 @@
   font-weight: 700;
   margin-right: 4px;
 }
+
+/* ── Aperçu en direct (onglet Plats du catalogue) ── */
+.recipe-preview:empty { display: none; }
+
+.recipe-preview {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+}
+
+.recipe-preview-title {
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+}
+
+.recipe-preview .recipe-steps { gap: 7px; }
+.recipe-preview .recipe-steps li { font-size: .82rem; }
 
 /* ── Shopping list ── */
 .shopping-group {
