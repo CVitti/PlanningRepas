@@ -33,7 +33,7 @@ const Dishes = (() => {
    * Déclenche un rendu de la sidebar et du planning pour
    * refléter immédiatement les changements.
    */
-  function update(id, name, slot, isDouble, ingredients, excludeFromRandom) {
+  function update(id, name, slot, isDouble, ingredients, excludeFromRandom, recipe) {
     const dish = list.find(d => d.id === id);
     if (!dish) return;
     dish.name             = name.trim();
@@ -41,6 +41,7 @@ const Dishes = (() => {
     dish.double           = isDouble;
     dish.ingredients      = ingredients;
     dish.excludeFromRandom = !!excludeFromRandom;
+    if (recipe && recipe.trim()) { dish.recipe = recipe; } else { delete dish.recipe; }
     save();
     renderExisting();
     Sidebar.render();
@@ -71,6 +72,7 @@ const Dishes = (() => {
 
     document.getElementById('dish-double').checked = dish.double;
     document.getElementById('dish-random').checked = !dish.excludeFromRandom;
+    document.getElementById('dish-recipe').value    = dish.recipe || '';
 
     /* Copie les ingrédients existants dans le formulaire temporaire */
     formIngredients = dish.ingredients.map(i => ({ ...i }));
@@ -103,7 +105,7 @@ const Dishes = (() => {
    * Crée un nouveau plat et l'ajoute à la liste.
    * Retourne le plat créé ou null si le nom est vide.
    */
-  function add(name, slot, isDouble, ingredients, excludeFromRandom) {
+  function add(name, slot, isDouble, ingredients, excludeFromRandom, recipe) {
     if (!name.trim()) return null;
     const dish = {
       id:                Dates.uid(),
@@ -113,6 +115,7 @@ const Dishes = (() => {
       excludeFromRandom: !!excludeFromRandom,
       ingredients,
     };
+    if (recipe && recipe.trim()) dish.recipe = recipe;
     list.push(dish);
     save();
     renderExisting();
@@ -364,14 +367,15 @@ const Dishes = (() => {
       const slot             = document.querySelector('input[name="dish-slot"]:checked')?.value || 'both';
       const isDouble         = document.getElementById('dish-double').checked;
       const excludeFromRandom = !document.getElementById('dish-random').checked;
+      const recipe           = document.getElementById('dish-recipe').value;
 
       if (!name.trim()) { Toast.error('Donnez un nom au plat.'); return; }
 
       if (editingId) {
-        update(editingId, name, slot, isDouble, [...formIngredients], excludeFromRandom);
+        update(editingId, name, slot, isDouble, [...formIngredients], excludeFromRandom, recipe);
         cancelEdit();
       } else {
-        add(name, slot, isDouble, [...formIngredients], excludeFromRandom);
+        add(name, slot, isDouble, [...formIngredients], excludeFromRandom, recipe);
         cancelEdit();
       }
       Modal.close('modal-catalog');

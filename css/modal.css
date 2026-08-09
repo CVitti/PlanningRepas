@@ -523,6 +523,37 @@
 
 .ingredient-table tr:last-child td { border-bottom: none; }
 
+/* ── Étapes de préparation (recette) ── */
+.recipe-section { margin-top: 18px; }
+
+.recipe-title {
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-muted);
+  margin-bottom: 10px;
+}
+
+.recipe-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding-left: 22px;
+}
+
+.recipe-steps li {
+  font-size: .85rem;
+  color: var(--ink);
+  line-height: 1.5;
+  padding-left: 4px;
+}
+
+.recipe-steps li::marker {
+  color: var(--accent);
+  font-weight: 700;
+}
+
 /* ── Shopping list ── */
 .shopping-group {
   margin-bottom: 14px;

@@ -719,6 +719,19 @@ const Planning = (() => {
       ? Nutrition.buildTableHTML(dish)
       : '';
 
+    /* Étapes de préparation : une ligne du textarea = une étape */
+    const steps = (dish.recipe || '')
+      .split(/\r?\n/)
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const recipeHTML = steps.length
+      ? '<div class="recipe-section">' +
+          '<h3 class="recipe-title">Préparation</h3>' +
+          '<ol class="recipe-steps">' + steps.map(s => '<li>' + escapeHtml(s) + '</li>').join('') + '</ol>' +
+        '</div>'
+      : '';
+
     document.getElementById('meal-detail-body').innerHTML =
       '<div class="meal-detail-info">' +
         '<p>Créneau : <strong>' + Dishes.slotLabel(dish.slot) + '</strong></p>' +
@@ -727,7 +740,8 @@ const Planning = (() => {
       (dish.ingredients.length
         ? '<table class="ingredient-table"><thead><tr><th>Ingrédient</th><th>Quantité</th></tr></thead><tbody>' + rows + '</tbody></table>'
         : '<p style="color:var(--ink-faint);">Aucun ingrédient renseigné.</p>') +
-      nutrTable;
+      nutrTable +
+      recipeHTML;
 
     Modal.open('modal-meal-detail');
   }
@@ -736,6 +750,13 @@ const Planning = (() => {
 
   /** Capitalise la première lettre d'une chaîne */
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  /** Échappe les caractères HTML sensibles d'une chaîne de texte libre */
+  function escapeHtml(s) {
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
 
   /* ══════════════════════════════════════════════════════════
      GÉNÉRATION ALÉATOIRE DU PLANNING
