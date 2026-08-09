@@ -76,6 +76,42 @@ em { font-style: italic; }
 
 .header-actions { display: flex; align-items: center; gap: 7px; }
 
+/* ── Navigation header ── */
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nav-btn {
+  padding: 5px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-muted);
+  font-family: var(--font-body);
+  font-size: .82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--tr);
+  white-space: nowrap;
+}
+
+.nav-btn:hover { background: var(--bg-raised); color: var(--ink); }
+
+.nav-btn.active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+@media (max-width: 600px) {
+  .header-nav { position: static; transform: none; order: 3; width: 100%; justify-content: center; }
+}
+
 /* ── Layout ── */
 .app-layout {
   position: relative; z-index: 1;

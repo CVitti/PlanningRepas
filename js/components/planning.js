@@ -33,9 +33,6 @@ const Planning = (() => {
   let days         = [];  // fenêtre de 8 jours de la semaine affichée
   let weekOffset   = 0;   // décalage hebdomadaire : 0=courante, -1=précédente, +1=suivante
 
-    /* -- Coches de la liste de courses (persistees dans Storage, sync Gist) -- */
-  let checkedIngIds     = new Set(); // cache en memoire des ingId coches
-  let checkedWeekOffset = null;      // weekOffset pour lequel le cache est valide
 
   /* ── Valeur spéciale pour les repas libres ── */
   const FREE_MEAL = '__free__';
@@ -101,40 +98,10 @@ const Planning = (() => {
 
   /* ── Navigation hebdomadaire ── */
 
-    /** Cle stable identifiant la semaine affichee (date du premier jour de la fenetre) */
-  function getShoppingWeekKey() { return days.length ? days[0].key : 'unknown'; }
-
-  /** Charge les coches depuis Storage pour la semaine courante (sync inter-appareils) */
-  function loadChecked() {
-    const all = Storage.get('shoppingChecked', {});
-    checkedIngIds     = new Set(all[getShoppingWeekKey()] || []);
-    checkedWeekOffset = weekOffset;
-  }
-
-  /** Persiste les coches dans Storage (declenche le sync Gist debounced) */
-  function saveChecked() {
-    const all = Storage.get('shoppingChecked', {});
-    const key = getShoppingWeekKey();
-    if (checkedIngIds.size > 0) { all[key] = [...checkedIngIds]; }
-    else                         { delete all[key]; }
-    /* Garde au plus 3 semaines pour ne pas accumuler indefiniment */
-    const sorted = Object.keys(all).sort();
-    sorted.slice(0, Math.max(0, sorted.length - 3)).forEach(k => delete all[k]);
-    Storage.set('shoppingChecked', all);
-  }
-
-  /** Vide les coches de la semaine courante (planning vide ou changement de semaine) */
-  function resetChecked() {
-    checkedIngIds     = new Set();
-    checkedWeekOffset = weekOffset;
-    saveChecked();
-  }
-
   /** Passe à la semaine précédente (minimum : S-1) */
   function goToPrevWeek() {
     weekOffset = Math.max(-1, weekOffset - 1);
     days = Dates.getPlanningDays(weekOffset);
-    resetChecked();
     render();
     updateLabel();
   }
@@ -143,7 +110,6 @@ const Planning = (() => {
   function goToNextWeek() {
     weekOffset = Math.min(1, weekOffset + 1);
     days = Dates.getPlanningDays(weekOffset);
-    resetChecked();
     render();
     updateLabel();
   }
@@ -152,7 +118,6 @@ const Planning = (() => {
   function goToCurrentWeek() {
     weekOffset = 0;
     days = Dates.getPlanningDays(0);
-    resetChecked();
     render();
     updateLabel();
   }
@@ -213,7 +178,6 @@ const Planning = (() => {
       if (!d.midiLocked) clearSlot(d.key, 'midi');
       if (!d.soirLocked) clearSlot(d.key, 'soir');
     });
-    resetChecked();
     render();
     Toast.info('Planning vidé.');
   }
@@ -733,144 +697,6 @@ const Planning = (() => {
     render();
   }
 
-  /* ══════════════════════════════════════════════════════════
-     LISTE DE COURSES
-     ══════════════════════════════════════════════════════════ */
-
-  /** Formatte une quantité numérique sans zéros décimaux inutiles */
-  function formatQty(qty) {
-    if (qty % 1 === 0) return String(qty);
-    return parseFloat(qty.toFixed(4)).toString();
-  }
-
-  /**
-   * Calcule les totaux d'ingrédients pour la semaine affichée.
-   * Règles :
-   *   - Ignore les créneaux verrouillés (semaines adjacentes)
-   *   - Ignore les repas libres (FREE_MEAL)
-   *   - Pour les plats doubles : compte les ingrédients une seule fois
-   *     (seenDouble évite le doublon de la seconde portion)
-   * Retourne un tableau trié alphabétiquement.
-   */
-  function buildShoppingList() {
-    const totals     = {};       // ingId → { ing, qty }
-    const seenDouble = new Set(); // dishId des plats doubles déjà comptés
-
-    days.forEach(dayInfo => {
-      const dayData = getDayData(dayInfo.key);
-      ['midi', 'soir'].forEach(slot => {
-        /* Ignore les slots verrouillés (appartiennent aux semaines adjacentes) */
-        if (slot === 'midi' && dayInfo.midiLocked) return;
-        if (slot === 'soir' && dayInfo.soirLocked) return;
-        const dishId = dayData[slot];
-        if (!dishId || dishId === FREE_MEAL) return;
-        const dish = Dishes.getById(dishId);
-        if (!dish) return;
-        /* Plat double : une seule préparation → on ne compte qu'une fois */
-        if (dish.double) {
-          if (seenDouble.has(dishId)) return;
-          seenDouble.add(dishId);
-        }
-        dish.ingredients.forEach(item => {
-          const ing = Ingredients.getById(item.id);
-          if (!ing) return;
-          if (!totals[item.id]) totals[item.id] = { ing, qty: 0 };
-          totals[item.id].qty += item.qty;
-        });
-      });
-    });
-
-    return Object.values(totals).sort((a, b) => a.ing.name.localeCompare(b.ing.name, 'fr'));
-  }
-
-  /**
-   * Ouvre la modale #modal-shopping avec la liste de courses de la semaine.
-   * Chaque item est une checkbox cochable pour la faire au fur et à mesure.
-   */
-  function showShoppingList() {
-    const items     = buildShoppingList();
-    const weekRange = Dates.formatWeekRange(days);
-
-    const titleEl = document.getElementById('shopping-title');
-    if (titleEl) titleEl.textContent = 'Liste de courses — ' + weekRange;
-
-    const bodyEl = document.getElementById('shopping-body');
-    if (!bodyEl) return;
-
-    if (!items.length) {
-      bodyEl.innerHTML = '<p class="panel-empty" style="padding:16px 0;">Aucun plat planifié cette semaine.</p>';
-      Modal.open('modal-shopping');
-      return;
-    }
-
-    /* ── Groupement par catégorie ── */
-    const catGroups   = {}; // catId → { name, items[] }
-    const uncategorized = [];
-
-    items.forEach(item => {
-      const catId = item.ing.categoryId;
-      const cat   = (catId && typeof Categories !== 'undefined') ? Categories.getById(catId) : null;
-      if (cat) {
-        if (!catGroups[catId]) catGroups[catId] = { name: cat.name, items: [] };
-        catGroups[catId].items.push(item);
-      } else {
-        uncategorized.push(item);
-      }
-    });
-
-    /* Catégories triées alphabétiquement, "Autres" (sans catégorie) toujours en dernier */
-    const sortedGroups = Object.values(catGroups)
-      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
-    if (uncategorized.length) {
-      sortedGroups.push({ name: sortedGroups.length ? 'Autres' : null, items: uncategorized });
-    }
-
-        /* Recharge depuis Storage a chaque ouverture (sync inter-appareils) */
-    loadChecked();
-
-    /* Construction du HTML */
-    let checkIdx = 0;
-    let html = '';
-
-    const buildItem = item => {
-      const i       = checkIdx++;
-      const checked = checkedIngIds.has(item.ing.id);
-      return '<label class="shopping-item' + (checked ? ' checked' : '') + '" data-ing-id="' + item.ing.id + '">' +
-        '<input type="checkbox" class="shopping-check" id="sc-' + i + '"' + (checked ? ' checked' : '') + '>' +
-        '<span class="shopping-name">' + item.ing.name + '</span>' +
-        '<span class="shopping-qty">' + formatQty(item.qty) + ' ' + item.ing.unit + '</span>' +
-        '</label>';
-    };
-
-    sortedGroups.forEach(group => {
-      const hasHeader = group.name !== null;
-      if (hasHeader) {
-        html += '<div class="shopping-group">';
-        html += '<h3 class="shopping-group-header">' + group.name + '</h3>';
-      }
-      html += '<div class="shopping-list">';
-      group.items.forEach(item => { html += buildItem(item); });
-      html += '</div>';
-      if (hasHeader) html += '</div>';
-    });
-
-    bodyEl.innerHTML = html;
-
-    /* Coche -> barre la ligne et memorise l'etat pour rouvrir la modale */
-    bodyEl.querySelectorAll('.shopping-check').forEach(cb => {
-      cb.addEventListener('change', () => {
-        const label = cb.closest('.shopping-item');
-        label.classList.toggle('checked', cb.checked);
-        const ingId = label.dataset.ingId;
-        if (cb.checked) checkedIngIds.add(ingId);
-        else            checkedIngIds.delete(ingId);
-        saveChecked();
-      });
-    });
-
-    Modal.open('modal-shopping');
-  }
-
   /* ── Modale de détail d'un plat ── */
 
   /**
@@ -1097,7 +923,6 @@ const Planning = (() => {
     document.getElementById('btn-prev-week')      ?.addEventListener('click', goToPrevWeek);
     document.getElementById('btn-next-week')      ?.addEventListener('click', goToNextWeek);
     document.getElementById('btn-week-current')   ?.addEventListener('click', goToCurrentWeek);
-    document.getElementById('btn-shopping-list')  ?.addEventListener('click', showShoppingList);
   }
 
   /* ── API publique ── */

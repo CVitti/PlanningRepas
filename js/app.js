@@ -37,6 +37,36 @@ const App = (() => {
     Dishes.init();
     Planning.init();
     Sidebar.init();
+    Shopping.init();
+    initNav();
+  }
+
+  /* ── Navigation entre pages ── */
+
+  function showPage(name) {
+    const planningPage = document.getElementById('planning-page');
+    const shoppingPage = document.getElementById('shopping-page');
+    const weekLabel    = document.getElementById('week-label');
+
+    const isPlanning = (name === 'planning');
+    if (planningPage) planningPage.style.display = isPlanning ? '' : 'none';
+    if (shoppingPage) shoppingPage.style.display = isPlanning ? 'none' : '';
+    if (weekLabel)    weekLabel.style.display     = isPlanning ? '' : 'none';
+
+    document.querySelectorAll('.nav-btn').forEach(btn =>
+      btn.classList.toggle('active', btn.dataset.page === name)
+    );
+
+    if (!isPlanning) Shopping.render();
+  }
+
+  function initNav() {
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => showPage(btn.dataset.page));
+    });
+
+    document.getElementById('btn-open-catalog')
+      ?.addEventListener('click', () => Modal.openCatalog('ingredients'));
   }
 
   /* ── Boot asynchrone avec chargement Gist ── */

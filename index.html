@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="css/modal.css"/>
   <link rel="stylesheet" href="css/toast.css"/>
   <link rel="stylesheet" href="css/setup.css"/>
+  <link rel="stylesheet" href="css/shopping.css"/>
 </head>
 <body>
 
@@ -100,41 +101,75 @@
         <h1 class="app-title">Menu <em>de la semaine</em></h1>
         <span class="week-label" id="week-label"></span>
       </div>
+      <nav class="header-nav">
+        <button class="nav-btn active" data-page="planning">Planning</button>
+        <button class="nav-btn" data-page="shopping">🛒 Courses</button>
+      </nav>
       <div class="header-actions">
+        <button class="btn btn-ghost btn-sm" id="btn-open-catalog">📚 Catalogue</button>
         <span class="sync-status" id="sync-status"></span>
         <button class="btn-disconnect" id="btn-disconnect" title="Déconnecter cet appareil">⏏</button>
       </div>
     </header>
 
-    <main class="app-layout">
-      <section class="planning-section">
-        <div class="planning-toolbar">
-          <button class="btn btn-ghost btn-sm" id="btn-clear-week" title="Vider le planning affiché">🗑 Vider</button>
-          <button class="btn btn-ghost btn-sm" id="btn-shopping-list" title="Liste de courses de la semaine">🛒 Courses</button>
-          <button class="btn btn-primary btn-sm" id="btn-generate" title="Générer le planning aléatoirement">🎲 Générer</button>
-          <span class="spacer"></span>
-          <button class="btn btn-ghost btn-sm" id="btn-prev-week">← Précédente</button>
-          <button class="btn btn-ghost btn-sm" id="btn-week-current">Courante</button>
-          <button class="btn btn-ghost btn-sm" id="btn-next-week">Suivante →</button>
-        </div>
-        <div class="planning-grid" id="planning-grid"></div>
-      </section>
-      <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-          <div class="sidebar-header-top">
-            <h2>Mes plats</h2>
-            <button class="btn btn-primary btn-sm" id="btn-new-dish">+ Nouveau</button>
+    <!-- Page : Planning -->
+    <div id="planning-page">
+      <main class="app-layout">
+        <section class="planning-section">
+          <div class="planning-toolbar">
+            <button class="btn btn-ghost btn-sm" id="btn-clear-week" title="Vider le planning affiché">🗑 Vider</button>
+            <button class="btn btn-primary btn-sm" id="btn-generate" title="Générer le planning aléatoirement">🎲 Générer</button>
+            <span class="spacer"></span>
+            <button class="btn btn-ghost btn-sm" id="btn-prev-week">← Précédente</button>
+            <button class="btn btn-ghost btn-sm" id="btn-week-current">Courante</button>
+            <button class="btn btn-ghost btn-sm" id="btn-next-week">Suivante →</button>
           </div>
-          <div class="filter-tabs">
-            <button class="filter-tab active" data-filter="all">Tous</button>
-            <button class="filter-tab" data-filter="midi">Midi</button>
-            <button class="filter-tab" data-filter="soir">Soir</button>
-            <button class="filter-tab" data-filter="double">×2</button>
+          <div class="planning-grid" id="planning-grid"></div>
+        </section>
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-header">
+            <div class="sidebar-header-top">
+              <h2>Mes plats</h2>
+              <button class="btn btn-primary btn-sm" id="btn-new-dish">+ Nouveau</button>
+            </div>
+            <div class="filter-tabs">
+              <button class="filter-tab active" data-filter="all">Tous</button>
+              <button class="filter-tab" data-filter="midi">Midi</button>
+              <button class="filter-tab" data-filter="soir">Soir</button>
+              <button class="filter-tab" data-filter="double">×2</button>
+            </div>
+          </div>
+          <div class="dish-list" id="dish-list"></div>
+        </aside>
+      </main>
+    </div>
+
+    <!-- Page : Courses -->
+    <div id="shopping-page" style="display:none">
+      <div class="shopping-page-inner">
+        <div class="sl-toolbar">
+          <!-- Ajout manuel -->
+          <form class="sl-add-form" id="sl-add-form">
+            <input class="input" type="text" id="sl-add-name" placeholder="Nom de l'élément" required/>
+            <input class="input" type="number" id="sl-add-qty" placeholder="Qté" min="0" step="0.1"/>
+            <input class="input" type="text" id="sl-add-unit" placeholder="Unité"/>
+            <select class="input" id="sl-add-cat">
+              <option value="">— Sans catégorie —</option>
+            </select>
+            <button class="btn btn-primary btn-sm" type="submit">+ Ajouter</button>
+          </form>
+          <!-- Import planning + suppression cochés -->
+          <div class="sl-toolbar-row">
+            <div class="sl-import-wrap">
+              <select class="input" id="sl-import-week-sel"></select>
+              <button class="btn btn-ghost btn-sm" id="btn-sl-import">⬇ Importer depuis le planning</button>
+            </div>
+            <button class="btn btn-danger btn-sm" id="btn-sl-delete-checked">🗑 Supprimer les cochés</button>
           </div>
         </div>
-        <div class="dish-list" id="dish-list"></div>
-      </aside>
-    </main>
+        <div id="shopping-content"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Modal: Catalogue (Ingrédients + Plats) -->
@@ -312,15 +347,6 @@
     </div>
   </div>
 
-  <!-- Modal: Liste de courses -->
-  <div class="modal-overlay" id="modal-shopping">
-    <div class="modal">
-      <button class="modal-close" data-modal="modal-shopping">✕</button>
-      <h2 class="modal-title" id="shopping-title">Liste de courses</h2>
-      <div class="modal-body" id="shopping-body"></div>
-    </div>
-  </div>
-
   <!-- Modal: Détail repas -->
   <div class="modal-overlay" id="modal-meal-detail">
     <div class="modal modal-wide">
@@ -342,7 +368,8 @@
   <script src="js/components/dishes.js"></script>
   <script src="js/components/planning.js"></script>
   <script src="js/components/sidebar.js"></script>
+  <script src="js/components/shopping.js"></script>
   <script src="js/app.js"></script>
-  <div id="app-version">v1.2.0</div>
+  <div id="app-version">v1.3.0</div>
 </body>
 </html>

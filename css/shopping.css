@@ -1,0 +1,208 @@
+/* ═══════════════════════════════════════════════════════════
+   SHOPPING.CSS — Page dédiée liste de courses
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Conteneur de la page ── */
+.shopping-page-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 16px 24px 40px;
+}
+
+/* ── Toolbar ── */
+.sl-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* Formulaire d'ajout rapide */
+.sl-add-form {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  flex-wrap: wrap;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+}
+
+.sl-add-form .input { flex: 1; min-width: 100px; }
+
+#sl-add-qty  { flex: 0 0 76px !important; min-width: 0 !important; text-align: right; }
+#sl-add-unit { flex: 0 0 70px !important; min-width: 0 !important; }
+#sl-add-cat  { flex: 0 1 170px !important; min-width: 110px !important; cursor: pointer; }
+
+/* Ligne import + suppression */
+.sl-toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sl-import-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+#sl-import-week-sel {
+  flex: 0 1 195px;
+  min-width: 140px;
+  cursor: pointer;
+}
+
+/* ── État vide ── */
+.sl-empty {
+  color: var(--ink-faint);
+  font-size: .88rem;
+  font-style: italic;
+  text-align: center;
+  padding: 56px 0;
+}
+
+/* ── Groupes par catégorie ── */
+.sl-group {
+  margin-bottom: 22px;
+}
+
+.sl-group-header {
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: var(--accent);
+  padding: 4px 2px 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+/* ── Liste d'items ── */
+.sl-items {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* ── Item ── */
+.sl-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 8px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  transition: opacity var(--tr), background var(--tr);
+  animation: slideIn 150ms ease;
+}
+
+.sl-item.sl-checked {
+  opacity: .48;
+  background: var(--bg);
+}
+
+/* Checkbox + nom */
+.sl-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+  cursor: pointer;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sl-check {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.sl-name {
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--ink);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--tr), text-decoration var(--tr);
+}
+
+.sl-checked .sl-name {
+  text-decoration: line-through;
+  color: var(--ink-faint);
+}
+
+/* Contrôles (qté, unité, catégorie, supprimer) */
+.sl-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.sl-qty {
+  width: 72px !important;
+  flex: 0 0 72px !important;
+  min-width: 0 !important;
+  text-align: right;
+}
+
+.sl-unit {
+  width: 64px !important;
+  flex: 0 0 64px !important;
+  min-width: 0 !important;
+}
+
+.sl-cat-sel {
+  width: 150px !important;
+  flex: 0 0 150px !important;
+  min-width: 0 !important;
+  cursor: pointer;
+}
+
+.sl-rm {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--accent-red);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .75rem;
+  transition: all var(--tr);
+  flex-shrink: 0;
+}
+
+.sl-rm:hover {
+  background: rgba(255,155,155,.15);
+  border-color: rgba(255,155,155,.5);
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .shopping-page-inner { padding: 12px 12px 32px; }
+
+  .sl-item { flex-wrap: wrap; }
+
+  .sl-controls {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .sl-qty  { flex: 0 0 80px !important; }
+  .sl-unit { flex: 0 0 80px !important; }
+  .sl-cat-sel { flex: 1 1 auto !important; width: auto !important; }
+}
