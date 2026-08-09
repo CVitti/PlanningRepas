@@ -8,8 +8,9 @@
 
    Fermeture déclenchée par :
      - bouton .modal-close (data-modal="id" ou sans attribut pour tout fermer)
-     - clic sur le fond sombre (backdrop)
      - touche Échap
+   Le clic sur le fond sombre (backdrop) est volontairement ignoré pour
+   éviter les fermetures accidentelles lors d'un clic hors cible.
    ═══════════════════════════════════════════════════════════ */
 
 const Modal = (() => {
@@ -75,13 +76,6 @@ const Modal = (() => {
         const modalId = btn.dataset.modal;
         if (modalId) close(modalId);
         else closeAll();
-      });
-    });
-
-    /* Clic sur le fond sombre (en dehors de la boîte modale) */
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-      overlay.addEventListener('click', e => {
-        if (e.target === overlay) closeAll();
       });
     });
 
