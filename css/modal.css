@@ -558,6 +558,12 @@
   font-weight: 700;
 }
 
+.recipe-step-label {
+  color: var(--accent);
+  font-weight: 700;
+  margin-right: 4px;
+}
+
 /* ── Shopping list ── */
 .shopping-group {
   margin-bottom: 14px;
