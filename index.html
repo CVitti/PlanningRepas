@@ -121,7 +121,7 @@
             <button class="btn btn-primary btn-sm" id="btn-generate" title="Générer le planning aléatoirement">🎲 Générer</button>
             <span class="spacer"></span>
             <button class="btn btn-ghost btn-sm btn-week-nav" id="btn-prev-week"><span class="week-nav-arrow">◀</span> Précédente</button>
-            <button class="btn btn-ghost btn-sm" id="btn-week-current">Courante</button>
+            <button class="btn btn-ghost btn-sm btn-week-nav" id="btn-week-current"><span class="week-nav-arrow">◉</span> Courante</button>
             <button class="btn btn-ghost btn-sm btn-week-nav" id="btn-next-week">Suivante <span class="week-nav-arrow">▶</span></button>
           </div>
           <div class="planning-grid" id="planning-grid"></div>
@@ -164,7 +164,7 @@
               <select class="input" id="sl-import-week-sel"></select>
               <button class="btn btn-primary sl-import-btn" id="btn-sl-import" title="Importer depuis le planning" aria-label="Importer depuis le planning">⬇</button>
             </div>
-            <button class="btn btn-danger btn-sm" id="btn-sl-delete-checked">🗑 Supprimer les cochés</button>
+            <button class="btn btn-danger btn-sm" id="btn-sl-delete-checked" title="Supprimer les éléments cochés"><span class="danger-icon">🗑</span> Supprimer</button>
           </div>
         </div>
         <div id="shopping-content"></div>
@@ -373,6 +373,6 @@
   <script src="js/components/sidebar.js"></script>
   <script src="js/components/shopping.js"></script>
   <script src="js/app.js"></script>
-  <div id="app-version">v1.4.0</div>
+  <div id="app-version">v1.4.1</div>
 </body>
 </html>

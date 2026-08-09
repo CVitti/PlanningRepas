@@ -278,3 +278,9 @@
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
 }
+
+/* Sur mobile, la sidebar de sélection des plats (glisser-déposer) est masquée :
+   la gestion des plats se fait depuis la page Catalogue */
+@media (max-width: 600px) {
+  .sidebar { display: none; }
+}

@@ -289,6 +289,9 @@
 }
 
 @media (max-width: 600px) {
-  .day-column { grid-template-columns: 3.6rem 1fr 1fr; gap: 4px; }
+  .day-column { grid-template-columns: 3.9rem 1fr 1fr; gap: 4px; }
   .btn-free-meal { display: none; }
+  /* Le nom du jour (ex. "MERCREDI") dépasse légèrement de son bloc
+     à cette largeur : police et espacement réduits pour tenir dans la colonne */
+  .day-name { font-size: .58rem; letter-spacing: .02em; }
 }

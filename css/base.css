@@ -144,6 +144,8 @@ em { font-style: italic; }
 }
 .btn-danger:hover { background: rgba(224,92,58,.12); border-color: var(--accent-red); }
 
+.danger-icon { font-size: 1rem; line-height: 1; }
+
 .btn-sm { padding: 4px 9px; font-size: .74rem; }
 
 .btn-week-nav { gap: 6px; }
