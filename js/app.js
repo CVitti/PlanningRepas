@@ -53,7 +53,7 @@ const App = (() => {
     if (shoppingPage) shoppingPage.style.display = isPlanning ? 'none' : '';
     if (weekLabel)    weekLabel.style.display     = isPlanning ? '' : 'none';
 
-    document.querySelectorAll('.nav-btn').forEach(btn =>
+    document.querySelectorAll('.nav-btn[data-page]').forEach(btn =>
       btn.classList.toggle('active', btn.dataset.page === name)
     );
 
@@ -61,7 +61,7 @@ const App = (() => {
   }
 
   function initNav() {
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    document.querySelectorAll('.nav-btn[data-page]').forEach(btn => {
       btn.addEventListener('click', () => showPage(btn.dataset.page));
     });
 

@@ -181,7 +181,12 @@ const Shopping = (() => {
     sortedGroups.forEach(group => {
       html += '<div class="sl-group">';
       if (group.name !== null) {
-        html += '<div class="sl-group-header">' + group.name + '</div>';
+        const allChecked = group.items.every(i => i.checked);
+        html += '<div class="sl-group-header">' +
+          '<label class="sl-group-check-label">' +
+          '<input type="checkbox" class="sl-group-check"' + (allChecked ? ' checked' : '') + '>' +
+          '<span class="sl-group-name">' + group.name + '</span>' +
+          '</label></div>';
       }
       html += '<div class="sl-items">';
       group.items.forEach(item => { html += buildItemHTML(item); });
@@ -233,6 +238,21 @@ const Shopping = (() => {
 
       el.querySelector('.sl-rm').addEventListener('click', () => {
         if (confirm('Supprimer cet élément de la liste ?')) removeItem(id);
+      });
+    });
+
+    /* Case "cocher tout" par catégorie */
+    container.querySelectorAll('.sl-group').forEach(groupEl => {
+      const groupCheck = groupEl.querySelector('.sl-group-check');
+      if (!groupCheck) return;
+      groupCheck.addEventListener('change', () => {
+        const checked = groupCheck.checked;
+        groupEl.querySelectorAll('.sl-item').forEach(itemEl => {
+          const item = items.find(i => i.id === itemEl.dataset.id);
+          if (item) item.checked = checked;
+        });
+        save();
+        render();
       });
     });
   }

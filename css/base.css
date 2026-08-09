@@ -102,6 +102,8 @@ em { font-style: italic; }
 
 .nav-btn:hover { background: var(--bg-raised); color: var(--ink); }
 
+.nav-btn-catalog { margin-left: 10px; }
+
 .nav-btn.active {
   background: var(--accent);
   color: var(--bg);
