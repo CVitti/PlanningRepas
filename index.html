@@ -104,7 +104,7 @@
       <nav class="header-nav">
         <button class="nav-btn active" data-page="planning">📅 Planning</button>
         <button class="nav-btn" data-page="shopping">🛒 Courses</button>
-        <button class="nav-btn nav-btn-catalog" id="btn-open-catalog">📚 Catalogue</button>
+        <button class="nav-btn" data-page="catalog">📚 Catalogue</button>
       </nav>
       <div class="header-actions">
         <span class="sync-status" id="sync-status"></span>
@@ -170,18 +170,16 @@
         <div id="shopping-content"></div>
       </div>
     </div>
-  </div>
 
-  <!-- Modal: Catalogue (Ingrédients + Plats) -->
-  <div class="modal-overlay" id="modal-catalog">
-    <div class="modal modal-wide">
-      <button class="modal-close" data-modal="modal-catalog">✕</button>
-      <div class="catalog-tabs">
-        <button class="catalog-tab active" data-tab="ingredients">Ingrédients</button>
-        <button class="catalog-tab" data-tab="dishes">Plats</button>
-        <button class="catalog-tab" data-tab="categories">Catégories</button>
-      </div>
-      <div class="modal-body">
+    <!-- Page : Catalogue -->
+    <div id="catalog-page" style="display:none">
+      <div class="catalog-page-inner">
+        <div class="catalog-tabs">
+          <button class="catalog-tab active" data-tab="ingredients">Ingrédients</button>
+          <button class="catalog-tab" data-tab="dishes">Plats</button>
+          <button class="catalog-tab" data-tab="categories">Catégories</button>
+        </div>
+        <div class="catalog-body">
 
         <!-- Panel: Ingrédients -->
         <div class="catalog-panel active" id="panel-ingredients">
@@ -349,6 +347,7 @@
 
       </div>
     </div>
+  </div>
   </div>
 
   <!-- Modal: Détail repas -->

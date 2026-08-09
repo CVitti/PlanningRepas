@@ -378,7 +378,6 @@ const Dishes = (() => {
         add(name, slot, isDouble, [...formIngredients], excludeFromRandom, recipe);
         cancelEdit();
       }
-      Modal.close('modal-catalog');
     });
   }
 

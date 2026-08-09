@@ -46,27 +46,27 @@ const App = (() => {
   function showPage(name) {
     const planningPage = document.getElementById('planning-page');
     const shoppingPage = document.getElementById('shopping-page');
+    const catalogPage  = document.getElementById('catalog-page');
     const weekLabel    = document.getElementById('week-label');
 
     const isPlanning = (name === 'planning');
     if (planningPage) planningPage.style.display = isPlanning ? '' : 'none';
-    if (shoppingPage) shoppingPage.style.display = isPlanning ? 'none' : '';
+    if (shoppingPage) shoppingPage.style.display = (name === 'shopping') ? '' : 'none';
+    if (catalogPage)  catalogPage.style.display  = (name === 'catalog')  ? '' : 'none';
     if (weekLabel)    weekLabel.style.display     = isPlanning ? '' : 'none';
 
     document.querySelectorAll('.nav-btn[data-page]').forEach(btn =>
       btn.classList.toggle('active', btn.dataset.page === name)
     );
 
-    if (!isPlanning) Shopping.render();
+    if (name === 'shopping') Shopping.render();
+    if (name === 'catalog' && typeof Dishes !== 'undefined') Dishes.renderAvailableIngredients();
   }
 
   function initNav() {
     document.querySelectorAll('.nav-btn[data-page]').forEach(btn => {
       btn.addEventListener('click', () => showPage(btn.dataset.page));
     });
-
-    document.getElementById('btn-open-catalog')
-      ?.addEventListener('click', () => Modal.openCatalog('ingredients'));
   }
 
   /* ── Boot asynchrone avec chargement Gist ── */
@@ -124,7 +124,7 @@ const App = (() => {
     if (el) el.classList.toggle('visible', on);
   }
 
-  return { boot, start };
+  return { boot, start, showPage };
 })();
 
 /* ── Déclenchement au chargement du DOM ── */

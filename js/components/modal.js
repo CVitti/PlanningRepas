@@ -41,10 +41,10 @@ const Modal = (() => {
     document.body.style.overflow = '';
   }
 
-  /* ── Catalogue (modale à onglets : Ingrédients | Plats) ── */
+  /* ── Catalogue (page à onglets : Ingrédients | Plats | Catégories) ── */
 
   /**
-   * Active l'onglet demandé dans la modale catalogue et l'ouvre.
+   * Active l'onglet demandé dans la page catalogue et l'affiche.
    * Si l'onglet est "dishes", rafraîchit la liste des ingrédients
    * disponibles dans le formulaire de plat (colonne gauche).
    */
@@ -59,7 +59,8 @@ const Modal = (() => {
     if (tab === 'dishes' && typeof Dishes !== 'undefined') {
       Dishes.renderAvailableIngredients();
     }
-    open('modal-catalog');
+    /* Bascule vers la page catalogue */
+    if (typeof App !== 'undefined') App.showPage('catalog');
   }
 
   /* ── Câblage des événements globaux ── */

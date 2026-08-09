@@ -73,12 +73,18 @@
   color: var(--ink);
 }
 
+/* ── Page : Catalogue ── */
+.catalog-page-inner {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 16px 24px 40px;
+}
+
 /* ── Catalog tabs ── */
 .catalog-tabs {
   display: flex;
   border-bottom: 1px solid var(--border);
   margin-bottom: 20px;
-  padding-right: 36px;
 }
 
 .catalog-tab {
