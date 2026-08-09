@@ -41,6 +41,11 @@
 
 .modal-wide { max-width: 1020px; }
 
+/* Modale plus large sur desktop pour éviter le scroll horizontal du tableau nutritionnel */
+@media (min-width: 901px) {
+  .modal-wide { max-width: 1240px; }
+}
+
 .modal-close {
   position: absolute;
   top: 14px;

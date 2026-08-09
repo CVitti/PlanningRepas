@@ -283,6 +283,9 @@
 
 @media (max-width: 900px) {
   .day-column { grid-template-columns: 4rem 1fr 1fr; }
+  /* Empêche la suppression accidentelle d'un plat par appui tactile
+     (l'overlay d'action s'active au survol simulé par le tap mobile) */
+  .dish-action-delete { display: none; }
 }
 
 @media (max-width: 600px) {

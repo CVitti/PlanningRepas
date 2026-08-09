@@ -146,6 +146,9 @@ em { font-style: italic; }
 
 .btn-sm { padding: 4px 9px; font-size: .74rem; }
 
+.btn-week-nav { gap: 6px; }
+.week-nav-arrow { font-size: 1rem; font-weight: 700; color: var(--accent); line-height: 1; }
+
 /* ── Inputs ── */
 .input {
   width: 100%; padding: 7px 10px;

@@ -57,6 +57,21 @@
   cursor: pointer;
 }
 
+/* Bouton d'import : icône seule, mise en avant (couleur pleine) */
+.sl-import-btn {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  line-height: 1;
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-sm);
+}
+
 /* ── État vide ── */
 .sl-empty {
   color: var(--ink-faint);
@@ -213,14 +228,53 @@
 @media (max-width: 700px) {
   .shopping-page-inner { padding: 12px 12px 32px; }
 
-  .sl-item { flex-wrap: wrap; }
+  /* Ligne import / suppression : empilée pour éviter tout chevauchement */
+  .sl-toolbar-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .sl-import-wrap { width: 100%; }
+  #sl-import-week-sel { flex: 1 1 auto; min-width: 0; }
+  #btn-sl-delete-checked { width: 100%; justify-content: center; }
 
-  .sl-controls {
-    width: 100%;
-    flex-wrap: wrap;
+  /* Items compacts sur une seule ligne : case, nom, qté, unité (si définie), catégorie (si définie) */
+  .sl-item {
+    flex-wrap: nowrap;
+    padding: 6px 8px 6px 10px;
+    gap: 6px;
   }
 
-  .sl-qty  { flex: 0 0 80px !important; }
-  .sl-unit { flex: 0 0 80px !important; }
-  .sl-cat-sel { flex: 1 1 auto !important; width: auto !important; }
+  .sl-controls {
+    width: auto;
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
+  .sl-qty {
+    flex: 0 0 44px !important;
+    width: 44px !important;
+    padding: 5px 4px;
+    font-size: .78rem;
+  }
+
+  .sl-unit {
+    flex: 0 0 42px !important;
+    width: 42px !important;
+    padding: 5px 4px;
+    font-size: .78rem;
+  }
+  /* Unité vide (placeholder affiché) → masquée pour ne pas prendre de place */
+  .sl-unit:placeholder-shown { display: none; }
+
+  .sl-cat-sel {
+    flex: 0 0 84px !important;
+    width: 84px !important;
+    padding: 5px 4px;
+    font-size: .72rem;
+  }
+  /* Catégorie non définie (option vide sélectionnée) → masquée */
+  .sl-cat-sel:has(option[value=""]:checked) { display: none; }
+
+  .sl-rm { width: 24px; height: 24px; font-size: .68rem; }
 }
