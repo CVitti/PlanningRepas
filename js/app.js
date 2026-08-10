@@ -61,6 +61,18 @@ const App = (() => {
 
     if (name === 'shopping') Shopping.render();
     if (name === 'catalog' && typeof Dishes !== 'undefined') Dishes.renderAvailableIngredients();
+
+    /* Sidebar des plats : replacée dans le planning en quittant le catalogue,
+       ou dans l'onglet "Plats" si on y revient directement (nav du header,
+       sans passer par Modal.openCatalog). */
+    if (typeof Sidebar !== 'undefined') {
+      if (name === 'planning') {
+        Sidebar.showInPlanning();
+      } else if (name === 'catalog') {
+        const activeTab = document.querySelector('.catalog-tab.active')?.dataset.tab;
+        if (activeTab === 'dishes') Sidebar.showInCatalog();
+      }
+    }
   }
 
   function initNav() {

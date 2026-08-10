@@ -116,6 +116,18 @@
 .catalog-panel { display: none; }
 .catalog-panel.active { display: block; }
 
+/* ── Onglet Plats : formulaire + sidebar des plats existants ── */
+.catalog-dishes-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+.catalog-dishes-layout form#form-dish { flex: 1; min-width: 0; }
+
+@media (max-width: 900px) {
+  .catalog-dishes-layout { flex-direction: column; }
+}
+
 /* ── Ingredient card grid ── */
 .ingredient-grid {
   display: grid;

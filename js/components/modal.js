@@ -46,7 +46,8 @@ const Modal = (() => {
   /**
    * Active l'onglet demandé dans la page catalogue et l'affiche.
    * Si l'onglet est "dishes", rafraîchit la liste des ingrédients
-   * disponibles dans le formulaire de plat (colonne gauche).
+   * disponibles dans le formulaire de plat (colonne gauche) et affiche
+   * la sidebar des plats existants (masquée sur les autres onglets).
    */
   function openCatalog(tab) {
     /* Bascule l'onglet actif dans la barre de navigation */
@@ -58,6 +59,11 @@ const Modal = (() => {
     /* Rafraîchit les ingrédients disponibles si on ouvre l'onglet plats */
     if (tab === 'dishes' && typeof Dishes !== 'undefined') {
       Dishes.renderAvailableIngredients();
+    }
+    /* Sidebar des plats : visible uniquement sur l'onglet "Plats" */
+    if (typeof Sidebar !== 'undefined') {
+      if (tab === 'dishes') Sidebar.showInCatalog();
+      else                  Sidebar.showInPlanning();
     }
     /* Bascule vers la page catalogue */
     if (typeof App !== 'undefined') App.showPage('catalog');

@@ -169,6 +169,29 @@ const Sidebar = (() => {
     document.querySelectorAll('.meal-slot.drag-over').forEach(s => s.classList.remove('drag-over'));
   }
 
+  /* ── Emplacement de la sidebar (planning ou onglet Plats du catalogue) ──
+     La sidebar est un unique nœud DOM #sidebar, déplacé selon le contexte
+     plutôt que dupliqué : aucun état ni écouteur à resynchroniser. */
+
+  /** Déplace #sidebar dans le conteneur donné, sans effet si déjà en place */
+  function relocate(container) {
+    const el = document.getElementById('sidebar');
+    if (el && container && el.parentElement !== container) {
+      container.appendChild(el);
+    }
+  }
+
+  /** Replace la sidebar dans le planning (colonne de droite) */
+  function showInPlanning() {
+    relocate(document.querySelector('#planning-page .app-layout'));
+  }
+
+  /** Affiche la sidebar dans l'onglet "Plats" du catalogue, pour faciliter
+   * la modification des plats existants sans repasser par le planning */
+  function showInCatalog() {
+    relocate(document.getElementById('catalog-dishes-layout'));
+  }
+
   /* ── Initialisation ── */
 
   /**
@@ -182,5 +205,5 @@ const Sidebar = (() => {
       ?.addEventListener('click', () => Dishes.openCreate());
   }
 
-  return { init, render };
+  return { init, render, showInPlanning, showInCatalog };
 })();
