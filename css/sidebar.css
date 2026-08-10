@@ -65,15 +65,32 @@
   color: var(--bg);
 }
 
+/* Filtres midi/soir/double : reprennent les pastilles des cartes,
+   mises à l'échelle du bouton plutôt que du coin d'une carte */
+.filter-tab-icon {
+  padding: 3px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-tab-badge {
+  width: 15px;
+  height: 15px;
+  font-size: .58rem;
+  box-shadow: none;
+}
+
 /* ── Dish list — 3 per row ──
-   Le row-gap et le padding-top sont plus généreux que le column-gap
-   pour laisser la place aux pastilles de créneau/double qui dépassent
-   du coin supérieur des cartes. */
+   Le row-gap et surtout le column-gap sont assez généreux pour laisser
+   la place aux pastilles de créneau/double qui dépassent des cartes :
+   deux pastilles de 20px (rayon 10px) se faisant face sur des cartes
+   voisines ont besoin d'au moins 20px d'écart pour ne pas se chevaucher. */
 .dish-list {
   padding: 16px 10px 10px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px 10px;
+  gap: 16px 22px;
   align-content: start;
 }
 
@@ -100,7 +117,7 @@
 
 /* Plat déjà placé dans la semaine affichée */
 .dish-item--in-use {
-  border-left: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
   background: rgba(144,184,255,.06);
 }
 
@@ -110,7 +127,7 @@
 
 /* Plat double avec une seule portion placée dans la semaine */
 .dish-item--partial {
-  border-left: 2px solid var(--accent-warm);
+  border-bottom: 2px solid var(--accent-warm);
   background: rgba(255,184,112,.06);
 }
 
