@@ -155,9 +155,13 @@
 .meal-card:hover { border-color: var(--accent); }
 .meal-card.is-dragging { opacity: .25; cursor: grabbing; }
 
+/* Créneau passé : assombrit la carte (via filter, pas background) pour
+   conserver la couleur de liaison des portions tout en la distinguant
+   des portions à venir. */
 .meal-slot.past .meal-card {
-  background: rgba(20,20,20,.75);
-  border-color: var(--border-light); opacity: .55;
+  filter: brightness(.5) saturate(.85);
+  border-color: var(--border-light);
+  opacity: .78;
 }
 
 /* Free card */
