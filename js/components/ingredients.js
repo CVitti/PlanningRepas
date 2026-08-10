@@ -22,7 +22,7 @@
 
 const Ingredients = (() => {
 
-  const STEP = 0.25; // incrément minimal pour les quantités de plat
+  const STEP = 0.05; // incrément minimal pour les quantités de plat
   let list      = []; // tableau des ingrédients en mémoire
   let editingId = null; // identifiant de l'ingrédient en cours de modification
 

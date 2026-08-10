@@ -286,6 +286,7 @@ const Dishes = (() => {
       return;
     }
 
+    const step = Ingredients.getStep();
     container.innerHTML = formIngredients.map(item => {
       const ing = Ingredients.getById(item.id);
       if (!ing) return '';
@@ -294,7 +295,7 @@ const Dishes = (() => {
           <span class="dish-ing-name">${ing.name}</span>
           <div class="qty-control">
             <button class="qty-btn" type="button" onclick="Dishes._qtyDown('${ing.id}')">−</button>
-            <input type="number" class="qty-value" data-id="${ing.id}" value="${item.qty}" min="0.25" step="0.25" oninput="Dishes._setQty('${ing.id}',this.value)">
+            <input type="number" class="qty-value" data-id="${ing.id}" value="${item.qty}" min="${step}" step="${step}" oninput="Dishes._setQty('${ing.id}',this.value)">
             <button class="qty-btn" type="button" onclick="Dishes._qtyUp('${ing.id}')">+</button>
           </div>
           <span class="qty-unit-ext">${ing.unit}</span>

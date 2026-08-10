@@ -45,15 +45,15 @@ const Sidebar = (() => {
     return dishes.filter(d => d.slot === activeFilter || d.slot === 'both');
   }
 
-  /* ── Icônes de créneaux ── */
+  /* ── Badges de créneau (pastilles rondes épinglées au coin haut-gauche) ── */
 
   /**
-   * Retourne le HTML des icônes ☀ (midi) et/ou 🌙 (soir)
+   * Retourne le HTML des pastilles ☀ (midi) et/ou 🌙 (soir)
    * selon le créneau d'un plat.
    */
-  function slotIcons(slot) {
-    const sun  = '<span class="slot-icon slot-icon-midi">☀</span>';
-    const moon = '<span class="slot-icon slot-icon-soir">🌙</span>';
+  function slotBadges(slot) {
+    const sun  = '<span class="dish-badge dish-badge-slot dish-badge-midi">☀</span>';
+    const moon = '<span class="dish-badge dish-badge-slot dish-badge-soir">🌙</span>';
     if (slot === 'midi') return sun;
     if (slot === 'soir') return moon;
     return sun + moon; // 'both'
@@ -96,16 +96,20 @@ const Sidebar = (() => {
       const count     = typeof Planning !== 'undefined' ? Planning.countUsedThisWeek(dish.id) : 0;
       const inUse     = count > 0;
       const isPartial = dish.double && count === 1; // double avec une seule portion placée
+
+      /* Kcal par portion (les ingrédients du plat représentent déjà 1 portion) */
+      const nutTotals = (typeof Nutrition !== 'undefined') ? Nutrition.calcDish(dish) : null;
+      const kcalKnown = nutTotals?.kcal !== null && nutTotals?.kcal !== undefined;
+
       return `
       <div class="dish-item${inUse ? ' dish-item--in-use' : ''}${isPartial ? ' dish-item--partial' : ''}"
            draggable="true"
            data-dish-id="${dish.id}"
            title="Glissez pour assigner">
+        <div class="dish-item-badges dish-item-badges-left">${slotBadges(dish.slot)}</div>
+        ${dish.double ? '<div class="dish-item-badges dish-item-badges-right"><span class="dish-badge dish-badge-double">\xd72</span></div>' : ''}
         <div class="dish-item-name">${dish.name}</div>
-        <div class="dish-item-footer">
-          <div class="dish-item-slots">${slotIcons(dish.slot)}</div>
-          ${dish.double ? '<span class="dish-double-badge">\xd72</span>' : ''}
-        </div>
+        ${kcalKnown ? '<div class="dish-item-kcal">' + Math.round(nutTotals.kcal) + ' kcal</div>' : ''}
         <div class="dish-item-actions">
           <button class="dish-action dish-action-edit"   data-id="${dish.id}" title="Modifier">✎</button>
           <button class="dish-action dish-action-delete" data-id="${dish.id}" title="Supprimer">✕</button>

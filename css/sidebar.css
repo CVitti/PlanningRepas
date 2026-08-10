@@ -65,12 +65,15 @@
   color: var(--bg);
 }
 
-/* ── Dish list — 3 per row ── */
+/* ── Dish list — 3 per row ──
+   Le row-gap et le padding-top sont plus généreux que le column-gap
+   pour laisser la place aux pastilles de créneau/double qui dépassent
+   du coin supérieur des cartes. */
 .dish-list {
-  padding: 10px;
+  padding: 16px 10px 10px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  gap: 16px 10px;
   align-content: start;
 }
 
@@ -79,13 +82,13 @@
   background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
-  padding: 7px 8px;
+  padding: 8px 8px 7px;
   cursor: grab;
   user-select: none;
   transition: all var(--tr);
   position: relative;
   min-width: 0;
-  height: 4.5rem;
+  height: 5rem;
   display: flex;
   flex-direction: column;
 }
@@ -132,42 +135,60 @@
   text-align: center;
 }
 
-/* Badges (icônes créneau + ×2) — épinglés en haut de la carte */
-.dish-item-footer {
-  order: -1;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 4px;
-}
-
-.dish-item-slots {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex: 1;
-}
-
-.slot-icon {
-  font-size: .85rem;
-  line-height: 1;
-}
-
-.slot-icon-midi { color: var(--accent-warm); }
-.slot-icon-soir { color: var(--accent-blue); }
-
-.dish-double-badge {
+/* Kcal par portion, sous le nom (même logique que .meal-card-kcal) */
+.dish-item-kcal {
   font-size: .62rem;
-  font-weight: 700;
-  color: var(--accent-warm);
-  background: rgba(255,184,112,.13);
-  border: 1px solid rgba(255,184,112,.3);
-  border-radius: 99px;
-  padding: 1px 5px;
-  line-height: 1.4;
-  letter-spacing: .03em;
-  width: 30px;
+  font-weight: 600;
+  color: var(--accent-green);
   text-align: center;
+  line-height: 1;
+  margin-top: 2px;
+  letter-spacing: .02em;
+}
+
+/* ── Pastilles épinglées aux coins de la carte (créneau + ×2) ──
+   Le conteneur est centré verticalement sur le bord haut de la carte
+   (translateY -50%) ; une marge négative égale au rayon d'une pastille
+   décale le tout pour que le CENTRE de la première pastille tombe
+   exactement sur le coin. Les pastilles suivantes s'enchaînent vers
+   la droite. */
+.dish-item-badges {
+  position: absolute;
+  top: 0;
+  display: flex;
+  gap: 3px;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.dish-item-badges-left  { left: 0;  margin-left: -10px; }
+.dish-item-badges-right { right: 0; margin-right: -10px; }
+
+.dish-badge {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .68rem;
+  line-height: 1;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.dish-badge-slot { font-size: .72rem; }
+.dish-badge-midi { color: var(--accent-warm); background: rgba(255,184,112,.2); border-color: rgba(255,184,112,.5); }
+.dish-badge-soir { color: var(--accent-blue); background: rgba(130,212,240,.2); border-color: rgba(130,212,240,.5); }
+
+.dish-badge-double {
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--accent-warm);
+  background: rgba(255,184,112,.2);
+  border-color: rgba(255,184,112,.5);
 }
 
 .slot-pill {
