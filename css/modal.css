@@ -85,6 +85,12 @@
   padding: 16px 24px 40px;
 }
 
+/* Sur l'onglet "Plats", élargit pour accueillir la sidebar sans rétrécir
+   le formulaire (1020px = sa largeur d'origine, conservée intégralement) */
+.catalog-page-inner:has(#panel-dishes.active) {
+  max-width: 1400px;
+}
+
 /* ── Catalog tabs ── */
 .catalog-tabs {
   display: flex;

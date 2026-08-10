@@ -365,6 +365,31 @@ const Dishes = (() => {
       : '';
   }
 
+  /**
+   * Insère "Étape " à la position du curseur dans #dish-recipe
+   * (remplace la sélection éventuelle). Ajoute un saut de ligne avant
+   * si le texte précédent n'en termine pas déjà un, pour toujours
+   * démarrer une nouvelle ligne. Évite de retaper ce préfixe répétitif
+   * à chaque étape.
+   */
+  function insertStepAtCursor() {
+    const ta = document.getElementById('dish-recipe');
+    if (!ta) return;
+    const start = ta.selectionStart ?? ta.value.length;
+    const end   = ta.selectionEnd   ?? ta.value.length;
+    const value = ta.value;
+
+    const needsNewline = start > 0 && value[start - 1] !== '\n';
+    const insertText   = (needsNewline ? '\n' : '') + 'Étape ';
+
+    ta.value = value.slice(0, start) + insertText + value.slice(end);
+    const cursorPos = start + insertText.length;
+    ta.focus();
+    ta.setSelectionRange(cursorPos, cursorPos);
+
+    renderRecipePreview();
+  }
+
   /* ── Initialisation du formulaire ── */
 
   /**
@@ -379,6 +404,7 @@ const Dishes = (() => {
 
     document.getElementById('btn-cancel-edit').addEventListener('click', cancelEdit);
     document.getElementById('dish-recipe')?.addEventListener('input', renderRecipePreview);
+    document.getElementById('btn-add-step')?.addEventListener('click', insertStepAtCursor);
     initDropZone();
 
     form.addEventListener('submit', e => {
