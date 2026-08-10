@@ -136,35 +136,6 @@ const Planning = (() => {
     save();
   }
 
-  /* ── Numérotation des portions pour les plats doubles ── */
-
-  /**
-   * Retourne l'index de portion (1 ou 2) d'un placement de plat double,
-   * ou null si le plat n'est pas double ou s'il n'est posé qu'une seule fois.
-   *
-   * L'ordre est déterminé par le parcours chronologique des créneaux
-   * visibles et non verrouillés de la semaine affichée.
-   */
-  function getPortionIndex(dishId, dateKey, slot) {
-    const dish = Dishes.getById(dishId);
-    if (!dish || !dish.double) return null;
-
-    /* Collecte toutes les occurrences du plat dans la semaine, dans l'ordre */
-    const placements = [];
-    days.forEach(dayInfo => {
-      ['midi', 'soir'].forEach(s => {
-        if (s === 'midi' && dayInfo.midiLocked) return;
-        if (s === 'soir' && dayInfo.soirLocked) return;
-        if (planningData[dayInfo.key]?.[s] === dishId) {
-          placements.push({ dk: dayInfo.key, s });
-        }
-      });
-    });
-
-    if (placements.length < 2) return null; // pas encore les deux portions
-    const idx = placements.findIndex(p => p.dk === dateKey && p.s === slot);
-    return idx === -1 ? null : idx + 1; // 1 pour la première portion, 2 pour la seconde
-  }
 
   /* ── Vidage de la semaine ── */
 
@@ -202,12 +173,15 @@ const Planning = (() => {
     show('btn-next-week',    weekOffset !==  1); // caché si déjà à S+1
   }
 
-  /* ── Compatibilité de créneau ── */
+  /* ── Compatibilité de créneau (génération automatique uniquement) ── */
 
   /**
    * Vérifie si un plat peut être assigné à un créneau donné :
    *   - slot non verrouillé
    *   - créneau du plat compatible (both, midi ou soir)
+   *
+   * Utilisé uniquement par generateWeek() : le placement manuel
+   * (glisser-déposer) n'impose plus la compatibilité midi/soir du plat.
    */
   function canAssign(dish, slot, dayInfo) {
     if (slot === 'midi' && dayInfo.midiLocked) return false;
@@ -232,32 +206,47 @@ const Planning = (() => {
     return now > cutoff;
   }
 
-  /* ── Palette de couleurs pour les badges de portions ── */
+  /* ── Palette de couleurs pour le lien visuel entre portions ── */
 
   /**
-   * Nombre de couleurs disponibles pour différencier les plats doubles.
-   * Les couleurs sont définies dans planning.css : .badge-portion-0 … .badge-portion-5
+   * Nombre de couleurs disponibles pour lier visuellement les occurrences
+   * d'un même plat dans la semaine (fond de carte).
+   * Couleurs définies dans planning.css : .meal-card-linked-0 … -5
    */
   const PORTION_COLORS = 6;
 
   /**
-   * Construit la table d'association dishId → index de couleur (0..5)
-   * pour les plats doubles présents dans la semaine affichée.
-   * Chaque plat double reçoit un index unique, recyclé modulo PORTION_COLORS.
+   * Construit la table d'association dishId → état visuel pour la semaine affichée :
+   *   - { type: 'linked', colorIdx } si le plat est placé 2 fois ou plus
+   *     (couleur cyclique partagée entre toutes ses occurrences, qu'il soit
+   *     marqué "double portion" ou non — tout plat répété est lié)
+   *   - { type: 'incomplete' } si le plat est marqué "double portion" mais
+   *     n'est placé qu'une seule fois cette semaine (portion manquante)
+   * Les plats placés une seule fois et non marqués double n'ont pas d'entrée
+   * (fond de carte par défaut).
    */
-  function buildDoubleColorMap() {
-    const map = {};
-    let idx   = 0;
+  function buildPortionLinkMap() {
+    const counts = {};
     days.forEach(dayInfo => {
       ['midi', 'soir'].forEach(slot => {
         if (slot === 'midi' && dayInfo.midiLocked) return;
         if (slot === 'soir' && dayInfo.soirLocked) return;
         const dishId = planningData[dayInfo.key]?.[slot];
         if (!dishId || dishId === FREE_MEAL) return;
-        const dish = Dishes.getById(dishId);
-        if (!dish || !dish.double) return;
-        if (!(dishId in map)) map[dishId] = (idx++) % PORTION_COLORS;
+        counts[dishId] = (counts[dishId] || 0) + 1;
       });
+    });
+
+    const map = {};
+    let idx = 0;
+    Object.keys(counts).forEach(dishId => {
+      if (counts[dishId] >= 2) {
+        map[dishId] = { type: 'linked', colorIdx: idx % PORTION_COLORS };
+        idx++;
+      } else {
+        const dish = Dishes.getById(dishId);
+        if (dish?.double) map[dishId] = { type: 'incomplete' };
+      }
     });
     return map;
   }
@@ -269,7 +258,7 @@ const Planning = (() => {
   /**
    * Reconstruit entièrement la grille #planning-grid.
    * Pour chaque jour : en-tête + slot midi + slot soir.
-   * La colorMap est calculée une seule fois et passée à tous les buildMealCard.
+   * La linkMap est calculée une seule fois et passée à tous les buildMealCard.
    * Après le rendu, la sidebar est mise à jour pour refléter les états "in-use".
    */
   function render() {
@@ -277,7 +266,7 @@ const Planning = (() => {
     if (!grid) return;
     grid.innerHTML = '';
 
-    const colorMap = buildDoubleColorMap();
+    const linkMap = buildPortionLinkMap();
 
     /* Ligne d'en-tête fixe : cellule vide (colonne jour) + Midi + Soir */
     const colHeaders = document.createElement('div');
@@ -310,8 +299,8 @@ const Planning = (() => {
       col.appendChild(hdr);
 
       /* Créneaux midi et soir */
-      col.appendChild(buildSlot(dayInfo, 'midi', dayData.midi, colorMap));
-      col.appendChild(buildSlot(dayInfo, 'soir', dayData.soir, colorMap));
+      col.appendChild(buildSlot(dayInfo, 'midi', dayData.midi, linkMap));
+      col.appendChild(buildSlot(dayInfo, 'soir', dayData.soir, linkMap));
       grid.appendChild(col);
     });
 
@@ -331,7 +320,7 @@ const Planning = (() => {
    *   - dishId        → buildMealCard()
    *   - vide          → buildHint()
    */
-  function buildSlot(dayInfo, slot, value, colorMap) {
+  function buildSlot(dayInfo, slot, value, linkMap) {
     const locked = (slot === 'midi' && dayInfo.midiLocked) ||
                    (slot === 'soir' && dayInfo.soirLocked);
     const past   = !locked && isPast(dayInfo.key, slot);
@@ -350,7 +339,7 @@ const Planning = (() => {
     if (value === FREE_MEAL) {
       el.appendChild(buildFreeCard(dayInfo.key, slot));
     } else if (value) {
-      el.appendChild(buildMealCard(dayInfo.key, slot, value, colorMap));
+      el.appendChild(buildMealCard(dayInfo.key, slot, value, linkMap));
     } else {
       el.appendChild(buildHint());
     }
@@ -497,14 +486,16 @@ const Planning = (() => {
    *
    * Contient :
    *   - nom du plat
-   *   - badge de portion (P1/P2 coloré si plat double avec 2 placements,
-   *     sinon "×2 portions" si une seule portion est posée)
+   *   - fond de carte reliant visuellement les occurrences d'un même plat
+   *     dans la semaine (meal-card-linked-N), ou couleur d'avertissement
+   *     dédiée si le plat est marqué "double portion" mais n'a qu'une
+   *     seule occurrence (meal-card-incomplete-double)
    *   - overlay d'action au survol avec bouton ✕ (retrait du plat)
    *
    * La carte est draggable pour déplacer le plat vers un autre créneau.
    * Un clic ouvre la modale de détail (ingrédients + créneau).
    */
-  function buildMealCard(dateKey, slot, dishId, colorMap) {
+  function buildMealCard(dateKey, slot, dishId, linkMap) {
     const dish = Dishes.getById(dishId);
     /* Plat introuvable (supprimé entre-temps) → nettoyage silencieux */
     if (!dish) { clearSlot(dateKey, slot); return document.createTextNode(''); }
@@ -516,36 +507,24 @@ const Planning = (() => {
     card.dataset.date   = dateKey;
     card.dataset.slot   = slot;
 
+    /* Lien visuel entre les occurrences d'un même plat (fond de carte) */
+    const linkState = linkMap?.[dishId];
+    if (linkState?.type === 'linked') {
+      card.classList.add('meal-card-linked', 'meal-card-linked-' + linkState.colorIdx);
+    } else if (linkState?.type === 'incomplete') {
+      card.classList.add('meal-card-incomplete-double');
+    }
+
     /* Nom du plat */
     const nameEl = document.createElement('div');
     nameEl.className  = 'meal-card-name';
     nameEl.textContent = dish.name;
 
-    /* Kcal par portion : calculé maintenant, inséré après les badges */
-    const portions   = dish.double ? 2 : 1;
-    const nutTotals  = (typeof Nutrition !== 'undefined') ? Nutrition.calcDish(dish) : null;
-    const kcalKnown  = nutTotals?.kcal !== null && nutTotals?.kcal !== undefined;
+    /* Kcal : les ingrédients du plat représentent déjà une seule portion */
+    const nutTotals = (typeof Nutrition !== 'undefined') ? Nutrition.calcDish(dish) : null;
+    const kcalKnown = nutTotals?.kcal !== null && nutTotals?.kcal !== undefined;
 
     card.appendChild(nameEl);
-
-    /* Badges (portion ou double) */
-    const badges = document.createElement('div');
-    badges.className = 'meal-card-badges';
-    if (dish.double) {
-      const b          = document.createElement('span');
-      const portionIdx = getPortionIndex(dishId, dateKey, slot);
-      if (portionIdx !== null) {
-        /* Deux portions posées : badge coloré P1 / P2 */
-        const ci    = colorMap?.[dishId] ?? 0;
-        b.className = 'badge badge-portion badge-portion-' + ci;
-        b.textContent = 'P' + portionIdx;
-      } else {
-        /* Une seule portion posée : badge générique */
-        b.className   = 'badge badge-double';
-        b.textContent = '\xd72 portions';
-      }
-      badges.appendChild(b);
-    }
 
     /* Overlay d'action au survol (même patron que sidebar/ingrédients) */
     const actionsEl = document.createElement('div');
@@ -575,13 +554,11 @@ const Planning = (() => {
     actionsEl.appendChild(infoBtn);
     actionsEl.appendChild(rmBtn);
 
-    card.appendChild(badges);
-
-    /* Kcal sous le badge, plus visible que sous le nom */
+    /* Kcal sous le nom */
     if (kcalKnown) {
       const kcalEl       = document.createElement('div');
       kcalEl.className   = 'meal-card-kcal';
-      kcalEl.textContent = Math.round(nutTotals.kcal / portions) + ' kcal';
+      kcalEl.textContent = Math.round(nutTotals.kcal) + ' kcal';
       card.appendChild(kcalEl);
     }
 
@@ -639,13 +616,18 @@ const Planning = (() => {
    * Deux comportements selon l'origine du drag :
    *
    *   Depuis la sidebar (srcDate/srcSlot absents) :
-   *     → Remplace le contenu du créneau cible (comportement inchangé).
+   *     → Remplace le contenu du créneau cible.
    *
    *   Depuis une carte du planning (srcDate/srcSlot présents) :
    *     → Destination vide ou repas libre : déplacement simple.
    *     → Destination occupée par un plat : interversion des deux créneaux.
-   *        Si le plat de destination est incompatible avec le créneau source
-   *        (contrainte midi/soir), le plat source est simplement retiré.
+   *
+   * Le placement manuel n'est plus soumis à la compatibilité midi/soir
+   * d'un plat (dish.slot) : cette contrainte ne s'applique qu'à la
+   * génération automatique (voir canAssign). Seule la bordure de fenêtre
+   * (case appartenant à une semaine adjacente) reste verrouillée — les
+   * créneaux verrouillés n'ont de toute façon pas de zone de dépôt
+   * (voir initDropZones).
    */
   function onDrop(e) {
     e.preventDefault();
@@ -664,29 +646,15 @@ const Planning = (() => {
     const dayInfo = days.find(d => d.key === destDate);
     if (!dish || !dayInfo) return;
 
-    if (!canAssign(dish, destSlot, dayInfo)) {
-      Toast.error(dish.name + ' n\'est pas disponible pour ce créneau.');
-      return;
-    }
-
     /* Déplacement depuis une carte du planning (srcDate + srcSlot renseignés) */
     const isMoveFromPlanning = !!(srcDate && srcSlot) &&
                                (srcDate !== destDate || srcSlot !== destSlot);
 
     if (isMoveFromPlanning) {
-      const destValue  = planningData[destDate]?.[destSlot];
-      const srcDayInfo = days.find(d => d.key === srcDate);
-
-      if (destValue && destValue !== FREE_MEAL && srcDayInfo) {
-        /* Le créneau cible contient un plat → tentative d'interversion */
-        const destDish = Dishes.getById(destValue);
-        if (destDish && canAssign(destDish, srcSlot, srcDayInfo)) {
-          /* Les deux créneaux sont compatibles → échange */
-          assignDish(srcDate, srcSlot, destValue);
-        } else {
-          /* Plat de destination incompatible avec le créneau source → déplacement simple */
-          clearSlot(srcDate, srcSlot);
-        }
+      const destValue = planningData[destDate]?.[destSlot];
+      if (destValue && destValue !== FREE_MEAL) {
+        /* Le créneau cible contient déjà un plat → interversion des deux créneaux */
+        assignDish(srcDate, srcSlot, destValue);
       } else {
         /* Destination vide ou repas libre → déplacement simple */
         clearSlot(srcDate, srcSlot);
@@ -728,10 +696,10 @@ const Planning = (() => {
     document.getElementById('meal-detail-body').innerHTML =
       '<div class="meal-detail-info">' +
         '<p>Créneau : <strong>' + Dishes.slotLabel(dish.slot) + '</strong></p>' +
-        (dish.double ? '<p><strong>Plat double (2 portions)</strong></p>' : '') +
+        (dish.double ? '<p><strong>Double portion</strong> (placé 2 fois par la génération automatique)</p>' : '') +
       '</div>' +
       (dish.ingredients.length
-        ? '<table class="ingredient-table"><thead><tr><th>Ingrédient</th><th>Quantité</th></tr></thead><tbody>' + rows + '</tbody></table>'
+        ? '<table class="ingredient-table"><thead><tr><th>Ingrédient</th><th>Quantité (1 portion)</th></tr></thead><tbody>' + rows + '</tbody></table>'
         : '<p style="color:var(--ink-faint);">Aucun ingrédient renseigné.</p>') +
       nutrTable +
       recipeHTML;

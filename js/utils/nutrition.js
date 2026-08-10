@@ -201,7 +201,7 @@ const Nutrition = (() => {
 
     return `
       <div class="nutr-table-wrap">
-        <p class="nutr-table-title">Valeurs nutritionnelles</p>
+        <p class="nutr-table-title">Valeurs nutritionnelles <em style="font-weight:400;text-transform:none;letter-spacing:0;">(pour 1 portion)</em></p>
         <div class="nutr-scroll">
           <table class="nutr-table">
             <thead>

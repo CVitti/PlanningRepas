@@ -66,12 +66,16 @@ const Shopping = (() => {
   /**
    * Calcule les totaux d'ingrédients pour un weekOffset donné
    * en lisant directement Storage (sans modifier l'état de Planning).
+   *
+   * Les ingrédients d'un plat représentent la quantité pour une seule
+   * portion : chaque occurrence du plat dans la semaine (portion placée
+   * manuellement ou via la génération) est comptée et cumulée, sans
+   * exception pour les plats "double portion".
    */
   function buildTotals(weekOffset) {
-    const targetDays  = Dates.getPlanningDays(weekOffset);
-    const planData    = Storage.get('planning', {});
+    const targetDays = Dates.getPlanningDays(weekOffset);
+    const planData   = Storage.get('planning', {});
     const totals      = {};
-    const seenDouble  = new Set();
 
     targetDays.forEach(dayInfo => {
       const dayData = planData[dayInfo.key] || {};
@@ -82,10 +86,6 @@ const Shopping = (() => {
         if (!dishId || dishId === '__free__') return;
         const dish = Dishes.getById(dishId);
         if (!dish) return;
-        if (dish.double) {
-          if (seenDouble.has(dishId)) return;
-          seenDouble.add(dishId);
-        }
         dish.ingredients.forEach(item => {
           const ing = Ingredients.getById(item.id);
           if (!ing) return;
