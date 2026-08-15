@@ -550,6 +550,13 @@
 
 .ingredient-table tr:last-child td { border-bottom: none; }
 
+/* Quantité totale pour les portions restantes, en complément de la quantité unitaire */
+.ingredient-qty-total {
+  font-size: .74rem;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
 /* ── Étapes de préparation (recette) ── */
 .recipe-section { margin-top: 18px; }
 

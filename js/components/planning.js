@@ -537,7 +537,7 @@ const Planning = (() => {
     infoBtn.textContent = '👁';
     infoBtn.addEventListener('click', e => {
       e.stopPropagation();
-      showDetail(dish);
+      showDetail(dish, dateKey, slot);
     });
 
     /* Bouton "retirer le plat" */
@@ -568,7 +568,7 @@ const Planning = (() => {
     card.addEventListener('click', e => {
       if (actionsEl.contains(e.target))       return;
       if (card.classList.contains('is-dragging')) return;
-      showDetail(dish);
+      showDetail(dish, dateKey, slot);
     });
 
     /* Drag : stocke l'identifiant du plat et la source pour permettre le déplacement */
@@ -668,20 +668,53 @@ const Planning = (() => {
   /* ── Modale de détail d'un plat ── */
 
   /**
+   * Compte le nombre de portions "restantes" d'un plat pour la semaine
+   * affichée : le créneau sélectionné (dateKey/slot) et tous les
+   * créneaux qui le suivent chronologiquement. Les portions placées
+   * plus tôt dans la semaine (déjà consommées) ne sont pas comptées.
+   * Retourne 0 si le créneau sélectionné est introuvable (garde-fou).
+   */
+  function countRemainingPortions(dishId, dateKey, slot) {
+    let remaining = 0;
+    let reached   = false;
+    days.forEach(dayInfo => {
+      ['midi', 'soir'].forEach(s => {
+        if (s === 'midi' && dayInfo.midiLocked) return;
+        if (s === 'soir' && dayInfo.soirLocked) return;
+        if (planningData[dayInfo.key]?.[s] !== dishId) return;
+        if (dayInfo.key === dateKey && s === slot) reached = true;
+        if (reached) remaining++;
+      });
+    });
+    return remaining;
+  }
+
+  /**
    * Affiche la modale #modal-meal-detail avec le nom du plat,
    * son créneau, son statut "double" et la liste des ingrédients.
+   *
+   * dateKey/slot identifient le créneau depuis lequel la modale a été
+   * ouverte : quand le plat est placé plusieurs fois dans la semaine,
+   * la quantité totale restante à préparer (portion sélectionnée +
+   * portions suivantes, en excluant celles déjà passées) est affichée
+   * entre parenthèses à côté de la quantité unitaire.
    */
-  function showDetail(dish) {
+  function showDetail(dish, dateKey, slot) {
     document.getElementById('meal-detail-title').textContent = dish.name;
+
+    const remaining = (dateKey && slot) ? countRemainingPortions(dish.id, dateKey, slot) : 1;
 
     /* Tri alphabétique (fr-FR) des ingrédients avant affichage */
     const rows = dish.ingredients
       .map(item => ({ item, ing: Ingredients.getById(item.id) }))
       .filter(({ ing }) => ing !== null)
       .sort((a, b) => a.ing.name.localeCompare(b.ing.name, 'fr'))
-      .map(({ item, ing }) =>
-        '<tr><td>' + ing.name + '</td><td>' + item.qty + ' ' + ing.unit + '</td></tr>'
-      ).join('');
+      .map(({ item, ing }) => {
+        const totalHint = remaining > 1
+          ? ' <span class="ingredient-qty-total">(' + formatQty(item.qty * remaining) + ' ' + ing.unit + ' pour les ' + remaining + ' portions restantes)</span>'
+          : '';
+        return '<tr><td>' + ing.name + '</td><td>' + item.qty + ' ' + ing.unit + totalHint + '</td></tr>';
+      }).join('');
 
     const nutrTable = (typeof Nutrition !== 'undefined')
       ? Nutrition.buildTableHTML(dish)
@@ -711,6 +744,12 @@ const Planning = (() => {
 
   /** Capitalise la première lettre d'une chaîne */
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  /** Formate une quantité en évitant les imprécisions flottantes (ex: 0.1 + 0.2) */
+  function formatQty(qty) {
+    if (qty % 1 === 0) return String(qty);
+    return parseFloat(qty.toFixed(4)).toString();
+  }
 
   /* ══════════════════════════════════════════════════════════
      GÉNÉRATION ALÉATOIRE DU PLANNING
