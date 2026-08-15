@@ -552,9 +552,13 @@
 
 /* Quantité totale pour les portions restantes, en complément de la quantité unitaire */
 .ingredient-qty-total {
-  font-size: .74rem;
-  color: var(--ink-faint);
-  font-style: italic;
+  font-size: .78rem;
+  color: var(--ink-muted);
+}
+
+.ingredient-qty-total strong {
+  color: var(--accent);
+  font-weight: 700;
 }
 
 /* ── Étapes de préparation (recette) ── */

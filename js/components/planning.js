@@ -711,7 +711,7 @@ const Planning = (() => {
       .sort((a, b) => a.ing.name.localeCompare(b.ing.name, 'fr'))
       .map(({ item, ing }) => {
         const totalHint = remaining > 1
-          ? ' <span class="ingredient-qty-total">(' + formatQty(item.qty * remaining) + ' ' + ing.unit + ' pour les ' + remaining + ' portions restantes)</span>'
+          ? ' <span class="ingredient-qty-total">(<strong>' + formatQty(item.qty * remaining) + ' ' + ing.unit + '</strong> pour les ' + remaining + ' portions restantes)</span>'
           : '';
         return '<tr><td>' + ing.name + '</td><td>' + item.qty + ' ' + ing.unit + totalHint + '</td></tr>';
       }).join('');
