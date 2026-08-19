@@ -283,6 +283,9 @@
 }
 .btn-disconnect:hover { border-color: var(--accent); color: var(--accent); }
 
+/* Icône engrenage agrandie pour rester bien visible à côté du texte "⏏" */
+#btn-open-settings { font-size: 1.05rem; line-height: 1; padding: 4px 9px; }
+
 /* Responsive setup */
 @media (max-width: 500px) {
   .setup-card { padding: 28px 20px 24px; }

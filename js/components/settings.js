@@ -4,19 +4,22 @@
 
    Gère la modale de réglages ouverte depuis l'icône ⚙ du header.
 
-   Premier réglage : la fenêtre de planning (jour + créneau de début,
-   jour + créneau de fin). Le nombre de repas couverts (1 à 14) est
-   calculé et affiché en direct pendant la saisie.
+   Réglages gérés :
+     - planningWindow : jour + créneau de début, jour + créneau de fin
+       du planning (1 à 14 repas, calculé et affiché en direct)
+     - cutoffHours     : heure à partir de laquelle un créneau midi/soir
+       est considéré comme "dépassé" (grisé, exclu de la génération auto)
 
-   Stockage : clé 'settings' dans Storage → { planningWindow: {...} }
+   Stockage : clé 'settings' dans Storage → { planningWindow, cutoffHours }
    (synchronisée via le Gist comme le reste des données).
    ═══════════════════════════════════════════════════════════ */
 
 const Settings = (() => {
 
-  const DEFAULT_WINDOW = { startDow: 5, startSlot: 'soir', endDow: 5, endSlot: 'midi' };
+  const DEFAULT_WINDOW  = { startDow: 5, startSlot: 'soir', endDow: 5, endSlot: 'midi' };
+  const DEFAULT_CUTOFFS = { midi: 14, soir: 21 };
 
-  let data = { planningWindow: { ...DEFAULT_WINDOW } };
+  let data = { planningWindow: { ...DEFAULT_WINDOW }, cutoffHours: { ...DEFAULT_CUTOFFS } };
 
   /* ── Jours (affichage lundi → dimanche, valeurs Date.getDay() 0..6) ── */
   const DOW_OPTIONS = [
@@ -33,10 +36,13 @@ const Settings = (() => {
 
   function load() {
     const raw = Storage.get('settings', null);
-    if (raw && raw.planningWindow) {
-      data = { ...raw, planningWindow: { ...DEFAULT_WINDOW, ...raw.planningWindow } };
+    if (raw) {
+      data = {
+        planningWindow: { ...DEFAULT_WINDOW,  ...(raw.planningWindow || {}) },
+        cutoffHours:    { ...DEFAULT_CUTOFFS, ...(raw.cutoffHours    || {}) },
+      };
     } else {
-      data = { planningWindow: { ...DEFAULT_WINDOW } };
+      data = { planningWindow: { ...DEFAULT_WINDOW }, cutoffHours: { ...DEFAULT_CUTOFFS } };
       save(); // amorce la clé au premier chargement
     }
   }
@@ -44,13 +50,16 @@ const Settings = (() => {
   function save() { Storage.set('settings', data); }
 
   function getPlanningWindow() { return data.planningWindow; }
+  function getCutoffHours()    { return data.cutoffHours; }
 
   /**
-   * Met à jour la fenêtre de planning et recharge tout ce qui en dépend :
-   * planning (revient à la semaine courante), sidebar, liste de courses.
+   * Applique les réglages saisis dans le formulaire et recharge tout
+   * ce qui en dépend : planning (revient à la semaine courante,
+   * recalcule aussi les créneaux "passés"), sidebar, liste de courses.
    */
-  function setPlanningWindow(win) {
-    data.planningWindow = { ...data.planningWindow, ...win };
+  function applySettings({ planningWindow, cutoffHours }) {
+    data.planningWindow = { ...data.planningWindow, ...planningWindow };
+    data.cutoffHours    = { ...data.cutoffHours,    ...cutoffHours };
     save();
     if (typeof Planning !== 'undefined') Planning.reloadForSettingsChange();
     if (typeof Shopping !== 'undefined') Shopping.render();
@@ -72,31 +81,51 @@ const Settings = (() => {
     ).join('');
   }
 
-  /** Reconstruit le contenu du formulaire à partir de la fenêtre courante */
+  /** Options d'heure 00h à 23h */
+  function hourOptionsHTML(selected) {
+    let html = '';
+    for (let h = 0; h < 24; h++) {
+      html += `<option value="${h}"${h === selected ? ' selected' : ''}>${String(h).padStart(2, '0')}h</option>`;
+    }
+    return html;
+  }
+
+  /** Reconstruit le contenu du formulaire à partir des réglages courants */
   function renderForm() {
     const w = data.planningWindow;
+    const c = data.cutoffHours;
     document.getElementById('settings-start-dow').innerHTML  = dowOptionsHTML(w.startDow);
     document.getElementById('settings-start-slot').innerHTML = slotOptionsHTML(w.startSlot);
     document.getElementById('settings-end-dow').innerHTML    = dowOptionsHTML(w.endDow);
     document.getElementById('settings-end-slot').innerHTML   = slotOptionsHTML(w.endSlot);
+    document.getElementById('settings-cutoff-midi').innerHTML = hourOptionsHTML(c.midi);
+    document.getElementById('settings-cutoff-soir').innerHTML = hourOptionsHTML(c.soir);
     updateSummary();
   }
 
-  /** Lit les 4 select et met à jour le compteur "X repas" en direct */
+  /** Lit le formulaire et met à jour le compteur "X repas" en direct */
   function updateSummary() {
-    const cfg   = readFormConfig();
+    const cfg   = readWindowConfig();
     const count = Dates.computeSpanSlots(cfg);
     const el    = document.getElementById('settings-summary');
     if (el) el.textContent = count + ' repas couverts par le planning (maximum 14).';
   }
 
-  /** Lit la configuration actuellement affichée dans le formulaire */
-  function readFormConfig() {
+  /** Lit la fenêtre de planning actuellement affichée dans le formulaire */
+  function readWindowConfig() {
     return {
       startDow:  parseInt(document.getElementById('settings-start-dow').value, 10),
       startSlot: document.getElementById('settings-start-slot').value,
       endDow:    parseInt(document.getElementById('settings-end-dow').value, 10),
       endSlot:   document.getElementById('settings-end-slot').value,
+    };
+  }
+
+  /** Lit les heures limites actuellement affichées dans le formulaire */
+  function readCutoffConfig() {
+    return {
+      midi: parseInt(document.getElementById('settings-cutoff-midi').value, 10),
+      soir: parseInt(document.getElementById('settings-cutoff-soir').value, 10),
     };
   }
 
@@ -112,7 +141,7 @@ const Settings = (() => {
 
     form.addEventListener('submit', e => {
       e.preventDefault();
-      setPlanningWindow(readFormConfig());
+      applySettings({ planningWindow: readWindowConfig(), cutoffHours: readCutoffConfig() });
       Modal.close('modal-settings');
       Toast.success('Réglages enregistrés.');
     });
@@ -128,5 +157,5 @@ const Settings = (() => {
     initForm();
   }
 
-  return { init, load, getPlanningWindow, setPlanningWindow };
+  return { init, load, getPlanningWindow, getCutoffHours };
 })();

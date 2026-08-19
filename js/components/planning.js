@@ -212,16 +212,17 @@ const Planning = (() => {
   /* ── Détection des créneaux passés ── */
 
   /**
-   * Retourne true si le créneau est passé :
-   *   - midi : après 14h00
-   *   - soir : après 21h00
-   * Utilisé pour appliquer la classe CSS .past sur les slots antérieurs.
+   * Retourne true si le créneau est passé (heure limite configurable
+   * via Settings ⚙, 14h/21h par défaut). Utilisé pour appliquer la
+   * classe CSS .past sur les slots antérieurs, et pour exclure ces
+   * créneaux de la génération automatique (generateWeek).
    */
   function isPast(dateKey, slot) {
+    const cutoffs = (typeof Settings !== 'undefined') ? Settings.getCutoffHours() : { midi: 14, soir: 21 };
     const now    = new Date();
     const date   = new Date(dateKey + 'T00:00:00');
     const cutoff = new Date(date);
-    cutoff.setHours(slot === 'midi' ? 14 : 21, 0, 0, 0);
+    cutoff.setHours(slot === 'midi' ? cutoffs.midi : cutoffs.soir, 0, 0, 0);
     return now > cutoff;
   }
 
