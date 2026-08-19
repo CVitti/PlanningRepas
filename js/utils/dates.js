@@ -4,14 +4,33 @@
 
    Fournit les utilitaires de dates utilisés par l'ensemble
    de l'application :
-     - Calcul du vendredi de départ (fenêtre glissante)
-     - Construction de la liste des 8 jours du planning
+     - Calcul du jour d'ancrage de la fenêtre de planning (configurable)
+     - Construction de la liste des jours du planning
      - Formatage des clés de stockage (YYYY-MM-DD)
      - Formatage des labels d'affichage (fr-FR)
      - Générateur d'identifiants uniques
+
+   Fenêtre de planning configurable (Settings.getPlanningWindow) :
+     { startDow, startSlot, endDow, endSlot }
+     startDow/endDow : 0=Dimanche … 6=Samedi (Date.getDay())
+     startSlot/endSlot : 'midi' | 'soir'
+
+   Par défaut (comportement historique) : vendredi soir → vendredi midi
+   de la semaine suivante, soit 14 repas.
    ═══════════════════════════════════════════════════════════ */
 
 const Dates = (() => {
+
+  const DEFAULT_WINDOW = { startDow: 5, startSlot: 'soir', endDow: 5, endSlot: 'midi' };
+
+  /** Lit la fenêtre configurée (Settings), ou la valeur par défaut si indisponible */
+  function getWindowConfig() {
+    if (typeof Settings !== 'undefined') {
+      const w = Settings.getPlanningWindow();
+      if (w) return w;
+    }
+    return DEFAULT_WINDOW;
+  }
 
   /* ── Date de référence ── */
 
@@ -29,28 +48,46 @@ const Dates = (() => {
     return d;
   }
 
-  /* ── Calcul du vendredi de départ ── */
+  /* ── Calcul du jour d'ancrage ── */
 
   /**
-   * Retourne le dernier vendredi ≤ aujourd'hui.
-   * C'est le jour d'ancrage du planning : vendredi S0 (soir) → vendredi S+1 (midi).
-   *
-   * Vendredi midi S0  = verrouillé (appartient à la semaine précédente)
-   * Vendredi soir S+1 = verrouillé (appartient à la semaine suivante)
+   * Retourne le dernier jour de la semaine ciblé (targetDow, 0=Dim..6=Sam)
+   * ≤ aujourd'hui. C'est le jour d'ancrage de la fenêtre de planning.
    */
-  function getStartFriday() {
-    const t = today();
-    const dow = t.getDay(); // 0=Dim, 1=Lun, …, 5=Ven, 6=Sam
-    // Nombre de jours écoulés depuis le dernier vendredi
-    const diff = (dow + 2) % 7; // Ven→0, Sam→1, Dim→2, Lun→3, Mar→4, Mer→5, Jeu→6
+  function getStartAnchor(targetDow) {
+    const t    = today();
+    const diff = (t.getDay() - targetDow + 7) % 7;
     return addDays(t, -diff);
   }
 
-  /* ── Construction de la fenêtre de 8 jours ── */
+  /** Conservé pour compatibilité : ancrage sur vendredi (comportement historique) */
+  function getStartFriday() { return getStartAnchor(5); }
+
+  /* ── Longueur de la fenêtre (en créneaux) ── */
+
+  /** Position chronologique d'un (jour, créneau) dans un cycle de 7 jours : 0..13 */
+  function slotPosition(dow, slot) { return dow * 2 + (slot === 'soir' ? 1 : 0); }
 
   /**
-   * Retourne le tableau des 8 jours du planning pour la semaine demandée.
+   * Nombre de créneaux (repas) couverts par la fenêtre configurée,
+   * du début à la fin inclus, en avançant chronologiquement (modulo 14).
+   * Toujours compris entre 1 et 14 quelle que soit la configuration.
+   */
+  function computeSpanSlots(cfg) {
+    const startPos = slotPosition(cfg.startDow, cfg.startSlot);
+    const endPos   = slotPosition(cfg.endDow, cfg.endSlot);
+    return ((endPos - startPos + 14) % 14) + 1;
+  }
+
+  /* ── Construction de la fenêtre de jours ── */
+
+  /**
+   * Retourne le tableau des jours du planning pour la semaine demandée,
+   * selon la fenêtre configurée (Settings.getPlanningWindow()).
    * weekOffset : 0 = semaine courante, -1 = précédente, +1 = suivante.
+   *
+   * Le nombre de jours retournés varie selon la configuration (1 à 8) :
+   * un jour n'est inclus que s'il porte au moins un créneau actif.
    *
    * Chaque entrée contient :
    *   date        — objet Date
@@ -59,28 +96,46 @@ const Dates = (() => {
    *   dayName     — nom du jour ("lundi")
    *   isToday     — booléen
    *   isWeekend   — booléen (vendredi inclus pour le style)
-   *   midiLocked  — true uniquement pour le vendredi S0 (index 0)
-   *   soirLocked  — true uniquement pour le vendredi S+1 (index 7)
+   *   midiLocked  — true si le créneau midi de ce jour est hors fenêtre
+   *   soirLocked  — true si le créneau soir de ce jour est hors fenêtre
    */
   function getPlanningDays(weekOffset) {
     const offset = weekOffset || 0;
-    const start  = addDays(getStartFriday(), offset * 7);
-    const days   = [];
+    const cfg    = getWindowConfig();
+    const anchor = addDays(getStartAnchor(cfg.startDow), offset * 7);
+    let remaining = computeSpanSlots(cfg);
 
-    for (let i = 0; i < 8; i++) {
-      const date = addDays(start, i);
-      const dow  = date.getDay();
-      const isWeekend = dow === 0 || dow === 6 || dow === 5; // sam, dim, ven
-      days.push({
-        date,
-        key:        formatKey(date),
-        label:      formatLabel(date),
-        dayName:    formatDayName(date),
-        isToday:    date.getTime() === today().getTime(),
-        isWeekend,
-        midiLocked: i === 0, // vendredi S0 midi = appartient à la semaine précédente
-        soirLocked: i === 7, // vendredi S+1 soir = appartient à la semaine suivante
-      });
+    const days = [];
+    let cursorDate = new Date(anchor);
+    let cursorSlot = cfg.startSlot;
+    let dayEntry   = null;
+
+    while (remaining > 0) {
+      if (!dayEntry || dayEntry.date.getTime() !== cursorDate.getTime()) {
+        const dow = cursorDate.getDay();
+        dayEntry = {
+          date:       new Date(cursorDate),
+          key:        formatKey(cursorDate),
+          label:      formatLabel(cursorDate),
+          dayName:    formatDayName(cursorDate),
+          isToday:    cursorDate.getTime() === today().getTime(),
+          isWeekend:  dow === 0 || dow === 6 || dow === 5, // sam, dim, ven
+          midiLocked: true,
+          soirLocked: true,
+        };
+        days.push(dayEntry);
+      }
+
+      if (cursorSlot === 'midi') dayEntry.midiLocked = false;
+      else                       dayEntry.soirLocked = false;
+      remaining--;
+
+      if (cursorSlot === 'midi') {
+        cursorSlot = 'soir';
+      } else {
+        cursorSlot = 'midi';
+        cursorDate = addDays(cursorDate, 1);
+      }
     }
     return days;
   }
@@ -109,7 +164,7 @@ const Dates = (() => {
   function formatWeekRange(days) {
     const opts  = { day: 'numeric', month: 'long' };
     const start = days[0].date.toLocaleDateString('fr-FR', opts);
-    const end   = days[7].date.toLocaleDateString('fr-FR', opts);
+    const end   = days[days.length - 1].date.toLocaleDateString('fr-FR', opts);
     return `${start} – ${end}`;
   }
 
@@ -123,5 +178,8 @@ const Dates = (() => {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   }
 
-  return { today, addDays, getStartFriday, getPlanningDays, formatKey, formatWeekRange, uid };
+  return {
+    today, addDays, getStartFriday, getStartAnchor, computeSpanSlots,
+    getPlanningDays, formatKey, formatWeekRange, uid,
+  };
 })();

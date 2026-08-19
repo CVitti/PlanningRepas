@@ -25,6 +25,8 @@ const App = (() => {
   /**
    * Initialise tous les composants dans l'ordre de leurs dépendances :
    *   Modal       → gestion des modales (doit être prêt avant les autres)
+   *   Settings    → réglages globaux (fenêtre de planning), lus par Dates
+   *                 dès le premier Planning.load() : doit être prêt avant
    *   Categories  → catégories d'ingrédients
    *   Units       → unités de mesure (dépend d'Ingredients/Shopping pour les
    *                 vérifications d'usage, mais expose son select avant eux)
@@ -35,6 +37,7 @@ const App = (() => {
    */
   function boot() {
     Modal.init();
+    Settings.init();
     Categories.init();
     Units.init();
     Ingredients.init();

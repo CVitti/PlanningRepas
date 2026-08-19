@@ -4,13 +4,15 @@
 
    Affiche et gère la grille de planification des repas.
 
-   Fenêtre de planning : vendredi S0 (soir) → vendredi S+1 (midi)
-   soit 8 jours (indices 0..7) avec deux créneaux par jour :
-     - Midi (☀)  — verrouillé le jour 0 (vendredi S0)
-     - Soir (🌙) — verrouillé le jour 7 (vendredi S+1)
+   Fenêtre de planning : configurable via Settings (⚙ du header), voir
+   js/utils/dates.js. Par défaut : vendredi soir S0 → vendredi midi S+1,
+   soit 14 repas sur 8 jours. La taille et les bornes de la fenêtre
+   dépendent entièrement de Dates.getPlanningDays() ; ce module ne fait
+   aucune hypothèse sur le nombre de jours ou le jour d'ancrage.
 
-   Les slots verrouillés appartiennent aux semaines adjacentes
-   et ne peuvent être ni modifiés ni vidés.
+   Les créneaux "verrouillés" (midiLocked/soirLocked) sont ceux hors de
+   la fenêtre configurée (ex: appartenant à une semaine adjacente) et
+   ne peuvent être ni modifiés ni vidés.
 
    Valeurs spéciales dans planningData[dateKey][slot] :
      '__free__' → repas libre (avec note optionnelle)
@@ -127,9 +129,11 @@ const Planning = (() => {
   /**
    * Supprime les entrées du planning antérieures à S-1.
    * Appelé au démarrage pour éviter une accumulation infinie de données.
+   * Le jour d'ancrage suit la configuration courante (Settings).
    */
   function purgeOldWeeks() {
-    const cutoff = Dates.formatKey(Dates.addDays(Dates.getStartFriday(), -7));
+    const startDow = (typeof Settings !== 'undefined') ? Settings.getPlanningWindow().startDow : 5;
+    const cutoff   = Dates.formatKey(Dates.addDays(Dates.getStartAnchor(startDow), -7));
     Object.keys(planningData).forEach(key => {
       if (key < cutoff) delete planningData[key];
     });
@@ -171,6 +175,21 @@ const Planning = (() => {
     show('btn-prev-week',    weekOffset !== -1); // caché si déjà à S-1
     show('btn-week-current', weekOffset !==  0); // caché si déjà sur la semaine courante
     show('btn-next-week',    weekOffset !==  1); // caché si déjà à S+1
+  }
+
+  /**
+   * Revient à la semaine courante et reconstruit entièrement la fenêtre
+   * de planning. Appelé par Settings après un changement de la fenêtre
+   * de planning (jour/créneau de début ou de fin), pour repartir sur
+   * une base cohérente plutôt que sur un weekOffset qui pourrait ne
+   * plus correspondre à la même réalité.
+   */
+  function reloadForSettingsChange() {
+    weekOffset = 0;
+    load();
+    purgeOldWeeks();
+    render();
+    updateLabel();
   }
 
   /* ── Compatibilité de créneau (génération automatique uniquement) ── */
@@ -941,5 +960,8 @@ const Planning = (() => {
   }
 
   /* ── API publique ── */
-  return { init, load, render, assignDish, clearSlot, FREE_MEAL, isUsedThisWeek, countUsedThisWeek };
+  return {
+    init, load, render, assignDish, clearSlot, FREE_MEAL, isUsedThisWeek, countUsedThisWeek,
+    reloadForSettingsChange,
+  };
 })();
