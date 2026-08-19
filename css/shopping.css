@@ -52,8 +52,8 @@
 }
 
 #sl-import-week-sel {
-  flex: 0 1 260px;
-  min-width: 180px;
+  flex: 0 1 340px;
+  min-width: 260px;
   cursor: pointer;
 }
 
