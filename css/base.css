@@ -272,6 +272,10 @@ select.input option { background: var(--bg-card); }
 
 .settings-window-row select { flex: 1; cursor: pointer; }
 
+/* Heures de créneau dépassé : select étroit, pas besoin de flex:1 */
+#settings-cutoff-midi,
+#settings-cutoff-soir { flex: 0 0 90px; }
+
 .settings-summary {
   font-size: .8rem;
   color: var(--accent);

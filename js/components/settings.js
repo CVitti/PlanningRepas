@@ -55,14 +55,18 @@ const Settings = (() => {
   /**
    * Applique les réglages saisis dans le formulaire et recharge tout
    * ce qui en dépend : planning (revient à la semaine courante,
-   * recalcule aussi les créneaux "passés"), sidebar, liste de courses.
+   * recalcule aussi les créneaux "passés"), sidebar, liste de courses
+   * (contenu + libellés de dates du sélecteur d'import).
    */
   function applySettings({ planningWindow, cutoffHours }) {
     data.planningWindow = { ...data.planningWindow, ...planningWindow };
     data.cutoffHours    = { ...data.cutoffHours,    ...cutoffHours };
     save();
     if (typeof Planning !== 'undefined') Planning.reloadForSettingsChange();
-    if (typeof Shopping !== 'undefined') Shopping.render();
+    if (typeof Shopping !== 'undefined') {
+      Shopping.populateImportWeekSelect();
+      Shopping.render();
+    }
   }
 
   /* ══════════════════════════════════════════════════════════

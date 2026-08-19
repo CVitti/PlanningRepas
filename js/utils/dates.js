@@ -168,6 +168,13 @@ const Dates = (() => {
     return `${start} – ${end}`;
   }
 
+  /** Date courte "JJ/MM", pour les libellés compacts (ex: sélecteur de semaine) */
+  function formatShort(date) {
+    const d = String(date.getDate()).padStart(2, '0');
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    return `${d}/${m}`;
+  }
+
   /* ── Générateur d'identifiants ── */
 
   /**
@@ -180,6 +187,6 @@ const Dates = (() => {
 
   return {
     today, addDays, getStartFriday, getStartAnchor, computeSpanSlots,
-    getPlanningDays, formatKey, formatWeekRange, uid,
+    getPlanningDays, formatKey, formatWeekRange, formatShort, uid,
   };
 })();

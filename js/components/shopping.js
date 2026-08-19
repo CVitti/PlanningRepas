@@ -328,14 +328,29 @@ const Shopping = (() => {
 
   /* ── Sélecteur de semaine et import ── */
 
-  function initImport() {
+  /** Libellé "Semaine du JJ/MM au JJ/MM (Préc./Cour./Suiv.)" pour un weekOffset donné */
+  function weekOptionLabel(offset, tag) {
+    const days  = Dates.getPlanningDays(offset);
+    const start = Dates.formatShort(days[0].date);
+    const end   = Dates.formatShort(days[days.length - 1].date);
+    return 'Semaine du ' + start + ' au ' + end + ' (' + tag + ')';
+  }
+
+  /** (Re)construit les options du sélecteur de semaine à importer */
+  function populateImportWeekSelect() {
     const sel = document.getElementById('sl-import-week-sel');
     if (!sel) return;
+    const prevSelected = sel.value || '0';
     sel.innerHTML =
-      '<option value="-1">Semaine précédente</option>' +
-      '<option value="0" selected>Semaine courante</option>' +
-      '<option value="1">Semaine suivante</option>';
+      '<option value="-1">' + weekOptionLabel(-1, 'Préc.') + '</option>' +
+      '<option value="0">'  + weekOptionLabel(0,  'Cour.') + '</option>' +
+      '<option value="1">'  + weekOptionLabel(1,  'Suiv.') + '</option>';
+    sel.value = prevSelected;
+  }
 
+  function initImport() {
+    populateImportWeekSelect();
+    const sel = document.getElementById('sl-import-week-sel');
     document.getElementById('btn-sl-import')
       ?.addEventListener('click', () => importFromWeek(parseInt(sel.value, 10)));
   }
@@ -362,5 +377,8 @@ const Shopping = (() => {
     initDeleteChecked();
   }
 
-  return { init, load, render, addItem, isUnitUsed, renameUnitReferences, refreshUnitSelects };
+  return {
+    init, load, render, addItem, isUnitUsed, renameUnitReferences, refreshUnitSelects,
+    populateImportWeekSelect,
+  };
 })();
