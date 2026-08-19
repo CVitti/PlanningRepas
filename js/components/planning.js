@@ -775,13 +775,14 @@ const Planning = (() => {
   function generateWeek() {
     if (!confirm('Générer les plats de la semaine ? Les repas libres seront conservés, les autres créneaux seront remplacés.')) return;
 
-    /* ── 1. Collecte des créneaux à remplir (non verrouillés, non libres) ── */
+    /* ── 1. Collecte des créneaux à remplir (non verrouillés, non libres, non passés) ── */
     const slots = [];
     days.forEach(dayInfo => {
       ['midi', 'soir'].forEach(slot => {
         if (slot === 'midi' && dayInfo.midiLocked) return;
         if (slot === 'soir' && dayInfo.soirLocked) return;
         if (planningData[dayInfo.key]?.[slot] === FREE_MEAL) return;
+        if (isPast(dayInfo.key, slot)) return; // ne jamais toucher un repas déjà passé
         slots.push({ dayInfo, slot });
       });
     });
