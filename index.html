@@ -152,7 +152,9 @@
           <form class="sl-add-form" id="sl-add-form">
             <input class="input" type="text" id="sl-add-name" placeholder="Nom de l'élément" required/>
             <input class="input" type="number" id="sl-add-qty" placeholder="Qté" min="0" step="0.1"/>
-            <input class="input" type="text" id="sl-add-unit" placeholder="Unité"/>
+            <select class="input" id="sl-add-unit" aria-label="Unité">
+              <option value="">— Sans unité —</option>
+            </select>
             <select class="input" id="sl-add-cat">
               <option value="">— Sans catégorie —</option>
             </select>
@@ -178,6 +180,7 @@
           <button class="catalog-tab active" data-tab="ingredients">Ingrédients</button>
           <button class="catalog-tab" data-tab="dishes">Plats</button>
           <button class="catalog-tab" data-tab="categories">Catégories</button>
+          <button class="catalog-tab" data-tab="units">Unités</button>
         </div>
         <div class="catalog-body">
 
@@ -186,25 +189,7 @@
           <div id="ing-form-wrap">
             <form class="form-row" id="form-ingredient">
               <input class="input" type="text" id="ing-name" placeholder="Nom de l'ingrédient" required aria-label="Nom de l'ingrédient"/>
-              <select class="input select-unit" id="ing-unit" aria-label="Unité de mesure">
-                <optgroup label="Poids">
-                  <option value="g">g</option>
-                  <option value="kg">kg</option>
-                </optgroup>
-                <optgroup label="Volume">
-                  <option value="ml">ml</option>
-                  <option value="cl">cl</option>
-                  <option value="l">l</option>
-                </optgroup>
-                <optgroup label="Cuisine">
-                  <option value="c. à s.">c. à s.</option>
-                  <option value="c. à c.">c. à c.</option>
-                  <option value="pincée">pincée</option>
-                </optgroup>
-                <optgroup label="Autre">
-                  <option value="unité">unité</option>
-                </optgroup>
-              </select>
+              <select class="input select-unit" id="ing-unit" aria-label="Unité de mesure"></select>
               <select class="input select-cat" id="ing-category" aria-label="Catégorie de l'ingrédient">
                 <option value="">— Sans catégorie —</option>
               </select>
@@ -280,6 +265,22 @@
             <button class="btn btn-ghost" type="button" id="btn-cancel-cat-edit" style="display:none">Annuler</button>
           </form>
           <div id="category-list"></div>
+        </div>
+
+        <!-- Panel: Unités -->
+        <div class="catalog-panel" id="panel-units">
+          <form class="form-row" id="form-unit">
+            <input class="input" type="text" id="unit-name" placeholder="Nom de l'unité (ex: sachet)" required aria-label="Nom de l'unité"/>
+            <select class="input select-unit-type" id="unit-type" aria-label="Type d'unité">
+              <option value="poids">Poids</option>
+              <option value="volume">Volume</option>
+              <option value="cuisine">Cuisine</option>
+              <option value="autre" selected>Autre</option>
+            </select>
+            <button class="btn btn-primary" type="submit" id="btn-unit-submit">Ajouter</button>
+            <button class="btn btn-ghost" type="button" id="btn-cancel-unit-edit" style="display:none">Annuler</button>
+          </form>
+          <div id="unit-list"></div>
         </div>
 
         <!-- Panel: Plats -->
@@ -374,12 +375,13 @@
   <script src="js/components/modal.js"></script>
   <script src="js/components/setup.js"></script>
   <script src="js/components/categories.js"></script>
+  <script src="js/components/units.js"></script>
   <script src="js/components/ingredients.js"></script>
   <script src="js/components/dishes.js"></script>
   <script src="js/components/planning.js"></script>
   <script src="js/components/sidebar.js"></script>
   <script src="js/components/shopping.js"></script>
   <script src="js/app.js"></script>
-  <div id="app-version">v1.6.3</div>
+  <div id="app-version">v1.7.0</div>
 </body>
 </html>

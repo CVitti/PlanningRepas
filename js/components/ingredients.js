@@ -36,28 +36,6 @@ const Ingredients = (() => {
   function getById(id) { return list.find(i => i.id === id) || null; }
   function getStep()   { return STEP; }
 
-  /* ── Groupes d'unités pour les <select> ── */
-  const UNIT_GROUPS = [
-    { label: 'Poids',   opts: ['g', 'kg'] },
-    { label: 'Volume',  opts: ['ml', 'cl', 'l'] },
-    { label: 'Cuisine', opts: ['c. à s.', 'c. à c.', 'pincée'] },
-    { label: 'Autre',   opts: ['unité'] },
-  ];
-
-  /**
-   * Génère le HTML des <optgroup> pour un <select> d'unité.
-   * selected : valeur pré-sélectionnée.
-   */
-  function unitOptionsHTML(selected) {
-    return UNIT_GROUPS.map(g =>
-      `<optgroup label="${g.label}">${
-        g.opts.map(o =>
-          `<option value="${o}"${o === selected ? ' selected' : ''}>${o}</option>`
-        ).join('')
-      }</optgroup>`
-    ).join('');
-  }
-
   /* ══════════════════════════════════════════════════════════
      LECTURE DU FORMULAIRE
      ══════════════════════════════════════════════════════════ */
@@ -239,9 +217,8 @@ const Ingredients = (() => {
 
     /* Champs de base */
     const nameEl = document.getElementById('ing-name');
-    const unitEl = document.getElementById('ing-unit');
     if (nameEl) { nameEl.value = ing.name; nameEl.focus(); nameEl.select(); }
-    if (unitEl)   unitEl.value = ing.unit;
+    renderUnitSelect(ing.unit);
 
     /* Catégorie */
     renderCategorySelect(ing.categoryId || '');
@@ -286,6 +263,7 @@ const Ingredients = (() => {
 
     /* Réinitialise les champs supplémentaires non couverts par form.reset() */
     renderCategorySelect(''); // remet sur "Sans catégorie"
+    renderUnitSelect(); // remet sur la première unité
     updateGpuRow('g'); // masque le champ gramsPerUnit
     document.getElementById('ing-nut-per').value = 100;
     NUT_KEYS.forEach(k => {
@@ -370,6 +348,16 @@ const Ingredients = (() => {
       ).join('');
   }
 
+  /**
+   * Reconstruit le <select id="ing-unit"> à partir des unités du catalogue
+   * (onglet "Unités"), groupées par type. selected : nom pré-sélectionné.
+   */
+  function renderUnitSelect(selected) {
+    const sel = document.getElementById('ing-unit');
+    if (!sel || typeof Units === 'undefined') return;
+    sel.innerHTML = Units.optionsHTML(selected);
+  }
+
   /* ── No-op de compatibilité ── */
   function populateDishSelect() {}
 
@@ -415,12 +403,12 @@ const Ingredients = (() => {
   }
 
   /** Charge les données, affiche la liste et active le formulaire */
-  function init() { load(); render(); initForm(); renderCategorySelect(); }
+  function init() { load(); render(); initForm(); renderCategorySelect(); renderUnitSelect(); }
 
   /* ── API publique ── */
   return {
-    init, load, getAll, getById, getStep, add, remove, render, populateDishSelect,
-    renderCategorySelect,
+    init, load, save, getAll, getById, getStep, add, remove, render, populateDishSelect,
+    renderCategorySelect, renderUnitSelect,
     /* Exposées pour les onclick inline générés dans render() */
     _startEdit: id => startEdit(id),
   };

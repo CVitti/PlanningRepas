@@ -25,6 +25,9 @@ const App = (() => {
   /**
    * Initialise tous les composants dans l'ordre de leurs dépendances :
    *   Modal       → gestion des modales (doit être prêt avant les autres)
+   *   Categories  → catégories d'ingrédients
+   *   Units       → unités de mesure (dépend d'Ingredients/Shopping pour les
+   *                 vérifications d'usage, mais expose son select avant eux)
    *   Ingredients → chargement de la liste d'ingrédients
    *   Dishes      → chargement des plats (dépend d'Ingredients)
    *   Planning    → grille + navigation hebdomadaire (dépend de Dishes)
@@ -33,6 +36,7 @@ const App = (() => {
   function boot() {
     Modal.init();
     Categories.init();
+    Units.init();
     Ingredients.init();
     Dishes.init();
     Planning.init();

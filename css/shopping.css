@@ -266,13 +266,13 @@
   }
 
   .sl-unit {
-    flex: 0 0 42px !important;
-    width: 42px !important;
-    padding: 5px 4px;
-    font-size: .78rem;
+    flex: 0 0 56px !important;
+    width: 56px !important;
+    padding: 5px 2px;
+    font-size: .72rem;
   }
-  /* Unité vide (placeholder affiché) → masquée pour ne pas prendre de place */
-  .sl-unit:placeholder-shown { display: none; }
+  /* Unité non définie (option vide sélectionnée) → masquée pour ne pas prendre de place */
+  .sl-unit:has(option[value=""]:checked) { display: none; }
 
   /* Catégorie toujours masquée sur mobile (déjà visible via l'en-tête de groupe) */
   .sl-cat-sel { display: none; }

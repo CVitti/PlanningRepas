@@ -859,6 +859,33 @@
   margin-top: 14px;
 }
 
+/* ── Unités — formulaire + liste groupée par type ── */
+.select-unit-type { flex: 0 0 140px; min-width: 110px; cursor: pointer; }
+
+#unit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 14px;
+}
+
+.unit-group-header {
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: var(--accent);
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.unit-group-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
 /* ════════════════════════════════════════════════════════════
    TABLEAU NUTRITIONNEL (plat)
    ════════════════════════════════════════════════════════════ */

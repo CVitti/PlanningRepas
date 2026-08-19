@@ -61,6 +61,29 @@ const Shopping = (() => {
     render();
   }
 
+  /* ── Intégration avec le catalogue d'unités (Units) ── */
+
+  /** true si au moins un item de la liste utilise cette unité (par nom) */
+  function isUnitUsed(unitName) {
+    return items.some(i => i.unit === unitName);
+  }
+
+  /** Met à jour par cascade les items référençant une unité renommée */
+  function renameUnitReferences(oldName, newName) {
+    let changed = false;
+    items.forEach(i => {
+      if (i.unit === oldName) { i.unit = newName; changed = true; }
+    });
+    if (changed) save();
+  }
+
+  /** Rafraîchit les <select> d'unité (formulaire d'ajout + items) après une modification du catalogue */
+  function refreshUnitSelects() {
+    const addSel = document.getElementById('sl-add-unit');
+    if (addSel) addSel.innerHTML = buildUnitOptions(addSel.value);
+    render(); // reconstruit les items avec les options d'unité à jour
+  }
+
   /* ── Import depuis le planning ── */
 
   /**
@@ -128,10 +151,17 @@ const Shopping = (() => {
       cats.map(c => '<option value="' + c.id + '"' + (c.id === selectedId ? ' selected' : '') + '>' + c.name + '</option>').join('');
   }
 
+  /** Options d'unité (catalogue Units), avec "Sans unité" en tête pour les items libres */
+  function buildUnitOptions(selectedUnit) {
+    const blank = '<option value="">— Sans unité —</option>';
+    const opts  = (typeof Units !== 'undefined') ? Units.optionsHTML(selectedUnit) : '';
+    return blank + opts;
+  }
+
   function buildItemHTML(item) {
     const cls      = 'sl-item' + (item.checked ? ' sl-checked' : '');
     const qtyVal   = item.qty !== null && item.qty !== undefined ? fmtQty(item.qty) : '';
-    const unitVal  = item.unit || '';
+    const unitOpts = buildUnitOptions(item.unit || '');
     const catOpts  = buildCatOptions(item.categoryId || '');
     return '<div class="' + cls + '" data-id="' + item.id + '">' +
       '<label class="sl-label">' +
@@ -140,7 +170,7 @@ const Shopping = (() => {
       '</label>' +
       '<div class="sl-controls">' +
       '<input type="number" class="input sl-qty" value="' + qtyVal + '" placeholder="qté" min="0" step="0.1">' +
-      '<input type="text" class="input sl-unit" value="' + unitVal + '" placeholder="unité">' +
+      '<select class="input sl-unit">' + unitOpts + '</select>' +
       '<select class="input sl-cat-sel">' + catOpts + '</select>' +
       '<button class="sl-rm" title="Supprimer">✕</button>' +
       '</div>' +
@@ -219,11 +249,11 @@ const Shopping = (() => {
         save();
       });
 
-      const unitInput = el.querySelector('.sl-unit');
-      unitInput.addEventListener('change', () => {
+      const unitSel = el.querySelector('.sl-unit');
+      unitSel.addEventListener('change', () => {
         const item = items.find(i => i.id === id);
         if (!item) return;
-        item.unit = unitInput.value.trim();
+        item.unit = unitSel.value;
         save();
       });
 
@@ -263,19 +293,24 @@ const Shopping = (() => {
     const form = document.getElementById('sl-add-form');
     if (!form) return;
 
-    /* Peuple le select de catégorie */
+    /* Peuple les select de catégorie et d'unité */
     const refreshCatSel = () => {
       const sel = document.getElementById('sl-add-cat');
       if (sel) sel.innerHTML = buildCatOptions('');
     };
+    const refreshUnitSel = () => {
+      const sel = document.getElementById('sl-add-unit');
+      if (sel) sel.innerHTML = buildUnitOptions('');
+    };
     refreshCatSel();
+    refreshUnitSel();
 
     form.addEventListener('submit', e => {
       e.preventDefault();
       const name = document.getElementById('sl-add-name').value.trim();
       if (!name) return;
       const qtyRaw = document.getElementById('sl-add-qty').value;
-      const unit   = document.getElementById('sl-add-unit').value.trim();
+      const unit   = document.getElementById('sl-add-unit').value;
       const catId  = document.getElementById('sl-add-cat').value;
       addItem({
         name,
@@ -286,6 +321,7 @@ const Shopping = (() => {
       save();
       form.reset();
       refreshCatSel();
+      refreshUnitSel();
       render();
     });
   }
@@ -326,5 +362,5 @@ const Shopping = (() => {
     initDeleteChecked();
   }
 
-  return { init, load, render, addItem };
+  return { init, load, render, addItem, isUnitUsed, renameUnitReferences, refreshUnitSelects };
 })();
